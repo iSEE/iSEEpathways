@@ -1,4 +1,4 @@
-# MyBioconductorPackage 0.99.0
+# iSEEpathways 0.99.0
 
 NEW FEATURES
 

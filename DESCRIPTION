@@ -1,18 +1,17 @@
-Package: MyBioconductorPackage
-Title: Demonstration of a Bioconductor Package
+Package: iSEEpathways
+Title: iSEE extension for panels related to pathway analysis
 Version: 0.99.0
-Date: 2022-05-10
+Date: 2022-12-02
 Authors@R: 
-    c(person("Kevin", "Rue", "Christophe", "kevinrue@users.noreply.github.com",
+    c(person("Kevin", "Rue-Albrecht", email = "kevinrue67@gmail.com",
              role = c("aut", "cre"),
              comment = c(ORCID = "0000-0003-3899-3872")))
-Description: This package demonstrates the set up of a Bioconductor-friendly
-    package using the packages usethis and biocthis. The setup includes the
-    initialisation of a git repository as well as the connection of the local
-    repository to the GitHub website.
+Description: This package contains diverse functionality to extend the usage
+    of the iSEE package, including additional classes for the panels or modes
+    facilitating the analysis of pathway analysis results.
 License: Artistic-2.0
-URL: https://github.com/kevinrue/MyBioconductorPackage
-BugReports: https://support.bioconductor.org/t/MyBioconductorPackage
+URL: https://github.com/iSEE/iSEEpathways
+BugReports: https://support.bioconductor.org/t/iSEEpathways
 biocViews: Software,
     Infrastructure
 Encoding: UTF-8

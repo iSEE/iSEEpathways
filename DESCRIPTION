@@ -33,6 +33,7 @@ Suggests:
     org.Hs.eg.db,
     RefManageR,
     rmarkdown,
+    scater,
     sessioninfo,
     SummarizedExperiment,
     testthat (>= 3.0.0)

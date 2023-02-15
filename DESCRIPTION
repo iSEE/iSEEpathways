@@ -25,6 +25,7 @@ Suggests:
     BiocStyle,
     covr,
     knitr,
+    org.Hs.eg.db,
     RefManageR,
     rmarkdown,
     sessioninfo,

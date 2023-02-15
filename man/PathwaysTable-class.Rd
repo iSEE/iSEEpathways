@@ -4,6 +4,13 @@
 \name{PathwaysTable-class}
 \alias{PathwaysTable-class}
 \alias{PathwaysTable}
+\alias{initialize,PathwaysTable-method}
+\alias{.createObservers,PathwaysTable-method}
+\alias{.fullName,PathwaysTable-method}
+\alias{.generateTable,PathwaysTable-method}
+\alias{.panelColor,PathwaysTable-method}
+\alias{.refineParameters,PathwaysTable-method}
+\alias{.showSelectionDetails,PathwaysTable-method}
 \title{The PathwaysTable class}
 \description{
 The \code{PathwaysTable} is a \linkS4class{Panel} where each row represents a set of features (i.e., rows).

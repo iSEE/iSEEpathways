@@ -20,7 +20,9 @@ RoxygenNote: 7.2.3
 Depends:
     iSEE
 Imports:
-    methods
+    methods,
+    S4Vectors,
+    shiny
 Suggests: 
     BiocStyle,
     covr,
@@ -31,7 +33,6 @@ Suggests:
     RefManageR,
     rmarkdown,
     sessioninfo,
-    shiny,
     SummarizedExperiment,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

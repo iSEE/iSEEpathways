@@ -5,6 +5,13 @@
 #' 
 #' @docType methods
 #' @aliases PathwaysTable PathwaysTable-class
+#' initialize,PathwaysTable-method
+#' .createObservers,PathwaysTable-method
+#' .fullName,PathwaysTable-method
+#' .generateTable,PathwaysTable-method
+#' .panelColor,PathwaysTable-method
+#' .refineParameters,PathwaysTable-method
+#' .showSelectionDetails,PathwaysTable-method
 #' 
 #' @name PathwaysTable-class
 #' 
@@ -35,7 +42,19 @@ setMethod(".panelColor", "PathwaysTable", function(x) "#BB00FF")
 setMethod(".fullName", "PathwaysTable", function(x) "Pathways Analysis Table")
 
 #' @export
+#' @importMethodsFrom methods initialize
+#' @importFrom methods callNextMethod
+setMethod("initialize", "PathwaysTable", function(.Object,
+                                                  ResultName = NA_character_, ...) {
+    args <- list(ResultName = ResultName, ...)
+    
+    do.call(callNextMethod, c(list(.Object), args))
+})
+
+#' @export
 #' @importMethodsFrom iSEE .refineParameters
+#' @importFrom iSEE .replaceMissingWithFirst
+#' @importFrom S4Vectors metadata
 setMethod(".refineParameters", "PathwaysTable", function(x, se) {
     x <- callNextMethod()
     if (is.null(x)) {
@@ -49,6 +68,7 @@ setMethod(".refineParameters", "PathwaysTable", function(x, se) {
 
 #' @export
 #' @importMethodsFrom iSEE .generateTable
+#' @importFrom iSEE .textEval
 setMethod(".generateTable", "PathwaysTable", function(x, envir) {
     cmds <-"tab <- as.data.frame(metadata(se)[['iSEEpathways']][['fgsea']]);"
     
@@ -59,6 +79,7 @@ setMethod(".generateTable", "PathwaysTable", function(x, envir) {
 
 #' @export
 #' @importMethodsFrom iSEE .showSelectionDetails
+#' @importFrom iSEE getAppOption .singleSelectionValue
 setMethod(".showSelectionDetails", "PathwaysTable", function(x) {
     FUN <- getAppOption("PathwaysTable.select.details")
     if (!is.null(FUN)) {
@@ -68,8 +89,9 @@ setMethod(".showSelectionDetails", "PathwaysTable", function(x) {
 
 #' @export
 #' @importMethodsFrom iSEE .createObservers
-#' @importFrom iSEE .getEncodedName
+#' @importFrom iSEE .getEncodedName .requestActiveSelectionUpdate
 #' @importFrom methods callNextMethod
+#' @importFrom shiny observeEvent
 setMethod(".createObservers", "PathwaysTable", function(x, se, input, session, pObjects, rObjects) {
     callNextMethod()
     panel_name <- .getEncodedName(x)

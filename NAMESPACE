@@ -2,5 +2,13 @@
 
 export(PathwaysTable)
 exportClasses(PathwaysTable)
+exportMethods(.fullName)
+exportMethods(.generateTable)
+exportMethods(.panelColor)
+exportMethods(.showSelectionDetails)
 importClassesFrom(iSEE,Table)
 importFrom(methods,new)
+importMethodsFrom(iSEE,.fullName)
+importMethodsFrom(iSEE,.generateTable)
+importMethodsFrom(iSEE,.panelColor)
+importMethodsFrom(iSEE,.showSelectionDetails)

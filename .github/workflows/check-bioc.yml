@@ -199,6 +199,7 @@ jobs:
       - name: Install dependencies from GitHub
         run: |
           BiocManager::install("iSEE/iSEEde", dependencies = TRUE)
+        shell: Rscript {0}
 
       - name: Install dependencies pass 2
         run: |

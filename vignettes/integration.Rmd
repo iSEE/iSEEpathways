@@ -106,7 +106,7 @@ res_limma <- topTable(tmp, sort.by = "P", n = Inf)
 head(res_limma)
 ```
 
-Then, we embed this set of differential expression results in the airway object using the `embedResults()` method.
+Then, we embed this set of differential expression results in the `?airway` object using the `embedResults()` method.
 
 ```{r}
 library(iSEEde)
@@ -115,6 +115,7 @@ rowData(airway)
 ```
 
 We prepare Gene Ontology gene sets using `r BiocStyle::Biocpkg("org.Hs.eg.db")`.
+We store the list of gene sets in the metadata of the `?airway` object.
 
 ```{r}
 library("org.Hs.eg.db")
@@ -122,6 +123,7 @@ pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "SYMBOL"), c("GOALL"), keyty
 pathways <- subset(pathways, ONTOLOGYALL == "BP")
 pathways <- unique(pathways[, c("SYMBOL", "GOALL")])
 pathways <- split(pathways$SYMBOL, pathways$GOALL)
+airway <- registerAppOptions(airway, Pathways = list(GO = pathways))
 ```
 
 We run a standard GSEA analysis using `r BiocStyle::Biocpkg("fgsea")`.
@@ -138,13 +140,13 @@ head(fgseaRes[order(pval), ])
 
 We embed this set of pathway analysis results in the airway object (manually for now).
 
-But first, we reoder the results by increasing p-value, convert the `?data.table` to a `?data.frame`, and set the `rownames` to the pathway identifier.
+But first, we reorder the results by increasing p-value, convert the `?data.table` to a `?data.frame`, and set the `rownames` to the pathway identifier.
 
 ```{r}
 fgseaRes <- fgseaRes[order(pval), ]
 fgseaRes <- as.data.frame(fgseaRes)
 rownames(fgseaRes) <- fgseaRes$pathway
-metadata(airway) <- list("iSEEpathways" = list("fgsea" = fgseaRes))
+metadata(airway)[["iSEEpathways"]] <- list("fgsea" = fgseaRes)
 ```
 
 We define and register a function that displays details for the selected Gene Ontology gene set.
@@ -182,7 +184,7 @@ if (interactive()) {
 ```
 
 ```{r, echo=FALSE, out.width="100%"}
-SCREENSHOT("screenshots/integration.png", delay=20)
+SCREENSHOT("screenshots/integration.png", delay=30)
 ```
 
 

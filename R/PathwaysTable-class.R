@@ -117,10 +117,11 @@ setMethod(".multiSelectionDimension", "PathwaysTable", function(x) "row")
 #' @export
 #' @importMethodsFrom iSEE .multiSelectionCommands
 setMethod(".multiSelectionCommands", "PathwaysTable", function(x, index) {
+    # TODO: replace hard-coded 'GO'
     c(
         sprintf(".pathway_id <- %s;", deparse(x[["Selected"]])),
-        # TODO: replace hard-coded 'pathways'
-        "selected <- pathways[[.pathway_id]]"
+        'pathways <- getAppOption("Pathways", se)[["GO"]]',
+        "selected <- pathways[[.pathway_id]]" # TODO
     )
 })
 

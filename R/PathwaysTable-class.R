@@ -35,6 +35,19 @@ setMethod(".panelColor", "PathwaysTable", function(x) "#BB00FF")
 setMethod(".fullName", "PathwaysTable", function(x) "Pathways Analysis Table")
 
 #' @export
+#' @importMethodsFrom iSEE .refineParameters
+setMethod(".refineParameters", "PathwaysTable", function(x, se) {
+    x <- callNextMethod()
+    if (is.null(x)) {
+        return(NULL)
+    }
+    
+    x <- .replaceMissingWithFirst(x, iSEE:::.TableSelected, rownames(metadata(se)[["iSEEpathways"]][["fgsea"]])) 
+    
+    x
+})
+
+#' @export
 #' @importMethodsFrom iSEE .generateTable
 setMethod(".generateTable", "PathwaysTable", function(x, envir) {
     cmds <-"tab <- as.data.frame(metadata(se)[['iSEEpathways']][['fgsea']]);"

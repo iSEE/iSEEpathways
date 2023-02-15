@@ -196,6 +196,10 @@ jobs:
         continue-on-error: true
         shell: Rscript {0}
 
+      - name: Install dependencies from GitHub
+        run: |
+          remotes::install_github("iSEE/iSEEde", dependencies = TRUE, repos = BiocManager::repositories(), build_vignettes = TRUE, upgrade = TRUE, force = TRUE)
+
       - name: Install dependencies pass 2
         run: |
           ## Pass #2 at installing dependencies

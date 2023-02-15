@@ -9,6 +9,9 @@
 #' .createObservers,PathwaysTable-method
 #' .fullName,PathwaysTable-method
 #' .generateTable,PathwaysTable-method
+#' .multiSelectionActive,PathwaysTable-method
+#' .multiSelectionCommands,PathwaysTable-method
+#' .multiSelectionDimension,PathwaysTable-method
 #' .panelColor,PathwaysTable-method
 #' .refineParameters,PathwaysTable-method
 #' .showSelectionDetails,PathwaysTable-method
@@ -105,4 +108,28 @@ setMethod(".createObservers", "PathwaysTable", function(x, se, input, session, p
         .requestActiveSelectionUpdate(panel_name, session=session, pObjects=pObjects,
                                       rObjects=rObjects, update_output=FALSE)
     })
+})
+
+#' @export
+#' @importMethodsFrom iSEE .multiSelectionDimension
+setMethod(".multiSelectionDimension", "PathwaysTable", function(x) "row")
+
+#' @export
+#' @importMethodsFrom iSEE .multiSelectionCommands
+setMethod(".multiSelectionCommands", "PathwaysTable", function(x, index) {
+    c(
+        sprintf(".pathway_id <- %s;", deparse(x[["Selected"]])),
+        # TODO: replace hard-coded 'pathways'
+        "selected <- pathways[[.pathway_id]]"
+    )
+})
+
+#' @export
+#' @importMethodsFrom iSEE .multiSelectionActive
+setMethod(".multiSelectionActive", "PathwaysTable", function(x) {
+    if (nzchar(x[["Selected"]])) {
+        x[["Selected"]]
+    } else {
+        NULL
+    }
 })

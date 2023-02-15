@@ -8,6 +8,9 @@
 \alias{.createObservers,PathwaysTable-method}
 \alias{.fullName,PathwaysTable-method}
 \alias{.generateTable,PathwaysTable-method}
+\alias{.multiSelectionActive,PathwaysTable-method}
+\alias{.multiSelectionCommands,PathwaysTable-method}
+\alias{.multiSelectionDimension,PathwaysTable-method}
 \alias{.panelColor,PathwaysTable-method}
 \alias{.refineParameters,PathwaysTable-method}
 \alias{.showSelectionDetails,PathwaysTable-method}

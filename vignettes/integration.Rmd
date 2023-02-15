@@ -109,7 +109,7 @@ head(res_limma)
 Then, we embed this set of differential expression results in the `?airway` object using the `embedResults()` method.
 
 ```{r}
-library(iSEEde)
+library("iSEEde")
 airway <- embedResults(res_limma, airway, name = "Limma-Voom", class = "limma")
 rowData(airway)
 ```

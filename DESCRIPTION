@@ -23,7 +23,8 @@ Imports:
     methods,
     S4Vectors,
     shiny
-Suggests: 
+Suggests:
+    airway,
     BiocStyle,
     covr,
     fgsea,

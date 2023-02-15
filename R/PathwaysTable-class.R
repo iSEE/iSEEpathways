@@ -69,6 +69,7 @@ setMethod(".showSelectionDetails", "PathwaysTable", function(x) {
 #' @export
 #' @importMethodsFrom iSEE .createObservers
 #' @importFrom iSEE .getEncodedName
+#' @importFrom methods callNextMethod
 setMethod(".createObservers", "PathwaysTable", function(x, se, input, session, pObjects, rObjects) {
     callNextMethod()
     panel_name <- .getEncodedName(x)

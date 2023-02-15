@@ -65,3 +65,21 @@ setMethod(".showSelectionDetails", "PathwaysTable", function(x) {
         FUN(.singleSelectionValue(x))
     }
 })
+
+#' @export
+#' @importMethodsFrom iSEE .createObservers
+#' @importFrom iSEE .getEncodedName
+setMethod(".createObservers", "PathwaysTable", function(x, se, input, session, pObjects, rObjects) {
+    callNextMethod()
+    panel_name <- .getEncodedName(x)
+    single_name <- paste0(panel_name, "_", iSEE:::.flagSingleSelect)
+    
+    select_field <- paste0(panel_name, iSEE:::.int_statTableSelected)
+    observeEvent(input[[select_field]], {
+        # Single-selection reactive updates the selection details
+        iSEE:::.safe_reactive_bump(rObjects, single_name)
+        # trigger re-rendering of downstream panels
+        .requestActiveSelectionUpdate(panel_name, session=session, pObjects=pObjects,
+                                      rObjects=rObjects, update_output=FALSE)
+    })
+})

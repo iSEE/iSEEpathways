@@ -198,7 +198,7 @@ jobs:
 
       - name: Install dependencies from GitHub
         run: |
-          remotes::install_github("iSEE/iSEEde", dependencies = TRUE, repos = BiocManager::repositories(), build_vignettes = TRUE, upgrade = TRUE, force = TRUE)
+          BiocManager::install("iSEE/iSEEde", dependencies = TRUE)
 
       - name: Install dependencies pass 2
         run: |

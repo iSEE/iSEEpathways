@@ -24,11 +24,15 @@ Imports:
 Suggests: 
     BiocStyle,
     covr,
+    fgsea,
+    GO.db,
     knitr,
     org.Hs.eg.db,
     RefManageR,
     rmarkdown,
     sessioninfo,
+    shiny,
+    SummarizedExperiment,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr

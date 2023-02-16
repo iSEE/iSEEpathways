@@ -26,7 +26,7 @@ embedPathwaysResultsMethods <- c(
 }
 
 #' @export
-#' 
+#'
 #' @param x Object to be embedded.
 #' @param se A \linkS4class{SummarizedExperiment} object.
 #' @param name Identifier for the embedded object.

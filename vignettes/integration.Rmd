@@ -146,7 +146,8 @@ But first, we reorder the results by increasing p-value, convert the `?data.tabl
 fgseaRes <- fgseaRes[order(pval), ]
 fgseaRes <- as.data.frame(fgseaRes)
 rownames(fgseaRes) <- fgseaRes$pathway
-metadata(airway)[["iSEEpathways"]] <- list("fgsea" = fgseaRes)
+airway <- embedPathwaysResults(fgseaRes, airway, name = "fgsea", class = "fgsea")
+airway
 ```
 
 We define and register a function that displays details for the selected Gene Ontology gene set.

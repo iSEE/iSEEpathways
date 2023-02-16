@@ -13,10 +13,16 @@
     <loc>/SUPPORT.html</loc>
   </url>
   <url>
+    <loc>/articles/gene-ontology.html</loc>
+  </url>
+  <url>
     <loc>/articles/iSEEpathways.html</loc>
   </url>
   <url>
     <loc>/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>/articles/integration.html</loc>
   </url>
   <url>
     <loc>/authors.html</loc>
@@ -26,6 +32,9 @@
   </url>
   <url>
     <loc>/news/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/PathwaysTable-class.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>

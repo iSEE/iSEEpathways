@@ -22,7 +22,8 @@ Depends:
 Imports:
     methods,
     S4Vectors,
-    shiny
+    shiny,
+    SummarizedExperiment
 Suggests:
     airway,
     BiocStyle,
@@ -38,7 +39,6 @@ Suggests:
     scater,
     scuttle,
     sessioninfo,
-    SummarizedExperiment,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr

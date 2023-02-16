@@ -55,7 +55,7 @@ names(gene_stats) <- gene_symbols
 ##
 
 set.seed(42)
-fgseaRes <- fgsea(pathways = pathways, 
+fgseaRes <- fgsea(pathways = pathways,
                   stats    = gene_stats,
                   minSize  = 15,
                   maxSize  = 500)

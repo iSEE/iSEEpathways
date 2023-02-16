@@ -115,7 +115,6 @@ rowData(airway)
 ```
 
 We prepare Gene Ontology gene sets using `r BiocStyle::Biocpkg("org.Hs.eg.db")`.
-We store the list of gene sets in the metadata of the `?airway` object.
 
 ```{r}
 library("org.Hs.eg.db")
@@ -123,8 +122,17 @@ pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "SYMBOL"), c("GOALL"), keyty
 pathways <- subset(pathways, ONTOLOGYALL == "BP")
 pathways <- unique(pathways[, c("SYMBOL", "GOALL")])
 pathways <- split(pathways$SYMBOL, pathways$GOALL)
-airway <- registerAppOptions(airway, Pathways = list(GO = pathways))
 ```
+
+Separately, we define and register a function that fetches the gene identifiers associated with a given pathway identifier.
+
+```{r}
+map_GO <- function(pathway_id) {
+    select(org.Hs.eg.db::org.Hs.eg.db, pathway_id, "SYMBOL", keytype = "GOALL")[["SYMBOL"]]
+}
+airway <- registerAppOptions(airway, Pathways.map.functions = list(GO = map_GO))
+```
+
 
 We run a standard GSEA analysis using `r BiocStyle::Biocpkg("fgsea")`.
 
@@ -143,6 +151,7 @@ We embed this set of pathway analysis results in the airway object (manually for
 But first, we reorder the results by increasing p-value, convert the `?data.table` to a `?data.frame`, and set the `rownames` to the pathway identifier.
 
 ```{r}
+library("iSEEpathways")
 fgseaRes <- fgseaRes[order(pval), ]
 fgseaRes <- as.data.frame(fgseaRes)
 rownames(fgseaRes) <- fgseaRes$pathway
@@ -169,7 +178,6 @@ airway <- registerAppOptions(airway, PathwaysTable.select.details = go_details)
 
 
 ```{r "start", message=FALSE, warning=FALSE}
-library("iSEEpathways")
 app <- iSEE(airway, initial = list(
   PathwaysTable(ResultName="fgsea", PanelWidth = 4L),
   VolcanoPlot(RowSelectionSource = "PathwaysTable1", PanelWidth = 4L),

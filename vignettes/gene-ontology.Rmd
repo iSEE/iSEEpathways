@@ -1,5 +1,5 @@
 ---
-title: "Introduction to iSEEpathways"
+title: "Working with the Gene Ontology"
 author: 
   - name: Kevin Rue-Albrecht
     affiliation:
@@ -15,7 +15,7 @@ output:
 date: "`r doc_date()`"
 package: "`r pkg_ver('iSEEpathways')`"
 vignette: >
-  %\VignetteIndexEntry{Introduction to iSEEpathways}
+  %\VignetteIndexEntry{Working with the Gene Ontology}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}  
 ---
@@ -52,50 +52,13 @@ bib <- c(
 )
 ```
 
-# Basics
+# Example data
 
-## Install `iSEEpathways`
+Generate pathway analysis results using `r BiocStyle::Biocpkg("fgsea")`.
 
-`R` is an open-source statistical environment which can be easily modified to enhance its functionality via packages. `r Biocpkg("iSEEpathways")` is a `R` package available via the [Bioconductor](http://bioconductor.org) repository for packages. `R` can be installed on any operating system from [CRAN](https://cran.r-project.org/) after which you can install `r Biocpkg("iSEEpathways")` by using the following commands in your `R` session:
-
-```{r "install", eval = FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE)) {
-      install.packages("BiocManager")
-  }
-
-BiocManager::install("iSEEpathways")
-
-## Check that you have a valid Bioconductor installation
-BiocManager::valid()
-```
-
-## Required knowledge
-
-`r Biocpkg("iSEEpathways")` is based on many other packages and in particular in those that have implemented the infrastructure needed for dealing with omics data and interactive visualisation.
-That is, packages like `r BiocStyle::Biocpkg("SummarizedExperiment")`, `r BiocStyle::Biocpkg("SingleCellExperiment")`, `r BiocStyle::Biocpkg("iSEE")` and `r BiocStyle::Biocpkg("shiny")`.
-
-If you are asking yourself the question "Where do I start using Bioconductor?" you might be interested in [this blog post](http://lcolladotor.github.io/2014/10/16/startbioc/#.VkOKbq6rRuU).
-
-## Asking for help
-
-As package developers, we try to explain clearly how to use our packages and in which order to use the functions. But `R` and `Bioconductor` have a steep learning curve so it is critical to learn where to ask for help. The blog post quoted above mentions some but we would like to highlight the [Bioconductor support site](https://support.bioconductor.org/) as the main resource for getting help: remember to use the `iSEEpathways` tag and check [the older posts](https://support.bioconductor.org/t/iSEEpathways/). Other alternatives are available such as creating GitHub issues and tweeting. However, please note that if you want to receive help you should adhere to the [posting guidelines](http://www.bioconductor.org/help/support/posting-guide/). It is particularly critical that you provide a small reproducible example and your session information so package developers can track down the source of the error.
-
-## Citing `iSEEpathways`
-
-We hope that `r Biocpkg("iSEEpathways")` will be useful for your research. Please use the following information to cite the package and the overall approach. Thank you!
-
-```{r "citation"}
-## Citation info
-citation("iSEEpathways")
-```
-
-# Quick start to using to `iSEEpathways`
-
-```{r "start", message=FALSE}
-library("iSEEpathways")
+```{r "start", message=FALSE, warning=FALSE}
 library("org.Hs.eg.db")
 library("fgsea")
-library("iSEE")
 
 # Example data ----
 
@@ -126,9 +89,13 @@ fgseaRes <- fgsea(pathways = pathways,
                   minSize  = 15,
                   maxSize  = 500)
 head(fgseaRes[order(pval), ])
+```
 
-# iSEE ---
+Embed the `r BiocStyle::Biocpkg("fgsea")` results in the `r BiocStyle::Biocpkg("SummarizedExperiment")` object.
 
+```{r, message=FALSE, warning=FALSE}
+library("SummarizedExperiment")
+library("iSEEpathways")
 ngenes <- length(feature_stats)
 cnts <- matrix(rnbinom(n=ngenes*2, mu=100, size=1/0.5), nrow=ngenes)
 rownames(cnts) <- names(feature_stats)
@@ -137,7 +104,31 @@ se <- SummarizedExperiment(assay = list(counts = cnts))
 fgseaRes <- as.data.frame(fgseaRes)
 rownames(fgseaRes) <- fgseaRes$pathway
 metadata(se) <- list("iSEEpathways" = list("fgsea" = fgseaRes))
+```
 
+## Live app
+
+Configure the app option `PathwaysTable.select.details` to define a function that display information about the currently selected GO term.
+
+```{r, message=FALSE, warning=FALSE}
+library("iSEE")
+library("GO.db")
+library("shiny")
+go_details <- function(x) {
+    info <- select(GO.db, x, c("TERM", "ONTOLOGY", "DEFINITION"), "GOID")
+    html <- list(p(strong(info$GOID), ":", info$TERM, paste0("(", info$ONTOLOGY, ")")))
+    if (!is.na(info$DEFINITION)) {
+        html <- append(html, list(p(info$DEFINITION)))
+    }
+    tagList(html)
+}
+se <- registerAppOptions(se, PathwaysTable.select.details = go_details)
+```
+
+Configure the app initial state and launch the live app.
+
+
+```{r, message=FALSE}
 app <- iSEE(se, initial = list(
   PathwaysTable(ResultName="fgsea", PanelWidth = 12L)
 ))
@@ -148,7 +139,7 @@ if (interactive()) {
 ```
 
 ```{r, echo=FALSE, out.width="100%"}
-SCREENSHOT("screenshots/get_started.png", delay=20)
+SCREENSHOT("screenshots/gene_ontology.png", delay=20)
 ```
 
 
@@ -172,11 +163,11 @@ Code for creating the vignette
 ```{r createVignette, eval=FALSE}
 ## Create the vignette
 library("rmarkdown")
-system.time(render("iSEEpathways.Rmd", "BiocStyle::html_document"))
+system.time(render("gene-ontology.Rmd", "BiocStyle::html_document"))
 
 ## Extract the R code
 library("knitr")
-knit("iSEEpathways.Rmd", tangle = TRUE)
+knit("gene-ontology.Rmd", tangle = TRUE)
 ```
 
 Date the vignette was generated.

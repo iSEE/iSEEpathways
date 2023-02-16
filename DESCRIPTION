@@ -16,14 +16,31 @@ biocViews: Software,
     Infrastructure
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
-Suggests: 
+RoxygenNote: 7.2.3
+Depends:
+    iSEE
+Imports:
+    methods,
+    S4Vectors,
+    shiny
+Suggests:
+    airway,
     BiocStyle,
     covr,
+    edgeR,
+    fgsea,
+    GO.db,
+    iSEEde,
     knitr,
+    org.Hs.eg.db,
     RefManageR,
     rmarkdown,
+    scater,
+    scuttle,
     sessioninfo,
+    SummarizedExperiment,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Remotes:
+    iSEE/iSEEde

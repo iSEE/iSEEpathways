@@ -120,8 +120,8 @@ setMethod(".multiSelectionCommands", "PathwaysTable", function(x, index) {
     # TODO: replace hard-coded 'GO'; dynamically detect class of pathway analysis results
     c(
         sprintf(".pathway_id <- %s;", deparse(x[["Selected"]])),
-        'FUN <- getAppOption("Pathways.map.functions")[["GO"]]',
-        "selected <- FUN(.pathway_id)"
+        'FUN <- getAppOption("Pathways.map.functions", se)[["GO"]]',
+        "selected <- FUN(.pathway_id, se)"
     )
 })
 

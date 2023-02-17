@@ -55,7 +55,7 @@ names(gene_stats) <- gene_symbols
 ##
 
 set.seed(42)
-fgseaRes <- fgsea(pathways = pathways, 
+fgseaRes <- fgsea(pathways = pathways,
                   stats    = gene_stats,
                   minSize  = 15,
                   maxSize  = 500)
@@ -69,7 +69,7 @@ head(fgseaRes[order(pval), ])
 se <- SummarizedExperiment()
 
 # Package the results in a iSEEfgseaResults object
-iseefgsea_table <- iSEEfgseaResults(fgseaRes)
+iseefgsea_table <- iSEEfgseaResults(as.data.frame(fgseaRes))
 
 se <- embedPathwaysResults(iseefgsea_table, se, name = "fgsea")
 

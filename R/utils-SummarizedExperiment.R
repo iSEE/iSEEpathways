@@ -50,7 +50,7 @@ setMethod("embedPathwaysResults", "data.frame", function(x, se, name, class, ...
         stop(paste(strwrap(msg), collapse = "\n"))
     }
     constructor <- get(embedPathwaysResultsMethods[class])
-    res <- constructor(x, row.names = rownames(se))
+    res <- constructor(x)
     embedPathwaysResults(res, se, name, ...)
 })
 

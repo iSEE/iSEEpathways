@@ -115,7 +115,6 @@ rowData(airway)
 ```
 
 We prepare Gene Ontology gene sets using `r BiocStyle::Biocpkg("org.Hs.eg.db")`.
-We store the list of gene sets in the metadata of the `?airway` object.
 
 ```{r}
 library("org.Hs.eg.db")
@@ -123,7 +122,17 @@ pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "SYMBOL"), c("GOALL"), keyty
 pathways <- subset(pathways, ONTOLOGYALL == "BP")
 pathways <- unique(pathways[, c("SYMBOL", "GOALL")])
 pathways <- split(pathways$SYMBOL, pathways$GOALL)
-airway <- registerAppOptions(airway, Pathways = list(GO = pathways))
+```
+
+Separately, we define and register a function that fetches the gene identifiers associated with a given pathway identifier.
+The function definition must include an ellipsis to accommodate optional arguments passed to other variants of the function.
+For instance, see section [Trading off memory usage for speed](#speed-mapping).
+
+```{r}
+map_GO <- function(pathway_id, ...) {
+    select(org.Hs.eg.db::org.Hs.eg.db, pathway_id, "SYMBOL", keytype = "GOALL")[["SYMBOL"]]
+}
+airway <- registerAppOptions(airway, Pathways.map.functions = list(GO = map_GO))
 ```
 
 We run a standard GSEA analysis using `r BiocStyle::Biocpkg("fgsea")`.
@@ -143,6 +152,7 @@ We embed this set of pathway analysis results in the airway object (manually for
 But first, we reorder the results by increasing p-value, convert the `?data.table` to a `?data.frame`, and set the `rownames` to the pathway identifier.
 
 ```{r}
+library("iSEEpathways")
 fgseaRes <- fgseaRes[order(pval), ]
 fgseaRes <- as.data.frame(fgseaRes)
 rownames(fgseaRes) <- fgseaRes$pathway
@@ -169,7 +179,6 @@ airway <- registerAppOptions(airway, PathwaysTable.select.details = go_details)
 
 
 ```{r "start", message=FALSE, warning=FALSE}
-library("iSEEpathways")
 app <- iSEE(airway, initial = list(
   PathwaysTable(ResultName="fgsea", PanelWidth = 4L),
   VolcanoPlot(RowSelectionSource = "PathwaysTable1", PanelWidth = 4L),
@@ -186,6 +195,54 @@ if (interactive()) {
 
 ```{r, echo=FALSE, out.width="100%"}
 SCREENSHOT("screenshots/integration.png", delay=30)
+```
+
+
+# Trading off memory usage for speed {#speed-mapping}
+
+The function `map_GO()` that we defined earlier to map a pathway identifier to a set of gene identifiers uses the `r BiocStyle::Biocpkg("org.Hs.eg.db")` package and the `?AnnotationDbi::select()` function.
+
+While memory-efficient, the repeated calls to the database of gene annotations introduce a bottleneck that limits the reactivity of the app.
+
+We can restore the speed of the app rendering by trading off an increased memory usage.
+Specifically, we can use the object `pathways` that we also created earlier as a named list of pathway identifiers and character vectors of gene identifiers associated with each pathway.
+
+First, for the app to be self-contained, the list of pathways should be stored within the `airway` object itself.
+
+```{r}
+metadata(airway)[["pathways"]] <- list(GO = pathways)
+```
+
+Then, we can write a new faster function that fetches gene identifiers directly from that list rather than the database.
+The function should take as first argument a single pathway identifier, and the second argument must be called `se` to match the name of the `SummarizedExperiment` object used within the app.
+As a a trade off, the app now relies on the list of pathway annotations being available as an object in the <i class="fab fa-r-project"></i> session, using additional memory for the benefit of dramatically faster access.
+
+```{r}
+map_GO_v2 <- function(pathway_id, se) {
+    metadata(se)[["pathways"]][["GO"]][[pathway_id]]
+}
+airway <- registerAppOptions(airway, Pathways.map.functions = list(GO = map_GO_v2))
+```
+
+We can then launch a new instance of the app, using the same initial configuration, but the update `airway` object.
+
+```{r "faster", message=FALSE, warning=FALSE}
+app <- iSEE(airway, initial = list(
+  PathwaysTable(ResultName="fgsea", PanelWidth = 4L),
+  VolcanoPlot(RowSelectionSource = "PathwaysTable1", PanelWidth = 4L),
+  ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
+      PanelWidth = 4L, PanelHeight = 700L,
+      CustomRows = FALSE, ColumnData = "dex",
+      ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE)
+))
+
+if (interactive()) {
+  shiny::runApp(app)
+}
+```
+
+```{r, echo=FALSE, out.width="100%"}
+SCREENSHOT("screenshots/integration-faster.png", delay=20)
 ```
 
 

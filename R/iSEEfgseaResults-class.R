@@ -29,16 +29,16 @@
 #' library("org.Hs.eg.db")
 #' library("fgsea")
 #' library("SummarizedExperiment")
-#' 
+#'
 #' ##
 #' # Prepare pathways
 #' ##
-#' 
+#'
 #' pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "SYMBOL"), c("GOALL"), keytype = "SYMBOL")
 #' pathways <- subset(pathways, ONTOLOGYALL == "BP")
 #' pathways <- unique(pathways[, c("SYMBOL", "GOALL")])
 #' pathways <- split(pathways$SYMBOL, pathways$GOALL)
-#' 
+#'
 #' ##
 #' # Prepare gene statistics
 #' ##
@@ -51,7 +51,7 @@
 #' ##
 #'
 #' set.seed(42)
-#' fgseaRes <- fgsea(pathways = pathways, 
+#' fgseaRes <- fgsea(pathways = pathways,
 #'                   stats    = gene_stats,
 #'                   minSize  = 15,
 #'                   maxSize  = 500)
@@ -65,8 +65,8 @@
 #' se <- SummarizedExperiment()
 #'
 #' # Package the results in a iSEEfgseaResults object
-#' iseefgsea_table <- iSEEfgseaResults(fgseaRes)
-#' 
+#' iseefgsea_table <- iSEEfgseaResults(as.data.frame(fgseaRes))
+#'
 #' se <- embedPathwaysResults(iseefgsea_table, se, name = "fgsea")
 #'
 #' se
@@ -83,8 +83,6 @@ setClass("iSEEfgseaResults", contains = "DFrame")
 #' @export
 #' @importFrom methods new
 #' @importFrom S4Vectors DataFrame
-iSEEfgseaResults <- function(data, row.names = rownames(data)) {
-    df <- DataFrame(row.names = row.names)
-    df[rownames(data), colnames(data)] <- data
-    new("iSEEfgseaResults", df)
+iSEEfgseaResults <- function(data) {
+    new("iSEEfgseaResults", data)
 }

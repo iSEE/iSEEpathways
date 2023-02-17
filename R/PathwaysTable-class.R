@@ -1,8 +1,8 @@
 #' The PathwaysTable class
-#' 
+#'
 #' The `PathwaysTable` is a \linkS4class{Panel} where each row represents a set of features (i.e., rows).
 #' Selections in this panel can be transmitted to other row-oriented panels.
-#' 
+#'
 #' @docType methods
 #' @aliases PathwaysTable PathwaysTable-class
 #' initialize,PathwaysTable-method
@@ -15,10 +15,10 @@
 #' .panelColor,PathwaysTable-method
 #' .refineParameters,PathwaysTable-method
 #' .showSelectionDetails,PathwaysTable-method
-#' 
+#'
 #' @name PathwaysTable-class
-#' 
-#' @examples 
+#'
+#' @examples
 #' x <- PathwaysTable(ResultName="fgsea")
 NULL
 
@@ -50,7 +50,7 @@ setMethod(".fullName", "PathwaysTable", function(x) "Pathways Analysis Table")
 setMethod("initialize", "PathwaysTable", function(.Object,
                                                   ResultName = NA_character_, ...) {
     args <- list(ResultName = ResultName, ...)
-    
+
     do.call(callNextMethod, c(list(.Object), args))
 })
 
@@ -63,9 +63,9 @@ setMethod(".refineParameters", "PathwaysTable", function(x, se) {
     if (is.null(x)) {
         return(NULL)
     }
-    
-    x <- .replaceMissingWithFirst(x, iSEE:::.TableSelected, rownames(metadata(se)[["iSEEpathways"]][["fgsea"]])) 
-    
+
+    x <- .replaceMissingWithFirst(x, iSEE:::.TableSelected, rownames(metadata(se)[["iSEEpathways"]][["fgsea"]]))
+
     x
 })
 
@@ -74,9 +74,9 @@ setMethod(".refineParameters", "PathwaysTable", function(x, se) {
 #' @importFrom iSEE .textEval
 setMethod(".generateTable", "PathwaysTable", function(x, envir) {
     cmds <-"tab <- as.data.frame(metadata(se)[['iSEEpathways']][['fgsea']]);"
-    
+
     .textEval(cmds, envir)
-    
+
     cmds
 })
 
@@ -99,7 +99,7 @@ setMethod(".createObservers", "PathwaysTable", function(x, se, input, session, p
     callNextMethod()
     panel_name <- .getEncodedName(x)
     single_name <- paste0(panel_name, "_", iSEE:::.flagSingleSelect)
-    
+
     select_field <- paste0(panel_name, iSEE:::.int_statTableSelected)
     observeEvent(input[[select_field]], {
         # Single-selection reactive updates the selection details
@@ -117,12 +117,11 @@ setMethod(".multiSelectionDimension", "PathwaysTable", function(x) "row")
 #' @export
 #' @importMethodsFrom iSEE .multiSelectionCommands
 setMethod(".multiSelectionCommands", "PathwaysTable", function(x, index) {
-    # TODO: replace hard-coded 'GO'
-    # TODO: replace getAppOption by a user-defined function
+    # TODO: replace hard-coded 'GO'; dynamically detect class of pathway analysis results
     c(
         sprintf(".pathway_id <- %s;", deparse(x[["Selected"]])),
-        'pathways <- getAppOption("Pathways", se)[["GO"]]',
-        "selected <- pathways[[.pathway_id]]" # TODO
+        'FUN <- getAppOption("Pathways.map.functions", se)[["GO"]]',
+        "selected <- FUN(.pathway_id, se)"
     )
 })
 

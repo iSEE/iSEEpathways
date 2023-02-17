@@ -92,7 +92,7 @@ Rue-Albrecht</h4>
 Oxford<br><a class="author_email" href="mailto:#"></a><a href="mailto:kevin.rue-albrecht@imm.ox.ac.uk" class="email">kevin.rue-albrecht@imm.ox.ac.uk</a>
       </address>
                   
-            <h4 data-toc-skip class="date">16 February 2023</h4>
+            <h4 data-toc-skip class="date">17 February 2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/iSEE/iSEEpathways/blob/HEAD/vignettes/integration.Rmd" class="external-link"><code>vignettes/integration.Rmd</code></a></small>
       <div class="hidden name"><code>integration.Rmd</code></div>
@@ -238,19 +238,25 @@ method.</p>
 <span><span class="co">#&gt; ENSG00000273491 &lt;iSEELimmaResults&gt;</span></span>
 <span><span class="co">#&gt; ENSG00000273492 &lt;iSEELimmaResults&gt;</span></span>
 <span><span class="co">#&gt; ENSG00000273493 &lt;iSEELimmaResults&gt;</span></span></code></pre></div>
-<p>We prepare Gene Ontology gene sets using <em><a href="https://bioconductor.org/packages/3.17/org.Hs.eg.db" class="external-link">org.Hs.eg.db</a></em>.
-We store the list of gene sets in the metadata of the
-<code><a href="https://rdrr.io/pkg/airway/man/airway.html" class="external-link">?airway</a></code> object.</p>
+<p>We prepare Gene Ontology gene sets using <em><a href="https://bioconductor.org/packages/3.17/org.Hs.eg.db" class="external-link">org.Hs.eg.db</a></em>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"org.Hs.eg.db"</span><span class="op">)</span></span>
 <span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/AnnotationDb-class.html" class="external-link">select</a></span><span class="op">(</span><span class="va">org.Hs.eg.db</span>, <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/AnnotationDb-class.html" class="external-link">keys</a></span><span class="op">(</span><span class="va">org.Hs.eg.db</span>, <span class="st">"SYMBOL"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GOALL"</span><span class="op">)</span>, keytype <span class="op">=</span> <span class="st">"SYMBOL"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'select()' returned 1:many mapping between keys and columns</span></span>
 <span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">pathways</span>, <span class="va">ONTOLOGYALL</span> <span class="op">==</span> <span class="st">"BP"</span><span class="op">)</span></span>
 <span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SYMBOL"</span>, <span class="st">"GOALL"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">$</span><span class="va">SYMBOL</span>, <span class="va">pathways</span><span class="op">$</span><span class="va">GOALL</span><span class="op">)</span></span>
-<span><span class="va">airway</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/registerAppOptions.html" class="external-link">registerAppOptions</a></span><span class="op">(</span><span class="va">airway</span>, Pathways <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>GO <span class="op">=</span> <span class="va">pathways</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>We run a standard GSEA analysis using <em><a href="https://bioconductor.org/packages/3.17/fgsea" class="external-link">fgsea</a></em>.</p>
+<span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">$</span><span class="va">SYMBOL</span>, <span class="va">pathways</span><span class="op">$</span><span class="va">GOALL</span><span class="op">)</span></span></code></pre></div>
+<p>Separately, we define and register a function that fetches the gene
+identifiers associated with a given pathway identifier. The function
+definition must include an ellipsis to accommodate optional arguments
+passed to other variants of the function. For instance, see section <a href="#speed-mapping">Trading off memory usage for speed</a>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">map_GO</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">pathway_id</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/AnnotationDb-class.html" class="external-link">select</a></span><span class="op">(</span><span class="fu">org.Hs.eg.db</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/org.Hs.eg.db/man/org.Hs.egBASE.html" class="external-link">org.Hs.eg.db</a></span>, <span class="va">pathway_id</span>, <span class="st">"SYMBOL"</span>, keytype <span class="op">=</span> <span class="st">"GOALL"</span><span class="op">)</span><span class="op">[[</span><span class="st">"SYMBOL"</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">airway</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/registerAppOptions.html" class="external-link">registerAppOptions</a></span><span class="op">(</span><span class="va">airway</span>, Pathways.map.functions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>GO <span class="op">=</span> <span class="va">map_GO</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>We run a standard GSEA analysis using <em><a href="https://bioconductor.org/packages/3.17/fgsea" class="external-link">fgsea</a></em>.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ctlab/fgsea/" class="external-link">"fgsea"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">fgseaRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/fgsea/man/fgsea.html" class="external-link">fgsea</a></span><span class="op">(</span>pathways <span class="op">=</span> <span class="va">pathways</span>, </span>
@@ -279,14 +285,24 @@ We store the list of gene sets in the metadata of the
 <p>But first, we reorder the results by increasing p-value, convert the
 <code>?data.table</code> to a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">?data.frame</a></code>, and set the
 <code>rownames</code> to the pathway identifier.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fgseaRes</span> <span class="op">&lt;-</span> <span class="va">fgseaRes</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">pval</span><span class="op">)</span>, <span class="op">]</span></span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/iSEE/iSEEpathways" class="external-link">"iSEEpathways"</a></span><span class="op">)</span></span>
+<span><span class="va">fgseaRes</span> <span class="op">&lt;-</span> <span class="va">fgseaRes</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">pval</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="va">fgseaRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">fgseaRes</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">fgseaRes</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">fgseaRes</span><span class="op">$</span><span class="va">pathway</span></span>
-<span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/metadata.html" class="external-link">metadata</a></span><span class="op">(</span><span class="va">airway</span><span class="op">)</span><span class="op">[[</span><span class="st">"iSEEpathways"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"fgsea"</span> <span class="op">=</span> <span class="va">fgseaRes</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">airway</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/utils-SummarizedExperiment.html">embedPathwaysResults</a></span><span class="op">(</span><span class="va">fgseaRes</span>, <span class="va">airway</span>, name <span class="op">=</span> <span class="st">"fgsea"</span>, class <span class="op">=</span> <span class="st">"fgsea"</span><span class="op">)</span></span>
+<span><span class="va">airway</span></span>
+<span><span class="co">#&gt; class: RangedSummarizedExperiment </span></span>
+<span><span class="co">#&gt; dim: 63677 8 </span></span>
+<span><span class="co">#&gt; metadata(3): '' iSEE iSEEpathways</span></span>
+<span><span class="co">#&gt; assays(2): counts logcounts</span></span>
+<span><span class="co">#&gt; rownames(63677): TSPAN6 TNMD ... ENSG00000273492 ENSG00000273493</span></span>
+<span><span class="co">#&gt; rowData names(13): gene_id gene_name ... SYMBOL iSEEde</span></span>
+<span><span class="co">#&gt; colnames(8): SRR1039508 SRR1039509 ... SRR1039520 SRR1039521</span></span>
+<span><span class="co">#&gt; colData names(9): SampleName cell ... Sample BioSample</span></span></code></pre></div>
 <p>We define and register a function that displays details for the
 selected Gene Ontology gene set.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"GO.db"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://shiny.rstudio.com/" class="external-link">"shiny"</a></span><span class="op">)</span></span>
@@ -305,9 +321,8 @@ selected Gene Ontology gene set.</p>
 <span>    <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/tagList.html" class="external-link">tagList</a></span><span class="op">(</span><span class="va">html</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="va">airway</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/registerAppOptions.html" class="external-link">registerAppOptions</a></span><span class="op">(</span><span class="va">airway</span>, PathwaysTable.select.details <span class="op">=</span> <span class="va">go_details</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/iSEE/iSEEpathways" class="external-link">"iSEEpathways"</a></span><span class="op">)</span></span>
-<span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/iSEE.html" class="external-link">iSEE</a></span><span class="op">(</span><span class="va">airway</span>, initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/iSEE.html" class="external-link">iSEE</a></span><span class="op">(</span><span class="va">airway</span>, initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/PathwaysTable-class.html">PathwaysTable</a></span><span class="op">(</span>ResultName<span class="op">=</span><span class="st">"fgsea"</span>, PanelWidth <span class="op">=</span> <span class="fl">4L</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/iSEEde/man/VolcanoPlot-class.html" class="external-link">VolcanoPlot</a></span><span class="op">(</span>RowSelectionSource <span class="op">=</span> <span class="st">"PathwaysTable1"</span>, PanelWidth <span class="op">=</span> <span class="fl">4L</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/ComplexHeatmapPlot-class.html" class="external-link">ComplexHeatmapPlot</a></span><span class="op">(</span>RowSelectionSource <span class="op">=</span> <span class="st">"PathwaysTable1"</span>,</span>
@@ -320,6 +335,55 @@ selected Gene Ontology gene set.</p>
 <span>  <span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://shiny.rstudio.com/reference/shiny/latest/runApp.html" class="external-link">runApp</a></span><span class="op">(</span><span class="va">app</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="screenshots/integration.png" width="100%"></p>
+</div>
+<div class="section level2">
+<h2 id="speed-mapping">Trading off memory usage for speed<a class="anchor" aria-label="anchor" href="#speed-mapping"></a>
+</h2>
+<p>The function <code>map_GO()</code> that we defined earlier to map a
+pathway identifier to a set of gene identifiers uses the <em><a href="https://bioconductor.org/packages/3.17/org.Hs.eg.db" class="external-link">org.Hs.eg.db</a></em>
+package and the <code>?AnnotationDbi::select()</code> function.</p>
+<p>While memory-efficient, the repeated calls to the database of gene
+annotations introduce a bottleneck that limits the reactivity of the
+app.</p>
+<p>We can restore the speed of the app rendering by trading off an
+increased memory usage. Specifically, we can use the object
+<code>pathways</code> that we also created earlier as a named list of
+pathway identifiers and character vectors of gene identifiers associated
+with each pathway.</p>
+<p>First, for the app to be self-contained, the list of pathways should
+be stored within the <code>airway</code> object itself.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/metadata.html" class="external-link">metadata</a></span><span class="op">(</span><span class="va">airway</span><span class="op">)</span><span class="op">[[</span><span class="st">"pathways"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>GO <span class="op">=</span> <span class="va">pathways</span><span class="op">)</span></span></code></pre></div>
+<p>Then, we can write a new faster function that fetches gene
+identifiers directly from that list rather than the database. The
+function should take as first argument a single pathway identifier, and
+the second argument must be called <code>se</code> to match the name of
+the <code>SummarizedExperiment</code> object used within the app. As a a
+trade off, the app now relies on the list of pathway annotations being
+available as an object in the <i class="fab fa-r-project"></i> session,
+using additional memory for the benefit of dramatically faster
+access.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">map_GO_v2</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">pathway_id</span>, <span class="va">se</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/metadata.html" class="external-link">metadata</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">[[</span><span class="st">"pathways"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"GO"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="va">pathway_id</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">airway</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/registerAppOptions.html" class="external-link">registerAppOptions</a></span><span class="op">(</span><span class="va">airway</span>, Pathways.map.functions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>GO <span class="op">=</span> <span class="va">map_GO_v2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>We can then launch a new instance of the app, using the same initial
+configuration, but the update <code>airway</code> object.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/iSEE.html" class="external-link">iSEE</a></span><span class="op">(</span><span class="va">airway</span>, initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="../reference/PathwaysTable-class.html">PathwaysTable</a></span><span class="op">(</span>ResultName<span class="op">=</span><span class="st">"fgsea"</span>, PanelWidth <span class="op">=</span> <span class="fl">4L</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/iSEEde/man/VolcanoPlot-class.html" class="external-link">VolcanoPlot</a></span><span class="op">(</span>RowSelectionSource <span class="op">=</span> <span class="st">"PathwaysTable1"</span>, PanelWidth <span class="op">=</span> <span class="fl">4L</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/ComplexHeatmapPlot-class.html" class="external-link">ComplexHeatmapPlot</a></span><span class="op">(</span>RowSelectionSource <span class="op">=</span> <span class="st">"PathwaysTable1"</span>,</span>
+<span>      PanelWidth <span class="op">=</span> <span class="fl">4L</span>, PanelHeight <span class="op">=</span> <span class="fl">700L</span>,</span>
+<span>      CustomRows <span class="op">=</span> <span class="cn">FALSE</span>, ColumnData <span class="op">=</span> <span class="st">"dex"</span>,</span>
+<span>      ClusterRows <span class="op">=</span> <span class="cn">TRUE</span>, ClusterRowsDistance <span class="op">=</span> <span class="st">"euclidean"</span>, AssayCenterRows <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://shiny.rstudio.com/reference/shiny/latest/runApp.html" class="external-link">runApp</a></span><span class="op">(</span><span class="va">app</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="screenshots/integration-faster.png" width="100%"></p>
 </div>
 <div class="section level2">
 <h2 id="reproducibility">Reproducibility<a class="anchor" aria-label="anchor" href="#reproducibility"></a>
@@ -350,7 +414,7 @@ Chang, and Iannone, 2023)</li>
 </ul>
 <p>This package was developed using <em><a href="https://bioconductor.org/packages/3.17/biocthis" class="external-link">biocthis</a></em>.</p>
 <p>Code for creating the vignette</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Create the vignette</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/rstudio/rmarkdown" class="external-link">"rmarkdown"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/render.html" class="external-link">render</a></span><span class="op">(</span><span class="st">"integration.Rmd"</span>, <span class="st">"BiocStyle::html_document"</span><span class="op">)</span><span class="op">)</span></span>
@@ -359,9 +423,9 @@ Chang, and Iannone, 2023)</li>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://yihui.org/knitr/" class="external-link">"knitr"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/knit.html" class="external-link">knit</a></span><span class="op">(</span><span class="st">"integration.Rmd"</span>, tangle <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Date the vignette was generated.</p>
-<pre><code><span><span class="co">#&gt; [1] "2023-02-16 10:07:54 UTC"</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; [1] "2023-02-17 12:31:47 UTC"</span></span></code></pre>
 <p>Wallclock time spent generating the vignette.</p>
-<pre><code><span><span class="co">#&gt; Time difference of 57.651 secs</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; Time difference of 57.58 secs</span></span></code></pre>
 <p><code>R</code> session information.</p>
 <pre><code><span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt;  <span style="color: #555555; font-style: italic;">setting </span> <span style="color: #555555; font-style: italic;">value</span></span></span>
@@ -373,7 +437,7 @@ Chang, and Iannone, 2023)</li>
 <span><span class="co">#&gt;  collate  en_US.UTF-8</span></span>
 <span><span class="co">#&gt;  ctype    en_US.UTF-8</span></span>
 <span><span class="co">#&gt;  tz       UTC</span></span>
-<span><span class="co">#&gt;  date     2023-02-16</span></span>
+<span><span class="co">#&gt;  date     2023-02-17</span></span>
 <span><span class="co">#&gt;  pandoc   2.19.2 @ /usr/local/bin/ (via rmarkdown)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span></span>
@@ -452,7 +516,7 @@ Chang, and Iannone, 2023)</li>
 <span><span class="co">#&gt;  irlba                  2.3.5.1   <span style="color: #555555;">2022-10-03</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>
 <span><span class="co">#&gt;  iSEE                 * 2.11.4    <span style="color: #555555;">2023-02-09</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">#&gt;  iSEEde               * 0.99.0    <span style="color: #555555;">2023-02-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">Github (iSEE/iSEEde@d99c770)</span></span></span>
-<span><span class="co">#&gt;  iSEEpathways         * 0.99.0    <span style="color: #555555;">2023-02-16</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  iSEEpathways         * 0.99.0    <span style="color: #555555;">2023-02-17</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">#&gt;  iterators              1.0.14    <span style="color: #555555;">2022-02-05</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>
 <span><span class="co">#&gt;  jquerylib              0.1.4     <span style="color: #555555;">2021-04-26</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>
 <span><span class="co">#&gt;  jsonlite               1.8.4     <span style="color: #555555;">2022-12-06</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>
@@ -493,13 +557,13 @@ Chang, and Iannone, 2023)</li>
 <span><span class="co">#&gt;  rlang                  1.0.6     <span style="color: #555555;">2022-09-24</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>
 <span><span class="co">#&gt;  rmarkdown              2.20      <span style="color: #555555;">2023-01-19</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>
 <span><span class="co">#&gt;  rprojroot              2.0.3     <span style="color: #555555;">2022-04-02</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>
-<span><span class="co">#&gt;  RSQLite                2.2.20    <span style="color: #555555;">2022-12-22</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>
+<span><span class="co">#&gt;  RSQLite                2.3.0     <span style="color: #555555;">2023-02-17</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>
 <span><span class="co">#&gt;  rsvd                   1.0.5     <span style="color: #555555;">2021-04-16</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>
 <span><span class="co">#&gt;  S4Vectors            * 0.37.3    <span style="color: #555555;">2022-12-07</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">#&gt;  sass                   0.4.5     <span style="color: #555555;">2023-01-24</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>
 <span><span class="co">#&gt;  ScaledMatrix           1.7.0     <span style="color: #555555;">2022-11-01</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">#&gt;  scales                 1.2.1     <span style="color: #555555;">2022-08-20</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>
-<span><span class="co">#&gt;  scater               * 1.27.5    <span style="color: #555555;">2023-02-08</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  scater               * 1.27.6    <span style="color: #555555;">2023-02-15</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">#&gt;  scuttle              * 1.9.4     <span style="color: #555555;">2023-01-23</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">#&gt;  sessioninfo          * 1.2.2     <span style="color: #555555;">2021-12-06</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>
 <span><span class="co">#&gt;  shape                  1.4.6     <span style="color: #555555;">2021-05-19</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.0)</span></span></span>

@@ -65,7 +65,7 @@
 #' se <- SummarizedExperiment()
 #'
 #' # Package the results in a iSEEfgseaResults object
-#' iseefgsea_table <- iSEEfgseaResults(fgseaRes)
+#' iseefgsea_table <- iSEEfgseaResults(as.data.frame(fgseaRes))
 #'
 #' se <- embedPathwaysResults(iseefgsea_table, se, name = "fgsea")
 #'

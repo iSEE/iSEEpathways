@@ -32,6 +32,7 @@ embedPathwaysResultsMethods <- c(
 #' @param name Identifier for the embedded object.
 #' @param class Class to use for embedding `x`. Only used when `class(x)` does
 #' not uniquely identify the package that generated the object.
+#' @param pathwayType Type of pathway.
 #' @param ... Arguments passed to and from other methods.
 #'
 #' @return An updated \linkS4class{SummarizedExperiment} object that contains the
@@ -39,7 +40,7 @@ embedPathwaysResultsMethods <- c(
 #'
 #' @rdname utils-SummarizedExperiment
 #' @aliases embedPathwaysResults,data.frame-method
-setMethod("embedPathwaysResults", "data.frame", function(x, se, name, class, ...) {
+setMethod("embedPathwaysResults", "data.frame", function(x, se, name, class, pathwayType, ...) {
     if (!class %in% names(embedPathwaysResultsMethods)) {
         msg <- sprintf(
             "argument %s must be a value in %s,
@@ -50,7 +51,7 @@ setMethod("embedPathwaysResults", "data.frame", function(x, se, name, class, ...
         stop(paste(strwrap(msg), collapse = "\n"))
     }
     constructor <- get(embedPathwaysResultsMethods[class])
-    res <- constructor(x)
+    res <- constructor(x, pathwayType = pathwayType)
     embedPathwaysResults(res, se, name, ...)
 })
 

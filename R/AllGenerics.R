@@ -1,3 +1,26 @@
+#' Generics for Pathway Analysis Results
+#'
+#' An overview of the generics for accessing common pieces of information in pathway analysis results.
+#'
+#' @section Definitions:
+#' \itemize{
+#' \item `pathwayType(x)` returns a character scalar indicating the type of pathways analysed.
+#' }
+#'
+#' @docType methods
+#' @aliases pathwayType
+#' @name pathway-generics
+#' @author Kevin Rue-Albrecht
+#'
+#' @examples
+#' showMethods(pathwayType)
+NULL
+
+setGeneric(
+    "pathwayType",
+    function(x) standardGeneric("pathwayType")
+)
+
 #' Generics for Embbedding Pathway Analysis Results into a SummarizedExperiment Object
 #'
 #' An overview of the generics for embedding pathway analysis results into a \linkS4class{SummarizedExperiment} object, in a format compatible with \pkg{iSEEpathways}.

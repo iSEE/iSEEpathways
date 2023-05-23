@@ -156,7 +156,7 @@ library("iSEEpathways")
 fgseaRes <- fgseaRes[order(pval), ]
 fgseaRes <- as.data.frame(fgseaRes)
 rownames(fgseaRes) <- fgseaRes$pathway
-airway <- embedPathwaysResults(fgseaRes, airway, name = "fgsea", class = "fgsea")
+airway <- embedPathwaysResults(fgseaRes, airway, name = "fgsea", class = "fgsea", pathwayType = "GO")
 airway
 ```
 
@@ -219,7 +219,12 @@ As a a trade off, the app now relies on the list of pathway annotations being av
 
 ```{r}
 map_GO_v2 <- function(pathway_id, se) {
-    metadata(se)[["pathways"]][["GO"]][[pathway_id]]
+    pathway_list <- metadata(se)[["pathways"]][["GO"]]
+    if (!pathway_id %in% names(pathway_list)) {
+        warning("Pathway identifier %s not found.", sQuote(pathway_id))
+        return(character(0))
+    }
+    pathway_list[[pathway_id]]
 }
 airway <- registerAppOptions(airway, Pathways.map.functions = list(GO = map_GO_v2))
 ```

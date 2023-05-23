@@ -16,7 +16,7 @@ embedPathwaysResults(x, se, name, ...)
 
 embedPathwaysResultsMethods
 
-\S4method{embedPathwaysResults}{data.frame}(x, se, name, class, ...)
+\S4method{embedPathwaysResults}{data.frame}(x, se, name, class, pathwayType, ...)
 }
 \arguments{
 \item{x}{Object to be embedded.}
@@ -29,6 +29,8 @@ embedPathwaysResultsMethods
 
 \item{class}{Class to use for embedding \code{x}. Only used when \code{class(x)} does
 not uniquely identify the package that generated the object.}
+
+\item{pathwayType}{Type of pathway.}
 }
 \value{
 An updated \linkS4class{SummarizedExperiment} object that contains the

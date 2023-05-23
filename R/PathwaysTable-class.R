@@ -117,10 +117,11 @@ setMethod(".multiSelectionDimension", "PathwaysTable", function(x) "row")
 #' @export
 #' @importMethodsFrom iSEE .multiSelectionCommands
 setMethod(".multiSelectionCommands", "PathwaysTable", function(x, index) {
-    # TODO: replace hard-coded 'GO'; dynamically detect class of pathway analysis results
+    # NOTE: 'index' is unused as x[["Selected"]] is used instead
     c(
         sprintf(".pathway_id <- %s;", deparse(x[["Selected"]])),
-        'FUN <- getAppOption("Pathways.map.functions", se)[["GO"]]',
+        sprintf(".pathway_type <- iSEEpathways::pathwayType(metadata(airway)[['iSEEpathways']][[%s]])", deparse(x[[.resultName]])),
+        'FUN <- getAppOption("Pathways.map.functions", se)[[.pathway_type]]',
         "selected <- FUN(.pathway_id, se)"
     )
 })

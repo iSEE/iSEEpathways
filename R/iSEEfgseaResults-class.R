@@ -1,3 +1,54 @@
+#' The iSEEpathwaysResults class
+#'
+#' The iSEEpathwaysResults class represents an undefined resource.
+#'
+#' @section Slot overview:
+#' \itemize{
+#' \item \code{pathwayType}, a character scalar specifying the type of pathway (e.g., `"GO"`).
+#' }
+#'
+#' @section Supported methods:
+#' In the following code snippets, \code{x} is an instance of a [`iSEEpathwaysResults-class`] class.
+#' Refer to the documentation for each method for more details on the remaining arguments.
+#'
+#' \itemize{
+#' \item \code{\link{pathwayType}(x)} returns the type of pathways stored in `x`.
+#' }
+#'
+#' @author Kevin Rue-Albrecht
+#'
+#' @name iSEEpathwaysResults-class
+#' @rdname iSEEpathwaysResults-class
+#' @aliases
+#' show,iSEEpathwaysResults-method
+#' pathwayType,iSEEpathwaysResults-method
+#'
+#' @examples
+#' new("iSEEpathwaysResults", pathwayType = "GO")
+NULL
+
+#' @export
+setClass("iSEEpathwaysResults",
+         contains = c("DFrame", "VIRTUAL"))
+
+setValidity2("iSEEpathwaysResults", function(object) {
+    msg <- NULL
+
+    pathwayType <- metadata(object)[["pathwayType"]]
+    if (!is(pathwayType, "character")) {
+        msg <- c(msg, "metadata(object)[['pathwayType']] must be a character scalar")
+    }
+    if (!identical(length(pathwayType), 1L)) {
+        msg <- c(msg, "metadata(object)[['pathwayType']] must be length 1")
+    }
+
+    if (length(msg)) {
+        return(msg)
+    }
+
+    return(TRUE)
+})
+
 #' The iSEEfgseaResults class
 #'
 #' The `iSEEfgseaResults` class is used to provide an common interface to pathway analysis results produced by the \pkg{fgsea} package.
@@ -78,11 +129,21 @@
 #' ## TODO
 NULL
 
-setClass("iSEEfgseaResults", contains = "DFrame")
+setClass("iSEEfgseaResults", contains = "iSEEpathwaysResults")
 
 #' @export
 #' @importFrom methods new
 #' @importFrom S4Vectors DataFrame
-iSEEfgseaResults <- function(data) {
-    new("iSEEfgseaResults", data)
+iSEEfgseaResults <- function(data, pathwayType) {
+    metadata <- list(pathwayType = pathwayType)
+    out <- new("iSEEfgseaResults", data,
+               metadata = metadata)
+    validObject(out)
+    out
 }
+
+#' @export
+setMethod("pathwayType", "iSEEfgseaResults", function(x) {
+    out <- metadata(x)[["pathwayType"]]
+    out
+})

@@ -65,7 +65,7 @@ setValidity2("iSEEpathwaysResults", function(object) {
 #'
 #' @section Supported methods:
 #' \itemize{
-#' \item `embedResults(x, se, name, class = "fgsea", ...)` embeds `x` in the column `name` of `metadata(se)[["iSEEpathways"]]`.
+#' \item `embedPathwaysResults(x, se, name, pathwayType, class = "fgsea", ...)` embeds `x` in the column `name` of `metadata(se)[["iSEEpathways"]]`.
 #' }
 #'
 #' @author Kevin Rue-Albrecht
@@ -115,10 +115,8 @@ setValidity2("iSEEpathwaysResults", function(object) {
 #' # Simulate the original SummarizedExperiment object
 #' se <- SummarizedExperiment()
 #'
-#' # Package the results in a iSEEfgseaResults object
-#' iseefgsea_table <- iSEEfgseaResults(as.data.frame(fgseaRes))
 #'
-#' se <- embedPathwaysResults(iseefgsea_table, se, name = "fgsea")
+#' se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO")
 #'
 #' se
 #'

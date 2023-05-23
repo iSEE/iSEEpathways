@@ -27,7 +27,7 @@ setGeneric(
 #'
 #' @section Definitions:
 #' \itemize{
-#' \item `embedPathwaysResults(x, se, name, ...)` embeds the results `x` in the \linkS4class{SummarizedExperiment} `se`.
+#' \item `embedPathwaysResults(x, se, name, pathwayType, ...)` embeds the results `x` in the \linkS4class{SummarizedExperiment} `se`.
 #' }
 #'
 #' @docType methods
@@ -45,5 +45,5 @@ NULL
 #' @aliases embedPathwaysResults,ANY-method
 setGeneric(
     "embedPathwaysResults",
-    function(x, se, name, ...) standardGeneric("embedPathwaysResults")
+    function(x, se, name, pathwayType, ...) standardGeneric("embedPathwaysResults")
 )

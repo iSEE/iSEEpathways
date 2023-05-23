@@ -25,7 +25,7 @@ This class inherits all its slots directly from its parent class \linkS4class{Da
 \section{Supported methods}{
 
 \itemize{
-\item \code{embedResults(x, se, name, class = "fgsea", ...)} embeds \code{x} in the column \code{name} of \code{metadata(se)[["iSEEpathways"]]}.
+\item \code{embedPathwaysResults(x, se, name, pathwayType, class = "fgsea", ...)} embeds \code{x} in the column \code{name} of \code{metadata(se)[["iSEEpathways"]]}.
 }
 }
 
@@ -68,10 +68,8 @@ head(fgseaRes[order(pval), ])
 # Simulate the original SummarizedExperiment object
 se <- SummarizedExperiment()
 
-# Package the results in a iSEEfgseaResults object
-iseefgsea_table <- iSEEfgseaResults(as.data.frame(fgseaRes))
 
-se <- embedPathwaysResults(iseefgsea_table, se, name = "fgsea")
+se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO")
 
 se
 

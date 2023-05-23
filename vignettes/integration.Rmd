@@ -106,11 +106,11 @@ res_limma <- topTable(tmp, sort.by = "P", n = Inf)
 head(res_limma)
 ```
 
-Then, we embed this set of differential expression results in the `?airway` object using the `embedResults()` method.
+Then, we embed this set of differential expression results in the `?airway` object using the `iSEEde::embedContrastResults()` method.
 
 ```{r}
 library("iSEEde")
-airway <- embedResults(res_limma, airway, name = "Limma-Voom", class = "limma")
+airway <- iSEEde::embedContrastResults(res_limma, airway, name = "Limma-Voom", class = "limma")
 rowData(airway)
 ```
 
@@ -141,7 +141,7 @@ We run a standard GSEA analysis using `r BiocStyle::Biocpkg("fgsea")`.
 library("fgsea")
 set.seed(42)
 fgseaRes <- fgsea(pathways = pathways, 
-                  stats    = na.omit(log2FoldChange(rowData(airway)[["iSEEde"]][["Limma-Voom"]])),
+                  stats    = na.omit(log2FoldChange(contrastResults(airway, "Limma-Voom"))),
                   minSize  = 15,
                   maxSize  = 500)
 head(fgseaRes[order(pval), ])
@@ -163,12 +163,11 @@ airway
 To showcase a choice of pathway analysis results, we repeat the process above, but sorting by a score that combines the log-transformed p-value and the absolute log-transformed fold-change.
 
 ```{r}
+stats <- log2FoldChange(contrastResults(airway, "Limma-Voom")) *
+    -log10(pValue(contrastResults(airway, "Limma-Voom")))
 set.seed(42)
 fgseaRes <- fgsea(pathways = pathways, 
-                  stats    = na.omit(
-                      log2FoldChange(rowData(airway)[["iSEEde"]][["Limma-Voom"]]) *
-                          -log10(pValue(rowData(airway)[["iSEEde"]][["Limma-Voom"]]))
-                  ),
+                  stats    = na.omit(stats),
                   minSize  = 15,
                   maxSize  = 500)
 fgseaRes <- fgseaRes[order(pval), ]

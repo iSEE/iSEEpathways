@@ -1,5 +1,8 @@
 #' @export
 #'
+#' @format
+#' `embedPathwaysResultsMethods`: Named character vector mapping keywords to class names designed to store pathway analysis results.
+#'
 #' @rdname utils-SummarizedExperiment
 embedPathwaysResultsMethods <- c(
     "fgsea" = "iSEEfgseaResults"
@@ -31,11 +34,23 @@ embedPathwaysResultsMethods <- c(
 #' @param se A \linkS4class{SummarizedExperiment} object.
 #' @param name Identifier for the embedded object.
 #' @param class Class to use for embedding `x`. Only used when `class(x)` does
-#' not uniquely identify the package that generated the object.
-#' @param pathwayType Type of pathway.
+#' not uniquely identify the package that generated the object `x`.
+#' @param pathwayType Character scalar indicating the type of pathway. See Details.
 #' @param ... Arguments passed to and from other methods.
 #'
-#' @return An updated \linkS4class{SummarizedExperiment} object that contains the
+#' @details
+#' The character scalar given to the argument `pathwayType=` is used to identify the function mapping a certain type of pathway identifier to the corresponding feature identifiers.
+#' Pathway mapping functions must be registered as a named list using `registerAppOptions(se, Pathways.map.functions = list(...))`,
+#' where names must match values of `pathwayType`,
+#' e.g.
+#' ```
+#' se <- registerAppOptions(se, Pathways.map.functions = list(GO = map_go))
+#' ```
+#'
+#' See `vignette("integration", package = "iSEEpathways")` for examples in action.
+#'
+#' @return
+#' `embedPathwaysResults` returns an updated \linkS4class{SummarizedExperiment} object that contains the
 #' embedded object.
 #'
 #' @rdname utils-SummarizedExperiment

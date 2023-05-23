@@ -5,6 +5,7 @@
 \alias{iSEEfgseaResults-class}
 \alias{iSEEfgseaResults}
 \alias{embedPathwaysResults,iSEEfgseaResults-method}
+\alias{pathwayType,iSEEfgseaResults-method}
 \title{The iSEEfgseaResults class}
 \description{
 The \code{iSEEfgseaResults} class is used to provide an common interface to pathway analysis results produced by the \pkg{fgsea} package.
@@ -25,7 +26,7 @@ This class inherits all its slots directly from its parent class \linkS4class{Da
 \section{Supported methods}{
 
 \itemize{
-\item \code{embedResults(x, se, name, class = "fgsea", ...)} embeds \code{x} in the column \code{name} of \code{metadata(se)[["iSEEpathways"]]}.
+\item \code{embedPathwaysResults(x, se, name, pathwayType, class = "fgsea", ...)} embeds \code{x} in the column \code{name} of \code{metadata(se)[["iSEEpathways"]]}.
 }
 }
 
@@ -62,24 +63,25 @@ fgseaRes <- fgsea(pathways = pathways,
 head(fgseaRes[order(pval), ])
 
 ##
+# Simulate a SummarizedExperiment object
+##
+
+se <- SummarizedExperiment()
+
+##
 # iSEEfgseaResults ----
 ##
 
-# Simulate the original SummarizedExperiment object
-se <- SummarizedExperiment()
-
-# Package the results in a iSEEfgseaResults object
-iseefgsea_table <- iSEEfgseaResults(as.data.frame(fgseaRes))
-
-se <- embedPathwaysResults(iseefgsea_table, se, name = "fgsea")
-
+# Embed the FGSEA results in the SummarizedExperiment object
+se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO")
 se
 
 ##
-# Methods ----
+# Access ----
 ##
 
-## TODO
+# TODO: create getter function
+metadata(se)[["iSEEpathways"]][["fgsea"]]
 }
 \author{
 Kevin Rue-Albrecht

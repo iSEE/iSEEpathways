@@ -9,14 +9,14 @@
 \alias{embedPathwaysResults,data.frame-method}
 \title{Generics for Embbedding Pathway Analysis Results into a SummarizedExperiment Object}
 \format{
-An object of class \code{character} of length 1.
+\code{embedPathwaysResultsMethods}: Named character vector mapping keywords to class names designed to store pathway analysis results.
 }
 \usage{
-embedPathwaysResults(x, se, name, ...)
+embedPathwaysResults(x, se, name, pathwayType, ...)
 
 embedPathwaysResultsMethods
 
-\S4method{embedPathwaysResults}{data.frame}(x, se, name, class, ...)
+\S4method{embedPathwaysResults}{data.frame}(x, se, name, class, pathwayType, ...)
 }
 \arguments{
 \item{x}{Object to be embedded.}
@@ -25,22 +25,35 @@ embedPathwaysResultsMethods
 
 \item{name}{Identifier for the embedded object.}
 
+\item{pathwayType}{Character scalar indicating the type of pathway. See Details.}
+
 \item{...}{Arguments passed to and from other methods.}
 
 \item{class}{Class to use for embedding \code{x}. Only used when \code{class(x)} does
-not uniquely identify the package that generated the object.}
+not uniquely identify the package that generated the object \code{x}.}
 }
 \value{
-An updated \linkS4class{SummarizedExperiment} object that contains the
+\code{embedPathwaysResults} returns an updated \linkS4class{SummarizedExperiment} object that contains the
 embedded object.
 }
 \description{
 An overview of the generics for embedding pathway analysis results into a \linkS4class{SummarizedExperiment} object, in a format compatible with \pkg{iSEEpathways}.
 }
+\details{
+The character scalar given to the argument \verb{pathwayType=} is used to identify the function mapping a certain type of pathway identifier to the corresponding feature identifiers.
+Pathway mapping functions must be registered as a named list using \code{registerAppOptions(se, Pathways.map.functions = list(...))},
+where names must match values of \code{pathwayType},
+e.g.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{se <- registerAppOptions(se, Pathways.map.functions = list(GO = map_go))
+}\if{html}{\out{</div>}}
+
+See \code{vignette("integration", package = "iSEEpathways")} for examples in action.
+}
 \section{Definitions}{
 
 \itemize{
-\item \code{embedPathwaysResults(x, se, name, ...)} embeds the results \code{x} in the \linkS4class{SummarizedExperiment} \code{se}.
+\item \code{embedPathwaysResults(x, se, name, pathwayType, ...)} embeds the results \code{x} in the \linkS4class{SummarizedExperiment} \code{se}.
 }
 }
 

@@ -1,3 +1,54 @@
+#' The iSEEpathwaysResults class
+#'
+#' The iSEEpathwaysResults class represents an undefined resource.
+#'
+#' @section Slot overview:
+#' \itemize{
+#' \item \code{pathwayType}, a character scalar specifying the type of pathway (e.g., `"GO"`).
+#' }
+#'
+#' @section Supported methods:
+#' In the following code snippets, \code{x} is an instance of a [`iSEEpathwaysResults-class`] class.
+#' Refer to the documentation for each method for more details on the remaining arguments.
+#'
+#' \itemize{
+#' \item \code{\link{pathwayType}(x)} returns the type of pathways stored in `x`.
+#' }
+#'
+#' @author Kevin Rue-Albrecht
+#'
+#' @name iSEEpathwaysResults-class
+#' @rdname iSEEpathwaysResults-class
+#' @aliases
+#' show,iSEEpathwaysResults-method
+#' pathwayType,iSEEpathwaysResults-method
+#'
+#' @examples
+#' showClass("iSEEpathwaysResults")
+NULL
+
+#' @export
+setClass("iSEEpathwaysResults",
+         contains = c("DFrame", "VIRTUAL"))
+
+setValidity2("iSEEpathwaysResults", function(object) {
+    msg <- NULL
+
+    pathwayType <- metadata(object)[["pathwayType"]]
+    if (!is(pathwayType, "character")) {
+        msg <- c(msg, "metadata(object)[['pathwayType']] must be a character scalar")
+    }
+    if (!identical(length(pathwayType), 1L)) {
+        msg <- c(msg, "metadata(object)[['pathwayType']] must be length 1")
+    }
+
+    if (length(msg)) {
+        return(msg)
+    }
+
+    return(TRUE)
+})
+
 #' The iSEEfgseaResults class
 #'
 #' The `iSEEfgseaResults` class is used to provide an common interface to pathway analysis results produced by the \pkg{fgsea} package.
@@ -14,7 +65,7 @@
 #'
 #' @section Supported methods:
 #' \itemize{
-#' \item `embedResults(x, se, name, class = "fgsea", ...)` embeds `x` in the column `name` of `metadata(se)[["iSEEpathways"]]`.
+#' \item `embedPathwaysResults(x, se, name, pathwayType, class = "fgsea", ...)` embeds `x` in the column `name` of `metadata(se)[["iSEEpathways"]]`.
 #' }
 #'
 #' @author Kevin Rue-Albrecht
@@ -24,6 +75,7 @@
 #' @aliases
 #' iSEEfgseaResults
 #' embedPathwaysResults,iSEEfgseaResults-method
+#' pathwayType,iSEEfgseaResults-method
 #'
 #' @examples
 #' library("org.Hs.eg.db")
@@ -58,31 +110,45 @@
 #' head(fgseaRes[order(pval), ])
 #'
 #' ##
+#' # Simulate a SummarizedExperiment object
+#' ##
+#'
+#' se <- SummarizedExperiment()
+#'
+#' ##
 #' # iSEEfgseaResults ----
 #' ##
 #'
-#' # Simulate the original SummarizedExperiment object
-#' se <- SummarizedExperiment()
-#'
-#' # Package the results in a iSEEfgseaResults object
-#' iseefgsea_table <- iSEEfgseaResults(as.data.frame(fgseaRes))
-#'
-#' se <- embedPathwaysResults(iseefgsea_table, se, name = "fgsea")
-#'
+#' # Embed the FGSEA results in the SummarizedExperiment object
+#' se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO")
 #' se
 #'
 #' ##
-#' # Methods ----
+#' # Access ----
 #' ##
 #'
-#' ## TODO
+#' # TODO: create getter function
+#' metadata(se)[["iSEEpathways"]][["fgsea"]]
 NULL
 
-setClass("iSEEfgseaResults", contains = "DFrame")
+setClass("iSEEfgseaResults", contains = "iSEEpathwaysResults")
 
 #' @export
-#' @importFrom methods new
+#' @importFrom methods as new validObject
 #' @importFrom S4Vectors DataFrame
-iSEEfgseaResults <- function(data) {
-    new("iSEEfgseaResults", data)
+iSEEfgseaResults <- function(data, pathwayType) {
+    data <- as(data, "DataFrame")
+    rownames(data) <- data$pathway
+    data$pathway <- NULL
+    metadata <- list(pathwayType = pathwayType)
+    out <- new("iSEEfgseaResults", data,
+               metadata = metadata)
+    validObject(out)
+    out
 }
+
+#' @export
+setMethod("pathwayType", "iSEEfgseaResults", function(x) {
+    out <- metadata(x)[["pathwayType"]]
+    out
+})

@@ -6,7 +6,9 @@
 #' @docType methods
 #' @aliases PathwaysTable PathwaysTable-class
 #' initialize,PathwaysTable-method
+#' .cacheCommonInfo,PathwaysTable-method
 #' .createObservers,PathwaysTable-method
+#' .defineDataInterface,PathwaysTable-method
 #' .fullName,PathwaysTable-method
 #' .generateTable,PathwaysTable-method
 #' .multiSelectionActive,PathwaysTable-method
@@ -54,17 +56,44 @@ setMethod("initialize", "PathwaysTable", function(.Object,
     do.call(callNextMethod, c(list(.Object), args))
 })
 
+#' @importFrom S4Vectors setValidity2
+setValidity2("PathwaysTable", function(object) {
+    return(TRUE)
+})
+
+#' @export
+#' @importMethodsFrom iSEE .cacheCommonInfo
+#' @importFrom iSEE .getCachedCommonInfo .setCachedCommonInfo
+#' @importFrom methods callNextMethod
+#' @importFrom SummarizedExperiment rowData
+setMethod(".cacheCommonInfo", "PathwaysTable", function(x, se) {
+    if (!is.null(.getCachedCommonInfo(se, "PathwaysTable"))) {
+        return(se)
+    }
+
+    se <- callNextMethod()
+
+    result_names <- names(metadata(se)[["iSEEpathways"]])
+
+    .setCachedCommonInfo(se, "PathwaysTable", valid.result.names = result_names)
+})
+
 #' @export
 #' @importMethodsFrom iSEE .refineParameters
 #' @importFrom iSEE .replaceMissingWithFirst
+#' @importFrom methods slot
 #' @importFrom S4Vectors metadata
 setMethod(".refineParameters", "PathwaysTable", function(x, se) {
-    x <- callNextMethod()
+    x <- callNextMethod() # Trigger warnings from base classes.
     if (is.null(x)) {
         return(NULL)
     }
 
-    x <- .replaceMissingWithFirst(x, iSEE:::.TableSelected, rownames(metadata(se)[["iSEEpathways"]][["fgsea"]]))
+    result_names <- .getCachedCommonInfo(se, "PathwaysTable")$valid.result.names
+    x <- .replaceMissingWithFirst(x, .resultName, result_names)
+
+    pathway_ids <- rownames(metadata(se)[["iSEEpathways"]][[slot(x, .resultName)]])
+    x <- .replaceMissingWithFirst(x, iSEE:::.TableSelected, pathway_ids)
 
     x
 })
@@ -73,7 +102,7 @@ setMethod(".refineParameters", "PathwaysTable", function(x, se) {
 #' @importMethodsFrom iSEE .generateTable
 #' @importFrom iSEE .textEval
 setMethod(".generateTable", "PathwaysTable", function(x, envir) {
-    cmds <-"tab <- as.data.frame(metadata(se)[['iSEEpathways']][['fgsea']]);"
+    cmds <- sprintf("tab <- as.data.frame(metadata(se)[['iSEEpathways']][[%s]]);", deparse(x[[.resultName]]))
 
     .textEval(cmds, envir)
 
@@ -92,22 +121,69 @@ setMethod(".showSelectionDetails", "PathwaysTable", function(x) {
 
 #' @export
 #' @importMethodsFrom iSEE .createObservers
-#' @importFrom iSEE .getEncodedName .requestActiveSelectionUpdate
+#' @importFrom iSEE .createProtectedParameterObservers .getEncodedName .requestActiveSelectionUpdate
 #' @importFrom methods callNextMethod
 #' @importFrom shiny observeEvent
 setMethod(".createObservers", "PathwaysTable", function(x, se, input, session, pObjects, rObjects) {
     callNextMethod()
-    panel_name <- .getEncodedName(x)
-    single_name <- paste0(panel_name, "_", iSEE:::.flagSingleSelect)
 
-    select_field <- paste0(panel_name, iSEE:::.int_statTableSelected)
+    plot_name <- .getEncodedName(x)
+
+    .createProtectedParameterObservers(plot_name,
+                                       fields = c(.resultName),
+                                       input = input, pObjects = pObjects, rObjects = rObjects
+    )
+
+    single_name <- paste0(plot_name, "_", iSEE:::.flagSingleSelect)
+
+    select_field <- paste0(plot_name, iSEE:::.int_statTableSelected)
     observeEvent(input[[select_field]], {
         # Single-selection reactive updates the selection details
         iSEE:::.safe_reactive_bump(rObjects, single_name)
         # trigger re-rendering of downstream panels
-        .requestActiveSelectionUpdate(panel_name, session=session, pObjects=pObjects,
+        .requestActiveSelectionUpdate(plot_name, session=session, pObjects=pObjects,
                                       rObjects=rObjects, update_output=FALSE)
     })
+
+    invisible(NULL)
+})
+
+#' @export
+#' @importMethodsFrom iSEE .defineDataInterface
+#' @importFrom methods callNextMethod
+#' @importFrom shiny hr
+#' @importFrom iSEE .addSpecificTour .getCachedCommonInfo .getEncodedName
+#' .selectInput.iSEE
+setMethod(".defineDataInterface", "PathwaysTable", function(x, se, select_info) {
+    plot_name <- .getEncodedName(x)
+    input_FUN <- function(field) paste0(plot_name, "_", field)
+    # nocov start
+    .addSpecificTour(class(x), .resultName, function(plot_name) {
+        data.frame(
+            rbind(
+                c(
+                    element = paste0("#", plot_name, "_", sprintf("%s + .selectize-control", .resultName)),
+                    intro = "Here, we select the name of the result to visualise amongst the choice of pathway analysis results available."
+                )
+            )
+        )
+    })
+    # nocov end
+    cached <- .getCachedCommonInfo(se, "PathwaysTable")
+
+    extra_inputs <- list(
+        .selectInput.iSEE(x, .resultName,
+                          label = "Result:",
+                          selected = x[[.resultName]],
+                          choices = cached$valid.result.names
+        )
+    )
+
+    c(
+        callNextMethod(),
+        list(hr()),
+        extra_inputs
+    )
 })
 
 #' @export
@@ -117,10 +193,11 @@ setMethod(".multiSelectionDimension", "PathwaysTable", function(x) "row")
 #' @export
 #' @importMethodsFrom iSEE .multiSelectionCommands
 setMethod(".multiSelectionCommands", "PathwaysTable", function(x, index) {
-    # TODO: replace hard-coded 'GO'; dynamically detect class of pathway analysis results
+    # NOTE: 'index' is unused as x[["Selected"]] is used instead
     c(
         sprintf(".pathway_id <- %s;", deparse(x[["Selected"]])),
-        'FUN <- getAppOption("Pathways.map.functions", se)[["GO"]]',
+        sprintf(".pathway_type <- iSEEpathways::pathwayType(metadata(airway)[['iSEEpathways']][[%s]])", deparse(x[[.resultName]])),
+        'FUN <- getAppOption("Pathways.map.functions", se)[[.pathway_type]]',
         "selected <- FUN(.pathway_id, se)"
     )
 })

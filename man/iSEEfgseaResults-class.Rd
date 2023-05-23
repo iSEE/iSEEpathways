@@ -5,6 +5,7 @@
 \alias{iSEEfgseaResults-class}
 \alias{iSEEfgseaResults}
 \alias{embedPathwaysResults,iSEEfgseaResults-method}
+\alias{pathwayType,iSEEfgseaResults-method}
 \title{The iSEEfgseaResults class}
 \description{
 The \code{iSEEfgseaResults} class is used to provide an common interface to pathway analysis results produced by the \pkg{fgsea} package.

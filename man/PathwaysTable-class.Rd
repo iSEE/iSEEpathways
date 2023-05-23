@@ -5,7 +5,9 @@
 \alias{PathwaysTable-class}
 \alias{PathwaysTable}
 \alias{initialize,PathwaysTable-method}
+\alias{.cacheCommonInfo,PathwaysTable-method}
 \alias{.createObservers,PathwaysTable-method}
+\alias{.defineDataInterface,PathwaysTable-method}
 \alias{.fullName,PathwaysTable-method}
 \alias{.generateTable,PathwaysTable-method}
 \alias{.multiSelectionActive,PathwaysTable-method}

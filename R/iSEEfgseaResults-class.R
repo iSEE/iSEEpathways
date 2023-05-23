@@ -75,6 +75,7 @@ setValidity2("iSEEpathwaysResults", function(object) {
 #' @aliases
 #' iSEEfgseaResults
 #' embedPathwaysResults,iSEEfgseaResults-method
+#' pathwayType,iSEEfgseaResults-method
 #'
 #' @examples
 #' library("org.Hs.eg.db")

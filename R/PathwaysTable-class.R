@@ -6,7 +6,9 @@
 #' @docType methods
 #' @aliases PathwaysTable PathwaysTable-class
 #' initialize,PathwaysTable-method
+#' .cacheCommonInfo,PathwaysTable-method
 #' .createObservers,PathwaysTable-method
+#' .defineDataInterface,PathwaysTable-method
 #' .fullName,PathwaysTable-method
 #' .generateTable,PathwaysTable-method
 #' .multiSelectionActive,PathwaysTable-method

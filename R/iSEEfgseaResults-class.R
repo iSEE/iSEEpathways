@@ -24,7 +24,7 @@
 #' pathwayType,iSEEpathwaysResults-method
 #'
 #' @examples
-#' new("iSEEpathwaysResults", pathwayType = "GO")
+#' showClass("iSEEpathwaysResults")
 NULL
 
 #' @export
@@ -133,7 +133,7 @@ NULL
 setClass("iSEEfgseaResults", contains = "iSEEpathwaysResults")
 
 #' @export
-#' @importFrom methods new
+#' @importFrom methods as new validObject
 #' @importFrom S4Vectors DataFrame
 iSEEfgseaResults <- function(data, pathwayType) {
     data <- as(data, "DataFrame")

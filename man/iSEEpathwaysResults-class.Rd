@@ -26,7 +26,7 @@ Refer to the documentation for each method for more details on the remaining arg
 }
 
 \examples{
-new("iSEEpathwaysResults", pathwayType = "GO")
+showClass("iSEEpathwaysResults")
 }
 \author{
 Kevin Rue-Albrecht

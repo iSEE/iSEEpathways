@@ -79,6 +79,7 @@ setMethod(".cacheCommonInfo", "PathwaysTable", function(x, se) {
 #' @export
 #' @importMethodsFrom iSEE .refineParameters
 #' @importFrom iSEE .replaceMissingWithFirst
+#' @importFrom methods slot
 #' @importFrom S4Vectors metadata
 setMethod(".refineParameters", "PathwaysTable", function(x, se) {
     x <- callNextMethod() # Trigger warnings from base classes.
@@ -118,7 +119,7 @@ setMethod(".showSelectionDetails", "PathwaysTable", function(x) {
 
 #' @export
 #' @importMethodsFrom iSEE .createObservers
-#' @importFrom iSEE .getEncodedName .requestActiveSelectionUpdate
+#' @importFrom iSEE .createProtectedParameterObservers .getEncodedName .requestActiveSelectionUpdate
 #' @importFrom methods callNextMethod
 #' @importFrom shiny observeEvent
 setMethod(".createObservers", "PathwaysTable", function(x, se, input, session, pObjects, rObjects) {

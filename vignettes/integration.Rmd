@@ -154,8 +154,6 @@ But first, we reorder the results by increasing p-value, convert the `?data.tabl
 ```{r}
 library("iSEEpathways")
 fgseaRes <- fgseaRes[order(pval), ]
-fgseaRes <- as.data.frame(fgseaRes)
-rownames(fgseaRes) <- fgseaRes$pathway
 airway <- embedPathwaysResults(fgseaRes, airway, name = "fgsea (p-value)", class = "fgsea", pathwayType = "GO")
 airway
 ```
@@ -171,8 +169,6 @@ fgseaRes <- fgsea(pathways = pathways,
                   minSize  = 15,
                   maxSize  = 500)
 fgseaRes <- fgseaRes[order(pval), ]
-fgseaRes <- as.data.frame(fgseaRes)
-rownames(fgseaRes) <- fgseaRes$pathway
 airway <- embedPathwaysResults(fgseaRes, airway, name = "fgsea (p-value & fold-change)", class = "fgsea", pathwayType = "GO")
 airway
 ```

@@ -109,22 +109,25 @@ setValidity2("iSEEpathwaysResults", function(object) {
 #' head(fgseaRes[order(pval), ])
 #'
 #' ##
+#' # Simulate a SummarizedExperiment object
+#' ##
+#'
+#' se <- SummarizedExperiment()
+#'
+#' ##
 #' # iSEEfgseaResults ----
 #' ##
 #'
-#' # Simulate the original SummarizedExperiment object
-#' se <- SummarizedExperiment()
-#'
-#'
+#' # Embed the FGSEA results in the SummarizedExperiment object
 #' se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO")
-#'
 #' se
 #'
 #' ##
-#' # Methods ----
+#' # Access ----
 #' ##
 #'
-#' ## TODO
+#' # TODO: create getter function
+#' metadata(se)[["iSEEpathways"]][["fgsea"]]
 NULL
 
 setClass("iSEEfgseaResults", contains = "iSEEpathwaysResults")
@@ -133,6 +136,9 @@ setClass("iSEEfgseaResults", contains = "iSEEpathwaysResults")
 #' @importFrom methods new
 #' @importFrom S4Vectors DataFrame
 iSEEfgseaResults <- function(data, pathwayType) {
+    data <- as(data, "DataFrame")
+    rownames(data) <- data$pathway
+    data$pathway <- NULL
     metadata <- list(pathwayType = pathwayType)
     out <- new("iSEEfgseaResults", data,
                metadata = metadata)

@@ -62,22 +62,25 @@ fgseaRes <- fgsea(pathways = pathways,
 head(fgseaRes[order(pval), ])
 
 ##
+# Simulate a SummarizedExperiment object
+##
+
+se <- SummarizedExperiment()
+
+##
 # iSEEfgseaResults ----
 ##
 
-# Simulate the original SummarizedExperiment object
-se <- SummarizedExperiment()
-
-
+# Embed the FGSEA results in the SummarizedExperiment object
 se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO")
-
 se
 
 ##
-# Methods ----
+# Access ----
 ##
 
-## TODO
+# TODO: create getter function
+metadata(se)[["iSEEpathways"]][["fgsea"]]
 }
 \author{
 Kevin Rue-Albrecht

@@ -156,9 +156,28 @@ library("iSEEpathways")
 fgseaRes <- fgseaRes[order(pval), ]
 fgseaRes <- as.data.frame(fgseaRes)
 rownames(fgseaRes) <- fgseaRes$pathway
-airway <- embedPathwaysResults(fgseaRes, airway, name = "fgsea", class = "fgsea", pathwayType = "GO")
+airway <- embedPathwaysResults(fgseaRes, airway, name = "fgsea (p-value)", class = "fgsea", pathwayType = "GO")
 airway
 ```
+
+To showcase a choice of pathway analysis results, we repeat the process above, but sorting by a score that combines the log-transformed p-value and the absolute log-transformed fold-change.
+
+```{r}
+set.seed(42)
+fgseaRes <- fgsea(pathways = pathways, 
+                  stats    = na.omit(
+                      log2FoldChange(rowData(airway)[["iSEEde"]][["Limma-Voom"]]) *
+                          -log10(pValue(rowData(airway)[["iSEEde"]][["Limma-Voom"]]))
+                  ),
+                  minSize  = 15,
+                  maxSize  = 500)
+fgseaRes <- fgseaRes[order(pval), ]
+fgseaRes <- as.data.frame(fgseaRes)
+rownames(fgseaRes) <- fgseaRes$pathway
+airway <- embedPathwaysResults(fgseaRes, airway, name = "fgsea (p-value & fold-change)", class = "fgsea", pathwayType = "GO")
+airway
+```
+
 
 We define and register a function that displays details for the selected Gene Ontology gene set.
 
@@ -233,7 +252,7 @@ We can then launch a new instance of the app, using the same initial configurati
 
 ```{r "faster", message=FALSE, warning=FALSE}
 app <- iSEE(airway, initial = list(
-  PathwaysTable(ResultName="fgsea", PanelWidth = 4L),
+  PathwaysTable(ResultName="fgsea", Selected = "GO:0046323", PanelWidth = 4L),
   VolcanoPlot(RowSelectionSource = "PathwaysTable1", PanelWidth = 4L),
   ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
       PanelWidth = 4L, PanelHeight = 700L,

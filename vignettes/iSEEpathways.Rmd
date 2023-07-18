@@ -137,7 +137,8 @@ se <- SummarizedExperiment(assay = list(counts = cnts))
 se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO")
 
 app <- iSEE(se, initial = list(
-  PathwaysTable(ResultName="fgsea", PanelWidth = 12L)
+  PathwaysTable(ResultName="fgsea", PanelWidth = 12L),
+  FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002", PanelWidth = 12L)
 ))
 
 if (interactive()) {

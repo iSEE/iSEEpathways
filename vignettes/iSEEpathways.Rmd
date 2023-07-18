@@ -134,9 +134,7 @@ cnts <- matrix(rnbinom(n=ngenes*2, mu=100, size=1/0.5), nrow=ngenes)
 rownames(cnts) <- names(feature_stats)
 se <- SummarizedExperiment(assay = list(counts = cnts))
 
-fgseaRes <- as.data.frame(fgseaRes)
-rownames(fgseaRes) <- fgseaRes$pathway
-metadata(se) <- list("iSEEpathways" = list("fgsea" = fgseaRes))
+se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO")
 
 app <- iSEE(se, initial = list(
   PathwaysTable(ResultName="fgsea", PanelWidth = 12L)

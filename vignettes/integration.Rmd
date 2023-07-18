@@ -147,9 +147,9 @@ fgseaRes <- fgsea(pathways = pathways,
 head(fgseaRes[order(pval), ])
 ```
 
-We embed this set of pathway analysis results in the airway object (manually for now).
+We embed this set of pathway analysis results in the airway object.
 
-But first, we reorder the results by increasing p-value, convert the `?data.table` to a `?data.frame`, and set the `rownames` to the pathway identifier.
+But first, we reorder the results by increasing p-value, and set the `rownames` to the pathway identifier.
 
 ```{r}
 library("iSEEpathways")

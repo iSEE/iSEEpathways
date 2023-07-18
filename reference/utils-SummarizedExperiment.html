@@ -69,17 +69,17 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">embedPathwaysResults</span><span class="op">(</span><span class="va">x</span>, <span class="va">se</span>, <span class="va">name</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">embedPathwaysResults</span><span class="op">(</span><span class="va">x</span>, <span class="va">se</span>, <span class="va">name</span>, <span class="va">pathwayType</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">embedPathwaysResultsMethods</span></span>
 <span></span>
 <span><span class="co"># S4 method for data.frame</span></span>
-<span><span class="fu">embedPathwaysResults</span><span class="op">(</span><span class="va">x</span>, <span class="va">se</span>, <span class="va">name</span>, <span class="va">class</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">embedPathwaysResults</span><span class="op">(</span><span class="va">x</span>, <span class="va">se</span>, <span class="va">name</span>, <span class="va">class</span>, <span class="va">pathwayType</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="format">
     <h2>Format</h2>
-    <p>An object of class <code>character</code> of length 1.</p>
+    <p><code>embedPathwaysResultsMethods</code>: Named character vector mapping keywords to class names designed to store pathway analysis results.</p>
     </div>
     <div id="arguments">
     <h2>Arguments</h2>
@@ -95,27 +95,40 @@
 <dd><p>Identifier for the embedded object.</p></dd>
 
 
+<dt>pathwayType</dt>
+<dd><p>Character scalar indicating the type of pathway. See Details.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Arguments passed to and from other methods.</p></dd>
 
 
 <dt>class</dt>
 <dd><p>Class to use for embedding <code>x</code>. Only used when <code>class(x)</code> does
-not uniquely identify the package that generated the object.</p></dd>
+not uniquely identify the package that generated the object <code>x</code>.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
     
 
-<p>An updated <a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a> object that contains the
+<p><code>embedPathwaysResults</code> returns an updated <a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a> object that contains the
 embedded object.</p>
+    </div>
+    <div id="details">
+    <h2>Details</h2>
+    <p>The character scalar given to the argument <code>pathwayType=</code> is used to identify the function mapping a certain type of pathway identifier to the corresponding feature identifiers.
+Pathway mapping functions must be registered as a named list using <code>registerAppOptions(se, Pathways.map.functions = list(...))</code>,
+where names must match values of <code>pathwayType</code>,
+e.g.</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>se <span class="ot">&lt;-</span> <span class="fu">registerAppOptions</span>(se, <span class="at">Pathways.map.functions =</span> <span class="fu">list</span>(<span class="at">GO =</span> map_go))</span></code></pre><p></p></div>
+<p>See <code><a href="../articles/integration.html">vignette("integration", package = "iSEEpathways")</a></code> for examples in action.</p>
     </div>
     <div id="definitions">
     <h2>Definitions</h2>
     
 
-<ul><li><p><code>embedPathwaysResults(x, se, name, ...)</code> embeds the results <code>x</code> in the <a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a> <code>se</code>.</p></li>
+<ul><li><p><code>embedPathwaysResults(x, se, name, pathwayType, ...)</code> embeds the results <code>x</code> in the <a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a> <code>se</code>.</p></li>
 </ul></div>
     <div id="author">
     <h2>Author</h2>
@@ -131,6 +144,8 @@ embedded object.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/methods/showMethods.html" class="external-link">showMethods</a></span><span class="op">(</span><span class="va">embedPathwaysResults</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Function: embedPathwaysResults (package iSEEpathways)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> x="data.frame"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x="data.table"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     (inherited from: x="data.frame")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> x="iSEEfgseaResults"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>

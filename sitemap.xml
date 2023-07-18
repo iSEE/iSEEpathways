@@ -40,7 +40,13 @@
     <loc>/reference/iSEEfgseaResults-class.html</loc>
   </url>
   <url>
+    <loc>/reference/iSEEpathwaysResults-class.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/pathway-generics.html</loc>
   </url>
   <url>
     <loc>/reference/utils-SummarizedExperiment.html</loc>

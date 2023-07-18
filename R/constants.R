@@ -1,1 +1,2 @@
 .resultName <- "ResultName"
+.pathwayId <- "PathwayId"

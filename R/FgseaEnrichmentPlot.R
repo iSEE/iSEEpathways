@@ -101,6 +101,7 @@ setMethod(".refineParameters", "FgseaEnrichmentPlot", function(x, se) {
 
 #' @export
 #' @importMethodsFrom iSEE .defineOutput
+#' @importFrom shinyWidgets addSpinner
 setMethod(".defineOutput", "FgseaEnrichmentPlot", function(x, ...){
     plot_name <- .getEncodedName(x)
     .input_FUN <- function(field) {
@@ -109,13 +110,12 @@ setMethod(".defineOutput", "FgseaEnrichmentPlot", function(x, ...){
     col <- .getPanelColor(x)
     brush_stroke <- col
     brush_fill <- iSEE:::.lighten_color_for_fill(col)
-    brush.opts <- brushOpts(.input_FUN(.brushField), resetOnNew = TRUE,
+    brush.opts <- brushOpts(.input_FUN(iSEE:::.brushField), resetOnNew = TRUE,
         delay = 2000, direction = "x", fill = brush_fill,
-        stroke = brush_stroke, opacity = .brushFillOpacity)
-    dblclick <- .input_FUN(.zoomClick)
-    clickopt <- .input_FUN(.lassoClick)
-    height <- paste0(slot(x, .organizationHeight), "px")
-    panel_height <- paste0(height, "px")
+        stroke = brush_stroke, opacity = iSEE:::.brushFillOpacity)
+    dblclick <- .input_FUN(iSEE:::.zoomClick)
+    clickopt <- .input_FUN(iSEE:::.lassoClick)
+    panel_height <- paste0(slot(x, iSEE:::.organizationHeight), "px")
     addSpinner(plotOutput(plot_name, brush = brush.opts, dblclick = dblclick,
         click = clickopt, height = panel_height),
         color = brush_fill)

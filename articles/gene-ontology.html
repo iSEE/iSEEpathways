@@ -154,8 +154,13 @@ Oxford<br><a class="author_email" href="mailto:#"></a><a href="mailto:kevin.rue-
 <span><span class="co">#&gt; 5: PTPN11,CREBL2,PTH,MIR107,SELENOS,SLC1A2,...</span></span>
 <span><span class="co">#&gt; 6:    PTPN11,SLC2A8,TSC1,CREBL2,PTH,MIR107,...</span></span></code></pre></div>
 <p>Embed the <em><a href="https://bioconductor.org/packages/3.17/fgsea" class="external-link">fgsea</a></em>
-results in the <em><a href="https://bioconductor.org/packages/3.17/SummarizedExperiment" class="external-link">SummarizedExperiment</a></em>
+results in a <em><a href="https://bioconductor.org/packages/3.17/SummarizedExperiment" class="external-link">SummarizedExperiment</a></em>
 object.</p>
+<p>In this case, we simulate count data, using the same feature
+identifiers as we used in the pathway analysis. This will make it to
+demonstrate how the set of features associated with a pathway can be
+transmitted and highlighted in another panel in the the user
+interface.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">"SummarizedExperiment"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/iSEE/iSEEpathways" class="external-link">"iSEEpathways"</a></span><span class="op">)</span></span>
@@ -164,9 +169,7 @@ object.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">cnts</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">feature_stats</span><span class="op">)</span></span>
 <span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></span><span class="op">(</span>assay <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>counts <span class="op">=</span> <span class="va">cnts</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fgseaRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">fgseaRes</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">fgseaRes</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">fgseaRes</span><span class="op">$</span><span class="va">pathway</span></span>
-<span><span class="fu">metadata</span><span class="op">(</span><span class="va">se</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"iSEEpathways"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"fgsea"</span> <span class="op">=</span> <span class="va">fgseaRes</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/utils-SummarizedExperiment.html">embedPathwaysResults</a></span><span class="op">(</span><span class="va">fgseaRes</span>, <span class="va">se</span>, name <span class="op">=</span> <span class="st">"fgsea"</span>, class <span class="op">=</span> <span class="st">"fgsea"</span>, pathwayType <span class="op">=</span> <span class="st">"GO"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="live-app">Live app<a class="anchor" aria-label="anchor" href="#live-app"></a>
 </h3>
@@ -236,9 +239,9 @@ Cheng, Chang, and Iannone, 2023)</li>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://yihui.org/knitr/" class="external-link">"knitr"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/knit.html" class="external-link">knit</a></span><span class="op">(</span><span class="st">"gene-ontology.Rmd"</span>, tangle <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Date the vignette was generated.</p>
-<pre><code><span><span class="co">#&gt; [1] "2023-07-18 11:45:55 UTC"</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; [1] "2023-07-18 14:51:10 UTC"</span></span></code></pre>
 <p>Wallclock time spent generating the vignette.</p>
-<pre><code><span><span class="co">#&gt; Time difference of 44.4 secs</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; Time difference of 56.103 secs</span></span></code></pre>
 <p><code>R</code> session information.</p>
 <pre><code><span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt;  <span style="color: #555555; font-style: italic;">setting </span> <span style="color: #555555; font-style: italic;">value</span></span></span>

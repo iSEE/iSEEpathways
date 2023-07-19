@@ -140,8 +140,9 @@ We run a standard GSEA analysis using `r BiocStyle::Biocpkg("fgsea")`.
 ```{r}
 library("fgsea")
 set.seed(42)
+stats <- na.omit(log2FoldChange(contrastResults(airway, "Limma-Voom")))
 fgseaRes <- fgsea(pathways = pathways, 
-                  stats    = na.omit(log2FoldChange(contrastResults(airway, "Limma-Voom"))),
+                  stats    = stats,
                   minSize  = 15,
                   maxSize  = 500)
 head(fgseaRes[order(pval), ])
@@ -154,22 +155,28 @@ But first, we reorder the results by increasing p-value, and set the `rownames` 
 ```{r}
 library("iSEEpathways")
 fgseaRes <- fgseaRes[order(pval), ]
-airway <- embedPathwaysResults(fgseaRes, airway, name = "fgsea (p-value)", class = "fgsea", pathwayType = "GO")
+airway <- embedPathwaysResults(
+  fgseaRes, airway, name = "fgsea (p-value)", class = "fgsea",
+  pathwayType = "GO", pathways = pathways, stats = stats)
 airway
 ```
 
 To showcase a choice of pathway analysis results, we repeat the process above, but sorting by a score that combines the log-transformed p-value and the absolute log-transformed fold-change.
 
 ```{r}
-stats <- log2FoldChange(contrastResults(airway, "Limma-Voom")) *
-    -log10(pValue(contrastResults(airway, "Limma-Voom")))
+stats <- na.omit(
+  log2FoldChange(contrastResults(airway, "Limma-Voom")) *
+  -log10(pValue(contrastResults(airway, "Limma-Voom")))
+)
 set.seed(42)
 fgseaRes <- fgsea(pathways = pathways, 
                   stats    = na.omit(stats),
                   minSize  = 15,
                   maxSize  = 500)
 fgseaRes <- fgseaRes[order(pval), ]
-airway <- embedPathwaysResults(fgseaRes, airway, name = "fgsea (p-value & fold-change)", class = "fgsea", pathwayType = "GO")
+airway <- embedPathwaysResults(
+  fgseaRes, airway, name = "fgsea (p-value & fold-change)", class = "fgsea",
+  pathwayType = "GO", pathways = pathways, stats = stats)
 airway
 ```
 
@@ -199,7 +206,8 @@ app <- iSEE(airway, initial = list(
   ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
       PanelWidth = 4L, PanelHeight = 700L,
       CustomRows = FALSE, ColumnData = "dex",
-      ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE)
+      ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE),
+  FgseaEnrichmentPlot(PanelWidth = 6L)
 ))
 
 if (interactive()) {

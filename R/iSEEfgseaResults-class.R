@@ -136,11 +136,15 @@ setClass("iSEEfgseaResults", contains = "iSEEpathwaysResults")
 #' @export
 #' @importFrom methods as new validObject
 #' @importFrom S4Vectors DataFrame
-iSEEfgseaResults <- function(data, pathwayType) {
+iSEEfgseaResults <- function(data, pathwayType, pathways = NULL, stats = NULL) {
     data <- as(data, "DataFrame")
     rownames(data) <- data$pathway
     data$pathway <- NULL
-    metadata <- list(pathwayType = pathwayType)
+    metadata <- list(
+      pathwayType = pathwayType,
+      pathways = pathways,
+      stats = stats
+    )
     out <- new("iSEEfgseaResults", data,
                metadata = metadata)
     validObject(out)
@@ -151,4 +155,16 @@ iSEEfgseaResults <- function(data, pathwayType) {
 setMethod("pathwayType", "iSEEfgseaResults", function(x) {
     out <- metadata(x)[["pathwayType"]]
     out
+})
+
+#' @export
+setMethod("pathways", "iSEEfgseaResults", function(x) {
+  out <- metadata(x)[["pathways"]]
+  out
+})
+
+#' @export
+setMethod("stats", "iSEEfgseaResults", function(x) {
+  out <- metadata(x)[["stats"]]
+  out
 })

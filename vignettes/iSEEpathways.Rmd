@@ -134,11 +134,12 @@ cnts <- matrix(rnbinom(n=ngenes*2, mu=100, size=1/0.5), nrow=ngenes)
 rownames(cnts) <- names(feature_stats)
 se <- SummarizedExperiment(assay = list(counts = cnts))
 
-se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO")
+se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO",
+                           pathways = pathways, stats = feature_stats)
 
 app <- iSEE(se, initial = list(
-  PathwaysTable(ResultName="fgsea", PanelWidth = 12L),
-  FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002", PanelWidth = 12L)
+  PathwaysTable(ResultName="fgsea", PanelWidth = 6L),
+  FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002", PanelWidth = 6L)
 ))
 
 if (interactive()) {

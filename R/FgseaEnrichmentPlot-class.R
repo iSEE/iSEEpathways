@@ -185,24 +185,20 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_me
         plot_env <- new.env()
         plot_env$se <- se
         plot_env$colormap <- iSEE:::.get_colormap(se)
-        plot_env$pathways <- pathways
-        plot_env$feature_stats <- feature_stats
-        # TODO: add 'feature_stats' and 'pathways' to 'se'
-        # TODO: fetch 'feature_stats' and 'pathways' from 'plot_env'
-        # TODO: use x[[.pathwayId]]
+        panel_name <- iSEE::.getEncodedName(x)
+        result_name <- all_memory[[panel_name]][[.resultName]]
+        panel_pathways <- pathways(metadata(se)[["iSEEpathways"]][[result_name]])
+        plot_env$pathways <- panel_pathways
+        panel_stats <- stats(metadata(se)[["iSEEpathways"]][[result_name]])
+        plot_env$stats <- panel_stats
         all_cmds <- list(
-            sprintf('fgsea_plot <- fgsea::plotEnrichment(pathways[[%s]], feature_stats)', dQuote("GO:0000002", q = FALSE))
+            sprintf('fgsea_plot <- fgsea::plotEnrichment(pathways[[%s]], stats)', dQuote(x[[.pathwayId]], q = FALSE))
         )
-        # print(all_cmds)
         panel_data <- data.frame(
-            X = feature_stats[rownames(se)],
-            row.names = rownames(se)
+            X = panel_stats,
+            row.names = names(panel_stats)
         )
-        # print(head(panel_data))
         .textEval(all_cmds, plot_env)
-        # print(plot_env)
-        # print(ls(plot_env))
-        # print(class(plot_env$fgsea_plot))
         list(commands = all_cmds, contents = panel_data, plot = plot_env$fgsea_plot,
             varname = "plot.data")
     }
@@ -231,6 +227,8 @@ setMethod(".defineDataInterface", "FgseaEnrichmentPlot", function(x, se, select_
   })
   # nocov end
   cached <- .getCachedCommonInfo(se, "FgseaEnrichmentPlot")
+  
+  pathwayId_choices <- names(pathways(metadata(se)[["iSEEpathways"]][[x[[.resultName]]]]))
 
   list(
     .selectInput.iSEE(x, .resultName,
@@ -241,7 +239,34 @@ setMethod(".defineDataInterface", "FgseaEnrichmentPlot", function(x, se, select_
     .selectInput.iSEE(x, .pathwayId,
       label = "Pathway:",
       selected = x[[.pathwayId]],
-      choices = character(0)
+      choices = pathwayId_choices
     )
   )
+})
+
+#' @export
+#' @importMethodsFrom iSEE .createObservers
+#' @importFrom iSEE .createProtectedParameterObservers .getEncodedName .requestActiveSelectionUpdate
+#' @importFrom methods callNextMethod
+#' @importFrom shiny observeEvent
+setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, session, pObjects, rObjects) {
+  callNextMethod()
+  
+  plot_name <- .getEncodedName(x)
+  
+  .createProtectedParameterObservers(plot_name,
+                                     fields = c(.resultName, .pathwayId),
+                                     input = input, pObjects = pObjects, rObjects = rObjects
+  )
+  
+  resultName_field <- paste0(plot_name, .resultName)
+  observeEvent(input[[resultName_field]], {
+    print("observeEvent(input[[resultName_field]]")
+    # Update the contents of input[[paste0(plot_name, .pathwayId)]]
+    resultName <- input[[resultName_field]]
+    new_choices <- names(pathways(metadata(se)[["iSEEpathways"]][[resultName]]))
+    updateSelectInput(session, paste0(plot_name, .pathwayId), choices = new_choices)
+  }, )
+  
+  invisible(NULL)
 })

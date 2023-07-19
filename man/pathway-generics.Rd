@@ -12,6 +12,8 @@ An overview of the generics for accessing common pieces of information in pathwa
 
 \itemize{
 \item \code{pathwayType(x)} returns a character scalar indicating the type of pathways analysed.
+\item \code{pathways(x)} returns NULL or the named list of pathways used in the analysis.
+\item \code{stats(x)} returns NULL or the named numeric vector of feature-level statistics used in the analysis.
 }
 }
 

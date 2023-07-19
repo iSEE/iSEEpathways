@@ -208,3 +208,40 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_me
     }
     .local(x, se, ..., all_memory, all_contents)
 })
+
+#' @export
+#' @importMethodsFrom iSEE .defineDataInterface
+#' @importFrom methods callNextMethod
+#' @importFrom shiny hr
+#' @importFrom iSEE .addSpecificTour .getCachedCommonInfo .getEncodedName
+#' .selectInput.iSEE
+setMethod(".defineDataInterface", "FgseaEnrichmentPlot", function(x, se, select_info) {
+  plot_name <- .getEncodedName(x)
+  input_FUN <- function(field) paste0(plot_name, "_", field)
+  # nocov start
+  .addSpecificTour(class(x), .resultName, function(plot_name) {
+    data.frame(
+      rbind(
+        c(
+          element = paste0("#", plot_name, "_", sprintf("%s + .selectize-control", .resultName)),
+          intro = "Here, we select the name of the result to visualise amongst the choice of pathway analysis results available."
+        )
+      )
+    )
+  })
+  # nocov end
+  cached <- .getCachedCommonInfo(se, "FgseaEnrichmentPlot")
+
+  list(
+    .selectInput.iSEE(x, .resultName,
+      label = "Result:",
+      selected = x[[.resultName]],
+      choices = cached$valid.result.names
+    ),
+    .selectInput.iSEE(x, .pathwayId,
+      label = "Pathway:",
+      selected = x[[.pathwayId]],
+      choices = character(0)
+    )
+  )
+})

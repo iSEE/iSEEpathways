@@ -193,16 +193,16 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_me
         all_cmds <- list(
             sprintf('fgsea_plot <- fgsea::plotEnrichment(pathways[[%s]], feature_stats)', dQuote("GO:0000002", q = FALSE))
         )
-        print(all_cmds)
+        # print(all_cmds)
         panel_data <- data.frame(
             X = feature_stats[rownames(se)],
             row.names = rownames(se)
         )
-        print(head(panel_data))
+        # print(head(panel_data))
         .textEval(all_cmds, plot_env)
-        print(plot_env)
-        print(ls(plot_env))
-        print(class(plot_env$fgsea_plot))
+        # print(plot_env)
+        # print(ls(plot_env))
+        # print(class(plot_env$fgsea_plot))
         list(commands = all_cmds, contents = panel_data, plot = plot_env$fgsea_plot,
             varname = "plot.data")
     }

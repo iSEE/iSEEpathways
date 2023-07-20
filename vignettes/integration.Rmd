@@ -201,7 +201,7 @@ airway <- registerAppOptions(airway, PathwaysTable.select.details = go_details)
 
 ```{r "start", message=FALSE, warning=FALSE}
 app <- iSEE(airway, initial = list(
-  PathwaysTable(ResultName="fgsea", PanelWidth = 4L),
+  PathwaysTable(ResultName="fgsea (p-value)", PanelWidth = 4L),
   VolcanoPlot(RowSelectionSource = "PathwaysTable1", PanelWidth = 4L),
   ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
       PanelWidth = 4L, PanelHeight = 700L,
@@ -255,7 +255,7 @@ We can then launch a new instance of the app, using the same initial configurati
 
 ```{r "faster", message=FALSE, warning=FALSE}
 app <- iSEE(airway, initial = list(
-  PathwaysTable(ResultName="fgsea", Selected = "GO:0046323", PanelWidth = 4L),
+  PathwaysTable(ResultName="fgsea (p-value)", Selected = "GO:0046323", PanelWidth = 4L),
   VolcanoPlot(RowSelectionSource = "PathwaysTable1", PanelWidth = 4L),
   ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
       PanelWidth = 4L, PanelHeight = 700L,

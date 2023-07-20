@@ -228,18 +228,17 @@ setMethod(".defineDataInterface", "FgseaEnrichmentPlot", function(x, se, select_
   # nocov end
   cached <- .getCachedCommonInfo(se, "FgseaEnrichmentPlot")
 
-  pathwayId_choices <- names(pathways(metadata(se)[["iSEEpathways"]][[x[[.resultName]]]]))
-
   list(
     .selectInput.iSEE(x, .resultName,
       label = "Result:",
       selected = x[[.resultName]],
       choices = cached$valid.result.names
     ),
-    .selectInput.iSEE(x, .pathwayId,
+    .selectizeInput.iSEE(x, .pathwayId,
       label = "Pathway:",
-      selected = x[[.pathwayId]],
-      choices = pathwayId_choices
+      choices =  NULL,
+      selected = NULL,
+      multiple = FALSE
     )
   )
 })
@@ -266,20 +265,22 @@ setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, sess
   callNextMethod()
 
   plot_name <- .getEncodedName(x)
-
+  .input_FUN <- function(field) {
+    paste0(plot_name, "_", field)
+  }
   .createProtectedParameterObservers(plot_name,
                                      fields = c(.resultName, .pathwayId),
                                      input = input, pObjects = pObjects, rObjects = rObjects
   )
 
-  resultName_field <- paste0(plot_name, .resultName)
+  resultName_field <- .input_FUN(.resultName)
+
   observeEvent(input[[resultName_field]], {
-    print("observeEvent(input[[resultName_field]]")
     # Update the contents of input[[paste0(plot_name, .pathwayId)]]
     resultName <- input[[resultName_field]]
     new_choices <- names(pathways(metadata(se)[["iSEEpathways"]][[resultName]]))
-    updateSelectInput(session, paste0(plot_name, .pathwayId), choices = new_choices)
-  }, )
+    updateSelectizeInput(session, .input_FUN(.pathwayId), choices = new_choices, server = TRUE)
+  })
 
   invisible(NULL)
 })

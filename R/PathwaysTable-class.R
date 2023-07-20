@@ -187,6 +187,19 @@ setMethod(".defineDataInterface", "PathwaysTable", function(x, se, select_info) 
 })
 
 #' @export
+setMethod(".defineInterface", "PathwaysTable", function(x, se, select_info) {
+  list(
+    do.call(iSEE:::.collapseBoxHidden,
+      c(
+        list(x=x, field=iSEE::.dataParamBoxOpen, title="Data parameters"),
+        open=slot(x, iSEE::.dataParamBoxOpen),
+        iSEE::.defineDataInterface(x, se, select_info)
+      )
+    )
+  )
+})
+
+#' @export
 #' @importMethodsFrom iSEE .multiSelectionDimension
 setMethod(".multiSelectionDimension", "PathwaysTable", function(x) "row")
 

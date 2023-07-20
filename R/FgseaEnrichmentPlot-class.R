@@ -193,7 +193,6 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_me
         plot_env$stats <- panel_stats
         all_cmds <- list(
             sprintf('fgsea_plot <- fgsea::plotEnrichment(pathways[[%s]], stats)', dQuote(x[[.pathwayId]], q = FALSE)),
-            "",
             "plot.data <- data.frame(
   X = panel_stats,
   row.names = names(panel_stats)

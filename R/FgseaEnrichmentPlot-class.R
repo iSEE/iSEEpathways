@@ -227,7 +227,7 @@ setMethod(".defineDataInterface", "FgseaEnrichmentPlot", function(x, se, select_
   })
   # nocov end
   cached <- .getCachedCommonInfo(se, "FgseaEnrichmentPlot")
-  
+
   pathwayId_choices <- names(pathways(metadata(se)[["iSEEpathways"]][[x[[.resultName]]]]))
 
   list(
@@ -245,20 +245,33 @@ setMethod(".defineDataInterface", "FgseaEnrichmentPlot", function(x, se, select_
 })
 
 #' @export
+setMethod(".defineInterface", "FgseaEnrichmentPlot", function(x, se, select_info) {
+  list(
+    do.call(iSEE:::.collapseBoxHidden,
+      c(
+        list(x=x, field=iSEE::.dataParamBoxOpen, title="Data parameters"),
+        open=slot(x, iSEE::.dataParamBoxOpen),
+        iSEE::.defineDataInterface(x, se, select_info)
+      )
+    )
+  )
+})
+
+#' @export
 #' @importMethodsFrom iSEE .createObservers
 #' @importFrom iSEE .createProtectedParameterObservers .getEncodedName .requestActiveSelectionUpdate
 #' @importFrom methods callNextMethod
 #' @importFrom shiny observeEvent
 setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, session, pObjects, rObjects) {
   callNextMethod()
-  
+
   plot_name <- .getEncodedName(x)
-  
+
   .createProtectedParameterObservers(plot_name,
                                      fields = c(.resultName, .pathwayId),
                                      input = input, pObjects = pObjects, rObjects = rObjects
   )
-  
+
   resultName_field <- paste0(plot_name, .resultName)
   observeEvent(input[[resultName_field]], {
     print("observeEvent(input[[resultName_field]]")
@@ -267,6 +280,6 @@ setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, sess
     new_choices <- names(pathways(metadata(se)[["iSEEpathways"]][[resultName]]))
     updateSelectInput(session, paste0(plot_name, .pathwayId), choices = new_choices)
   }, )
-  
+
   invisible(NULL)
 })

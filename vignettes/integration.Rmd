@@ -201,13 +201,13 @@ airway <- registerAppOptions(airway, PathwaysTable.select.details = go_details)
 
 ```{r "start", message=FALSE, warning=FALSE}
 app <- iSEE(airway, initial = list(
-  PathwaysTable(ResultName="fgsea (p-value)", PanelWidth = 4L),
+  PathwaysTable(ResultName="fgsea (p-value)", Selected = "GO:0046323", PanelWidth = 4L),
   VolcanoPlot(RowSelectionSource = "PathwaysTable1", PanelWidth = 4L),
   ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
       PanelWidth = 4L, PanelHeight = 700L,
       CustomRows = FALSE, ColumnData = "dex",
       ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE),
-  FgseaEnrichmentPlot(PanelWidth = 6L)
+  FgseaEnrichmentPlot(PanelWidth = 12L)
 ))
 
 if (interactive()) {
@@ -260,7 +260,8 @@ app <- iSEE(airway, initial = list(
   ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
       PanelWidth = 4L, PanelHeight = 700L,
       CustomRows = FALSE, ColumnData = "dex",
-      ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE)
+      ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE),
+  FgseaEnrichmentPlot(PanelWidth = 12L)
 ))
 
 if (interactive()) {

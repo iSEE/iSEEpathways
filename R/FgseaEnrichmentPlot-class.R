@@ -93,7 +93,7 @@ setMethod(".refineParameters", "FgseaEnrichmentPlot", function(x, se) {
     result_names <- .getCachedCommonInfo(se, "FgseaEnrichmentPlot")$valid.result.names
     x <- .replaceMissingWithFirst(x, .resultName, result_names)
 
-    pathway_ids <- rownames(metadata(se)[["iSEEpathways"]][[slot(x, .resultName)]])
+    pathway_ids <- names(pathways(metadata(se)[["iSEEpathways"]][[slot(x, .resultName)]]))
     x <- .replaceMissingWithFirst(x, .pathwayId, pathway_ids)
 
     x
@@ -186,13 +186,18 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_me
         plot_env$se <- se
         plot_env$colormap <- iSEE:::.get_colormap(se)
         panel_name <- iSEE::.getEncodedName(x)
-        result_name <- all_memory[[panel_name]][[.resultName]]
+        result_name <- x[[.resultName]]
         panel_pathways <- pathways(metadata(se)[["iSEEpathways"]][[result_name]])
         plot_env$pathways <- panel_pathways
         panel_stats <- stats(metadata(se)[["iSEEpathways"]][[result_name]])
         plot_env$stats <- panel_stats
         all_cmds <- list(
-            sprintf('fgsea_plot <- fgsea::plotEnrichment(pathways[[%s]], stats)', dQuote(x[[.pathwayId]], q = FALSE))
+            sprintf('fgsea_plot <- fgsea::plotEnrichment(pathways[[%s]], stats)', dQuote(x[[.pathwayId]], q = FALSE)),
+            "",
+            "plot.data <- data.frame(
+  X = panel_stats,
+  row.names = names(panel_stats)
+)"
         )
         panel_data <- data.frame(
             X = panel_stats,
@@ -269,7 +274,7 @@ setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, sess
     paste0(plot_name, "_", field)
   }
   .createProtectedParameterObservers(plot_name,
-                                     fields = c(.resultName, .pathwayId),
+                                     fields = c(.pathwayId), # .resultName, 
                                      input = input, pObjects = pObjects, rObjects = rObjects
   )
 

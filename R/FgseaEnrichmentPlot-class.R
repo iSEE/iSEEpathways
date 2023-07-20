@@ -231,6 +231,18 @@ setMethod(".defineDataInterface", "FgseaEnrichmentPlot", function(x, se, select_
     )
   })
   # nocov end
+  # nocov start
+  .addSpecificTour(class(x), .pathwayId, function(plot_name) {
+    data.frame(
+      rbind(
+        c(
+          element = paste0("#", plot_name, "_", sprintf("%s + .selectize-control", .pathwayId)),
+          intro = "Here, we select the identifier of the pathway to visualise amongst the choice of pathways processed in the selected pathway analysis."
+        )
+      )
+    )
+  })
+  # nocov end
   cached <- .getCachedCommonInfo(se, "FgseaEnrichmentPlot")
 
   list(
@@ -273,19 +285,28 @@ setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, sess
   .input_FUN <- function(field) {
     paste0(plot_name, "_", field)
   }
+  # do NOT add .resultName to the protected parameters as it automatically triggers rerendering through updateSelectizeInput(.pathwayId)
   .createProtectedParameterObservers(plot_name,
-                                     fields = c(.pathwayId), # .resultName, 
+                                     fields = c(.pathwayId),
                                      input = input, pObjects = pObjects, rObjects = rObjects
   )
 
   resultName_field <- .input_FUN(.resultName)
+  pathwayId_field <- .input_FUN(.pathwayId)
 
   observeEvent(input[[resultName_field]], {
-    # Update the contents of input[[paste0(plot_name, .pathwayId)]]
-    resultName <- input[[resultName_field]]
-    new_choices <- names(pathways(metadata(se)[["iSEEpathways"]][[resultName]]))
-    updateSelectizeInput(session, .input_FUN(.pathwayId), choices = new_choices, server = TRUE)
-  })
+    current_value_resultName <- slot(pObjects$memory[[plot_name]], .resultName)
+    matched_input_resultName <- as(input[[resultName_field]], typeof(current_value_resultName))
+    if (!identical(matched_input_resultName, current_value_resultName)) {
+      slot(pObjects$memory[[plot_name]], .resultName) <- matched_input_resultName
+    }
+    current_value_pathwayId <- slot(pObjects$memory[[plot_name]], .pathwayId)
+    matched_input_pathwayId <- as(input[[pathwayId_field]], typeof(current_value_pathwayId))
+    pathwayId_choices <- names(pathways(metadata(se)[["iSEEpathways"]][[slot(x, .resultName)]]))
+    pathwayId_selected <- ifelse(matched_input_pathwayId %in% pathwayId_choices, matched_input_pathwayId, pathwayId_choices[1])
+    # Update the choices of pathwayId, including when initialised
+    updateSelectizeInput(session, .input_FUN(.pathwayId), choices = pathwayId_choices, selected = pathwayId_selected, server = TRUE)
+  }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
   invisible(NULL)
 })

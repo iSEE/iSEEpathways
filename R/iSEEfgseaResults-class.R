@@ -164,7 +164,7 @@ setMethod("pathways", "iSEEfgseaResults", function(x) {
 })
 
 #' @export
-setMethod("stats", "iSEEfgseaResults", function(x) {
+setMethod("featuresStats", "iSEEfgseaResults", function(x) {
   out <- metadata(x)[["stats"]]
   out
 })

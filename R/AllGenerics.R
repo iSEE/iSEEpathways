@@ -6,7 +6,7 @@
 #' \itemize{
 #' \item `pathwayType(x)` returns a character scalar indicating the type of pathways analysed.
 #' \item `pathways(x)` returns NULL or the named list of pathways used in the analysis.
-#' \item `stats(x)` returns NULL or the named numeric vector of feature-level statistics used in the analysis.
+#' \item `featuresStats(x)` returns NULL or the named numeric vector of feature-level statistics used in the analysis.
 #' }
 #'
 #' @docType methods
@@ -29,8 +29,8 @@ setGeneric(
 )
 
 setGeneric(
-  "stats",
-  function(x) standardGeneric("stats")
+  "featuresStats",
+  function(x) standardGeneric("featuresStats")
 )
 
 #' Generics for Embbedding Pathway Analysis Results into a SummarizedExperiment Object

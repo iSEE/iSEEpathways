@@ -24,13 +24,17 @@
 #' x <- FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002")
 NULL
 
+slotDefs <- character(0)
+
+slotDefs[.resultName] <- "character"
+slotDefs[.pathwayId] <- "character"
+
+slotDefs[iSEE:::.brushData] <- "list"
+
 #' @export
 #' @importClassesFrom iSEE Table
 setClass("FgseaEnrichmentPlot", contains="Panel",
-    slots=c(
-        ResultName="character",
-        PathwayId="character"
-    )
+    slots=slotDefs
 )
 
 #' @export
@@ -142,45 +146,6 @@ setMethod(".renderOutput", "FgseaEnrichmentPlot", function (x, se, ..., output, 
 #' @importFrom iSEE .textEval
 setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_memory, all_contents)
 {
-    message(".generateOutput - FgseaEnrichmentPlot")
-    # .local <- function (x, se, all_memory, all_contents)
-    # {
-    #     plot_env <- new.env()
-    #     plot_env$se <- se
-    #     plot_env$colormap <- .get_colormap(se)
-    #     all_cmds <- list()
-    #     all_labels <- list()
-    #     all_cmds$select <- .processMultiSelections(x, all_memory,
-    #         all_contents, plot_env)
-    #     xy_out <- .generateDotPlotData(x, plot_env)
-    #     all_cmds$xy <- xy_out$commands
-    #     all_labels <- c(all_labels, xy_out$labels)
-    #     extra_out <- .add_extra_aesthetic_columns(x, plot_env)
-    #     all_cmds <- c(all_cmds, extra_out$commands)
-    #     all_labels <- c(all_labels, extra_out$labels)
-    #     select_out2 <- .add_selectby_column(x, plot_env)
-    #     all_cmds <- c(all_cmds, select_out2)
-    #     all_cmds$setup <- .choose_plot_type(plot_env)
-    #     panel_data <- plot_env$plot.data
-    #     scramble_cmds <- c("# Avoid visual biases from default ordering by shuffling the points",
-    #         sprintf("set.seed(%i);", nrow(panel_data)), "plot.data <- plot.data[sample(nrow(plot.data)),,drop=FALSE];")
-    #     .textEval(scramble_cmds, plot_env)
-    #     all_cmds$shuffle <- scramble_cmds
-    #     priority_out <- .prioritizeDotPlotData(x, plot_env)
-    #     rescaled_res <- FALSE
-    #     if (has_priority <- !is.null(priority_out)) {
-    #         order_cmds <- "plot.data <- plot.data[order(.priority),,drop=FALSE];"
-    #         .textEval(order_cmds, plot_env)
-    #         all_cmds$priority <- c(priority_out$commands, order_cmds)
-    #         rescaled_res <- priority_out$rescaled
-    #     }
-    #     all_cmds$downsample <- .downsample_points(x, plot_env,
-    #         priority = has_priority, rescaled = rescaled_res)
-    #     plot_out <- .generateDotPlot(x, all_labels, plot_env)
-    #     all_cmds$plot <- plot_out$commands
-    #     list(commands = all_cmds, contents = panel_data, plot = plot_out$plot,
-    #         varname = "plot.data")
-    # }
     .local <- function (x, se, all_memory, all_contents) {
         plot_env <- new.env()
         plot_env$se <- se
@@ -189,21 +154,19 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_me
         result_name <- x[[.resultName]]
         panel_pathways <- pathways(metadata(se)[["iSEEpathways"]][[result_name]])
         plot_env$pathways <- panel_pathways
-        panel_stats <- stats(metadata(se)[["iSEEpathways"]][[result_name]])
+        panel_stats <- featuresStats(metadata(se)[["iSEEpathways"]][[result_name]])
         plot_env$stats <- panel_stats
         all_cmds <- list(
-            sprintf('fgsea_plot <- fgsea::plotEnrichment(pathways[[%s]], stats)', dQuote(x[[.pathwayId]], q = FALSE)),
+            sprintf('.pathways <- pathways(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(x[[.resultName]], FALSE)),
+            sprintf('.stats <- featuresStats(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(x[[.resultName]], FALSE)),
+            sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats)', dQuote(x[[.pathwayId]], FALSE)),
             "plot.data <- data.frame(
-  X = panel_stats,
-  row.names = names(panel_stats)
+  rank = rank(-.stats),
+  row.names = names(.stats)
 )"
         )
-        panel_data <- data.frame(
-            X = panel_stats,
-            row.names = names(panel_stats)
-        )
         .textEval(all_cmds, plot_env)
-        list(commands = all_cmds, contents = panel_data, plot = plot_env$fgsea_plot,
+        list(commands = all_cmds, contents = plot_env$plot.data, plot = plot_env$fgsea_plot,
             varname = "plot.data")
     }
     .local(x, se, ..., all_memory, all_contents)
@@ -307,5 +270,26 @@ setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, sess
     updateSelectizeInput(session, .input_FUN(.pathwayId), choices = pathwayId_choices, selected = pathwayId_selected, server = TRUE)
   }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
+  iSEE:::.create_brush_observer(plot_name, input, session, pObjects, rObjects)
+
   invisible(NULL)
 })
+
+#' @export
+#' @importMethodsFrom iSEE .multiSelectionDimension
+setMethod(".multiSelectionDimension", "FgseaEnrichmentPlot", function(x) "row")
+
+#' @export
+#' @importMethodsFrom iSEE .multiSelectionCommands
+setMethod(".multiSelectionCommands", "FgseaEnrichmentPlot", function(x, index) {
+    cmds <- "selected <- rownames(shiny::brushedPoints(contents, select));"
+    cmds
+})
+
+#' @export
+#' @importMethodsFrom iSEE .multiSelectionActive
+setMethod(".multiSelectionActive", "FgseaEnrichmentPlot", function(x) {
+    brush_data <- slot(x, iSEE:::.brushData)
+    brush_data
+})
+

@@ -290,6 +290,10 @@ setMethod(".multiSelectionCommands", "FgseaEnrichmentPlot", function(x, index) {
 #' @importMethodsFrom iSEE .multiSelectionActive
 setMethod(".multiSelectionActive", "FgseaEnrichmentPlot", function(x) {
     brush_data <- slot(x, iSEE:::.brushData)
-    brush_data
+    if (iSEE:::.is_brush(brush_data)) {
+        brush_data
+    } else {
+        NULL
+    }
 })
 

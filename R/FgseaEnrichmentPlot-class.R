@@ -14,6 +14,7 @@
 #' .multiSelectionActive,FgseaEnrichmentPlot-method
 #' .multiSelectionCommands,FgseaEnrichmentPlot-method
 #' .multiSelectionDimension,FgseaEnrichmentPlot-method
+#' .isBrushable,FgseaEnrichmentPlot-method
 #' .panelColor,FgseaEnrichmentPlot-method
 #' .refineParameters,FgseaEnrichmentPlot-method
 #' .showSelectionDetails,FgseaEnrichmentPlot-method
@@ -148,22 +149,21 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_me
 {
     .local <- function (x, se, all_memory, all_contents) {
         pathway_id <- x[[.pathwayId]]
+        if (identical(pathway_id, "")) {
+            return(NULL)
+        }
         plot_env <- new.env()
         plot_env$se <- se
         plot_env$colormap <- iSEE:::.get_colormap(se)
         plot_name <- iSEE::.getEncodedName(x)
         result_name <- x[[.resultName]]
-        panel_pathways <- pathways(metadata(se)[["iSEEpathways"]][[result_name]])
-        plot_env$pathways <- panel_pathways
-        panel_stats <- featuresStats(metadata(se)[["iSEEpathways"]][[result_name]])
-        plot_env$stats <- panel_stats
         all_cmds <- list()
         # Doing this first so all_active is available in the environment
         iSEE:::.populate_selection_environment(x, plot_env)
-        all_cmds$pre_cmds = c(
+        all_cmds$pre_cmds = paste0(c(
             sprintf('.pathways <- pathways(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(result_name, FALSE)),
             sprintf('.stats <- featuresStats(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(result_name, FALSE))
-        )
+            ), collapse = "\n")
         plot_cmds <- sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats)', dQuote(pathway_id, FALSE))
         if (!is.null(.multiSelectionActive(x))) {
             brush_src <- sprintf("all_active[['%s']]", plot_name)
@@ -320,5 +320,4 @@ setMethod(".multiSelectionActive", "FgseaEnrichmentPlot", function(x) {
 
 #' @export
 #' @importMethodsFrom iSEE .isBrushable
-setMethod(".isBrushable", "Panel", function(x) TRUE)
-
+setMethod(".isBrushable", "FgseaEnrichmentPlot", function(x) TRUE)

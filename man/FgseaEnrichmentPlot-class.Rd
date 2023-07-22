@@ -13,6 +13,7 @@
 \alias{.multiSelectionActive,FgseaEnrichmentPlot-method}
 \alias{.multiSelectionCommands,FgseaEnrichmentPlot-method}
 \alias{.multiSelectionDimension,FgseaEnrichmentPlot-method}
+\alias{.isBrushable,FgseaEnrichmentPlot-method}
 \alias{.panelColor,FgseaEnrichmentPlot-method}
 \alias{.refineParameters,FgseaEnrichmentPlot-method}
 \alias{.showSelectionDetails,FgseaEnrichmentPlot-method}

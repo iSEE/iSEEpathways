@@ -180,12 +180,14 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_me
             plot_cmds <- paste0(plot_cmds, " +", "\n", brush_draw_cmd)
         }
         all_cmds$plot_cmds <- plot_cmds
-        all_cmds$plot_data_cmds <- c(
-"plot.data <- data.frame(
-  rank = rank(-.stats),
-  row.names = names(.stats)
+        all_cmds$plot_data_cmds <- paste0(c(
+          ".stats_rank <- rank(-.stats)",
+          sprintf(".stats_rank_in_pathway <- .stats_rank[names(.stats_rank) %%in%% .pathways[[%s]]]", dQuote(pathway_id, FALSE)),
+          "plot.data <- data.frame(
+  rank = .stats_rank_in_pathway,
+  row.names = names(.stats_rank_in_pathway)
 )"
-        )
+          ), collapse = "\n")
         .textEval(all_cmds, plot_env)
         list(commands = all_cmds, contents = plot_env$plot.data, plot = plot_env$fgsea_plot,
             varname = "plot.data")

@@ -75,10 +75,11 @@ library("org.Hs.eg.db")
 library("scater")
 rowData(airway)[["ENSEMBL"]] <- rownames(airway)
 rowData(airway)[["SYMBOL"]] <- mapIds(org.Hs.eg.db, rownames(airway), "SYMBOL", "ENSEMBL")
-rownames(airway) <- uniquifyFeatureNames(
+rowData(airway)[["uniquifyFeatureNames"]] <- uniquifyFeatureNames(
   ID = rowData(airway)[["ENSEMBL"]],
   names = rowData(airway)[["SYMBOL"]]
 )
+rownames(airway) <- rowData(airway)[["uniquifyFeatureNames"]]
 ```
 
 We also compute log-counts for better visualisation of differential expression in the `r BiocStyle::Biocpkg("iSEE")` app.
@@ -114,17 +115,21 @@ airway <- iSEEde::embedContrastResults(res_limma, airway, name = "Limma-Voom", c
 rowData(airway)
 ```
 
-We prepare Gene Ontology gene sets using `r BiocStyle::Biocpkg("org.Hs.eg.db")`.
+We prepare Gene Ontology gene sets of biological pathways using `r BiocStyle::Biocpkg("org.Hs.eg.db")`.
+
+Due to the use of `uniquifyFeatureNames()` above, the function must first map to the unique Ensembl gene identifier, to accurately perform pathway analysis using the identifiers matching those of the embedded differential expression results.
 
 ```{r}
 library("org.Hs.eg.db")
-pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "SYMBOL"), c("GOALL"), keytype = "SYMBOL")
+pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "ENSEMBL"), c("GOALL"), keytype = "ENSEMBL")
 pathways <- subset(pathways, ONTOLOGYALL == "BP")
-pathways <- unique(pathways[, c("SYMBOL", "GOALL")])
-pathways <- split(pathways$SYMBOL, pathways$GOALL)
+pathways <- unique(pathways[, c("ENSEMBL", "GOALL")])
+pathways <- merge(pathways, rowData(airway)[, c("ENSEMBL", "uniquifyFeatureNames")], )
+pathways <- split(pathways$uniquifyFeatureNames, pathways$GOALL)
 ```
 
 Separately, we define and register a function that fetches the gene identifiers associated with a given pathway identifier.
+This function is required to transmit selections from pathway-level panels to feature-level panels.
 
 Due to the use of `uniquifyFeatureNames()` above, the function must first map to the unique Ensembl gene identifier, to accurately identify the corresponding value in `rownames(airway)`.
 
@@ -183,7 +188,7 @@ airway
 ```
 
 
-We define and register a function that displays details for the selected Gene Ontology gene set.
+We define and register a function that displays details for the selected Gene Ontology gene set using the `r BiocStyle::Biocpkg("GO.db")` package.
 
 ```{r}
 library("GO.db")

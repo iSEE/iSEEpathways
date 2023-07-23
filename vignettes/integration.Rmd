@@ -125,13 +125,14 @@ pathways <- split(pathways$SYMBOL, pathways$GOALL)
 ```
 
 Separately, we define and register a function that fetches the gene identifiers associated with a given pathway identifier.
-The function definition must include an ellipsis to accommodate optional arguments passed to other variants of the function.
-For instance, see section [Trading off memory usage for speed](#speed-mapping).
+
+Due to the use of `uniquifyFeatureNames()` above, the function must first map to the unique Ensembl gene identifier, to accurately identify the corresponding value in `rownames(airway)`.
 
 ```{r}
 map_GO <- function(pathway_id, se) {
-    db_symbols <- select(org.Hs.eg.db::org.Hs.eg.db, pathway_id, "SYMBOL", keytype = "GOALL")[["SYMBOL"]]
-    intersect(db_symbols, rownames(se))
+    pathway_ensembl <- mapIds(org.Hs.eg.db, pathway_id, "ENSEMBL", keytype = "GOALL", multiVals = "CharacterList")[[pathway_id]]
+    pathway_rownames <- rownames(se)[rowData(se)[["gene_id"]] %in% pathway_ensembl]
+    intersect(pathway_rownames, rownames(se))
 }
 airway <- registerAppOptions(airway, Pathways.map.functions = list(GO = map_GO))
 ```

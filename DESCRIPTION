@@ -44,5 +44,4 @@ Suggests:
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Remotes:
-    iSEE/iSEE,
     iSEE/iSEEde

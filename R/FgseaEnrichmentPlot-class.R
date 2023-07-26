@@ -145,6 +145,7 @@ setMethod(".renderOutput", "FgseaEnrichmentPlot", function (x, se, ..., output, 
 #' @export
 #' @importMethodsFrom iSEE .generateOutput
 #' @importFrom iSEE .textEval
+#' @importFrom ggplot2 geom_rect
 setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_memory, all_contents)
 {
     .local <- function (x, se, all_memory, all_contents) {

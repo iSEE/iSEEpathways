@@ -21,6 +21,7 @@ Depends:
     iSEE
 Imports:
     BiocGenerics,
+    ggplot2,
     methods,
     S4Vectors,
     shiny,

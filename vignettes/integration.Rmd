@@ -75,10 +75,11 @@ library("org.Hs.eg.db")
 library("scater")
 rowData(airway)[["ENSEMBL"]] <- rownames(airway)
 rowData(airway)[["SYMBOL"]] <- mapIds(org.Hs.eg.db, rownames(airway), "SYMBOL", "ENSEMBL")
-rownames(airway) <- uniquifyFeatureNames(
+rowData(airway)[["uniquifyFeatureNames"]] <- uniquifyFeatureNames(
   ID = rowData(airway)[["ENSEMBL"]],
   names = rowData(airway)[["SYMBOL"]]
 )
+rownames(airway) <- rowData(airway)[["uniquifyFeatureNames"]]
 ```
 
 We also compute log-counts for better visualisation of differential expression in the `r BiocStyle::Biocpkg("iSEE")` app.
@@ -114,24 +115,29 @@ airway <- iSEEde::embedContrastResults(res_limma, airway, name = "Limma-Voom", c
 rowData(airway)
 ```
 
-We prepare Gene Ontology gene sets using `r BiocStyle::Biocpkg("org.Hs.eg.db")`.
+We prepare Gene Ontology gene sets of biological pathways using `r BiocStyle::Biocpkg("org.Hs.eg.db")`.
+
+Due to the use of `uniquifyFeatureNames()` above, the function must first map to the unique Ensembl gene identifier, to accurately perform pathway analysis using the identifiers matching those of the embedded differential expression results.
 
 ```{r}
 library("org.Hs.eg.db")
-pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "SYMBOL"), c("GOALL"), keytype = "SYMBOL")
+pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "ENSEMBL"), c("GOALL"), keytype = "ENSEMBL")
 pathways <- subset(pathways, ONTOLOGYALL == "BP")
-pathways <- unique(pathways[, c("SYMBOL", "GOALL")])
-pathways <- split(pathways$SYMBOL, pathways$GOALL)
+pathways <- unique(pathways[, c("ENSEMBL", "GOALL")])
+pathways <- merge(pathways, rowData(airway)[, c("ENSEMBL", "uniquifyFeatureNames")], )
+pathways <- split(pathways$uniquifyFeatureNames, pathways$GOALL)
 ```
 
 Separately, we define and register a function that fetches the gene identifiers associated with a given pathway identifier.
-The function definition must include an ellipsis to accommodate optional arguments passed to other variants of the function.
-For instance, see section [Trading off memory usage for speed](#speed-mapping).
+This function is required to transmit selections from pathway-level panels to feature-level panels.
+
+Due to the use of `uniquifyFeatureNames()` above, the function must first map to the unique Ensembl gene identifier, to accurately identify the corresponding value in `rownames(airway)`.
 
 ```{r}
 map_GO <- function(pathway_id, se) {
-    db_symbols <- select(org.Hs.eg.db::org.Hs.eg.db, pathway_id, "SYMBOL", keytype = "GOALL")[["SYMBOL"]]
-    intersect(db_symbols, rownames(se))
+    pathway_ensembl <- mapIds(org.Hs.eg.db, pathway_id, "ENSEMBL", keytype = "GOALL", multiVals = "CharacterList")[[pathway_id]]
+    pathway_rownames <- rownames(se)[rowData(se)[["gene_id"]] %in% pathway_ensembl]
+    intersect(pathway_rownames, rownames(se))
 }
 airway <- registerAppOptions(airway, Pathways.map.functions = list(GO = map_GO))
 ```
@@ -182,7 +188,7 @@ airway
 ```
 
 
-We define and register a function that displays details for the selected Gene Ontology gene set.
+We define and register a function that displays details for the selected Gene Ontology gene set using the `r BiocStyle::Biocpkg("GO.db")` package.
 
 ```{r}
 library("GO.db")
@@ -257,7 +263,7 @@ We can then launch a new instance of the app, using the same initial configurati
 ```{r "faster", message=FALSE, warning=FALSE}
 app <- iSEE(airway, initial = list(
   PathwaysTable(ResultName="fgsea (p-value)", Selected = "GO:0046323", PanelWidth = 4L),
-  VolcanoPlot(RowSelectionSource = "PathwaysTable1", PanelWidth = 4L),
+  VolcanoPlot(RowSelectionSource = "PathwaysTable1", ColorBy = "Row selection", PanelWidth = 4L),
   ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
       PanelWidth = 4L, PanelHeight = 700L,
       CustomRows = FALSE, ColumnData = "dex",

@@ -14,6 +14,7 @@
 #' .multiSelectionActive,FgseaEnrichmentPlot-method
 #' .multiSelectionCommands,FgseaEnrichmentPlot-method
 #' .multiSelectionDimension,FgseaEnrichmentPlot-method
+#' .isBrushable,FgseaEnrichmentPlot-method
 #' .panelColor,FgseaEnrichmentPlot-method
 #' .refineParameters,FgseaEnrichmentPlot-method
 #' .showSelectionDetails,FgseaEnrichmentPlot-method
@@ -144,27 +145,50 @@ setMethod(".renderOutput", "FgseaEnrichmentPlot", function (x, se, ..., output, 
 #' @export
 #' @importMethodsFrom iSEE .generateOutput
 #' @importFrom iSEE .textEval
+#' @importFrom ggplot2 geom_rect
 setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_memory, all_contents)
 {
     .local <- function (x, se, all_memory, all_contents) {
+        pathway_id <- x[[.pathwayId]]
+        if (identical(pathway_id, "")) {
+            return(NULL)
+        }
         plot_env <- new.env()
         plot_env$se <- se
         plot_env$colormap <- iSEE:::.get_colormap(se)
-        panel_name <- iSEE::.getEncodedName(x)
+        plot_name <- iSEE::.getEncodedName(x)
         result_name <- x[[.resultName]]
-        panel_pathways <- pathways(metadata(se)[["iSEEpathways"]][[result_name]])
-        plot_env$pathways <- panel_pathways
-        panel_stats <- featuresStats(metadata(se)[["iSEEpathways"]][[result_name]])
-        plot_env$stats <- panel_stats
-        all_cmds <- list(
-            sprintf('.pathways <- pathways(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(x[[.resultName]], FALSE)),
-            sprintf('.stats <- featuresStats(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(x[[.resultName]], FALSE)),
-            sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats)', dQuote(x[[.pathwayId]], FALSE)),
-            "plot.data <- data.frame(
-  rank = rank(-.stats),
-  row.names = names(.stats)
+        all_cmds <- list()
+        # Doing this first so all_active is available in the environment
+        iSEE:::.populate_selection_environment(x, plot_env)
+        all_cmds$pre_cmds = paste0(c(
+            sprintf('.pathways <- pathways(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(result_name, FALSE)),
+            sprintf('.stats <- featuresStats(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(result_name, FALSE))
+            ), collapse = "\n")
+        plot_cmds <- sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats)', dQuote(pathway_id, FALSE))
+        if (!is.null(.multiSelectionActive(x))) {
+            brush_src <- sprintf("all_active[['%s']]", plot_name)
+            brush_data <- sprintf("%s[c('xmin', 'xmax', 'ymin', 'ymax')]", brush_src)
+            stroke_color <- .getPanelColor(x)
+            fill_color <- iSEE:::.lighten_color_for_fill(stroke_color)
+            aes_call <- sprintf("xmin=%s, xmax=%s, ymin=%s, ymax=%s", 'xmin', 'xmax', 'ymin', 'ymax')
+            # Build up the command that draws the brush
+            brush_draw_cmd <- sprintf(
+"geom_rect(aes(%s), color='%s', alpha=%s, fill='%s',
+    data=do.call(data.frame, %s),
+    inherit.aes=FALSE)",
+                aes_call, stroke_color, iSEE:::.brushFillOpacity, fill_color, brush_data)
+            plot_cmds <- paste0(plot_cmds, " +", "\n", brush_draw_cmd)
+        }
+        all_cmds$plot_cmds <- plot_cmds
+        all_cmds$plot_data_cmds <- paste0(c(
+          ".stats_rank <- rank(-.stats)",
+          sprintf(".stats_rank_in_pathway <- .stats_rank[names(.stats_rank) %%in%% .pathways[[%s]]]", dQuote(pathway_id, FALSE)),
+          "plot.data <- data.frame(
+  rank = .stats_rank_in_pathway,
+  row.names = names(.stats_rank_in_pathway)
 )"
-        )
+          ), collapse = "\n")
         .textEval(all_cmds, plot_env)
         list(commands = all_cmds, contents = plot_env$plot.data, plot = plot_env$fgsea_plot,
             varname = "plot.data")
@@ -297,3 +321,6 @@ setMethod(".multiSelectionActive", "FgseaEnrichmentPlot", function(x) {
     }
 })
 
+#' @export
+#' @importMethodsFrom iSEE .isBrushable
+setMethod(".isBrushable", "FgseaEnrichmentPlot", function(x) TRUE)

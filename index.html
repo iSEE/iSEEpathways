@@ -91,7 +91,7 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of <code>iSEEpathways</code> is to provide panels to facilitate the interactive visualisation of pathway analysis results in <em><a href="https://bioconductor.org/packages/3.16/iSEE" class="external-link">iSEE</a></em> applications.</p>
+<p>The goal of <code>iSEEpathways</code> is to provide panels to facilitate the interactive visualisation of pathway analysis results in <em><a href="https://bioconductor.org/packages/3.18/iSEE" class="external-link">iSEE</a></em> applications.</p>
 <div class="section level2">
 <h2 id="installation-instructions">Installation instructions<a class="anchor" aria-label="anchor" href="#installation-instructions"></a>
 </h2>
@@ -112,7 +112,72 @@
 <p>This is a basic example which shows you how to load the package:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/iSEE/iSEEpathways" class="external-link">"iSEEpathways"</a></span><span class="op">)</span></span>
-<span><span class="co">## basic example code</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"org.Hs.eg.db"</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ctlab/fgsea/" class="external-link">"fgsea"</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/iSEE/iSEE" class="external-link">"iSEE"</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Example data ----</span></span>
+<span></span>
+<span><span class="co">## Pathways</span></span>
+<span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/AnnotationDb-class.html" class="external-link">select</a></span><span class="op">(</span><span class="va">org.Hs.eg.db</span>, <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/AnnotationDb-class.html" class="external-link">keys</a></span><span class="op">(</span><span class="va">org.Hs.eg.db</span>, <span class="st">"SYMBOL"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GOALL"</span><span class="op">)</span>, keytype <span class="op">=</span> <span class="st">"SYMBOL"</span><span class="op">)</span></span>
+<span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">pathways</span>, <span class="va">ONTOLOGYALL</span> <span class="op">==</span> <span class="st">"BP"</span><span class="op">)</span></span>
+<span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SYMBOL"</span>, <span class="st">"GOALL"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">$</span><span class="va">SYMBOL</span>, <span class="va">pathways</span><span class="op">$</span><span class="va">GOALL</span><span class="op">)</span></span>
+<span><span class="va">len_pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lengths.html" class="external-link">lengths</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">)</span></span>
+<span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="va">pathways</span><span class="op">[</span><span class="va">len_pathways</span> <span class="op">&gt;</span> <span class="fl">15</span> <span class="op">&amp;</span> <span class="va">len_pathways</span> <span class="op">&lt;</span> <span class="fl">500</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co">## Features</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co"># simulate a score for all genes found across all pathways</span></span>
+<span><span class="va">feature_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">feature_stats</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># arbitrarily select a pathway to simulate enrichment</span></span>
+<span><span class="va">pathway_id</span> <span class="op">&lt;-</span> <span class="st">"GO:0046324"</span></span>
+<span><span class="va">pathway_genes</span> <span class="op">&lt;-</span> <span class="va">pathways</span><span class="op">[[</span><span class="va">pathway_id</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="co"># increase score of genes in the selected pathway to simulate enrichment</span></span>
+<span><span class="va">feature_stats</span><span class="op">[</span><span class="va">pathway_genes</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">feature_stats</span><span class="op">[</span><span class="va">pathway_genes</span><span class="op">]</span> <span class="op">+</span> <span class="fl">1</span></span>
+<span></span>
+<span><span class="co"># fgsea ----</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
+<span><span class="va">fgseaRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/fgsea/man/fgsea.html" class="external-link">fgsea</a></span><span class="op">(</span>pathways <span class="op">=</span> <span class="va">pathways</span>, </span>
+<span>                  stats    <span class="op">=</span> <span class="va">feature_stats</span>,</span>
+<span>                  minSize  <span class="op">=</span> <span class="fl">15</span>,</span>
+<span>                  maxSize  <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">fgseaRes</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">pval</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       pathway         pval         padj   log2err        ES      NES size</span></span>
+<span><span class="co">#&gt; 1: GO:0046323 1.174458e-10 4.609944e-07 0.8266573 0.5982413 2.555596   75</span></span>
+<span><span class="co">#&gt; 2: GO:0008645 1.840665e-10 4.609944e-07 0.8266573 0.5115897 2.367116  117</span></span>
+<span><span class="co">#&gt; 3: GO:0010827 4.296846e-10 5.194149e-07 0.8140358 0.5797781 2.475614   77</span></span>
+<span><span class="co">#&gt; 4: GO:1904659 4.524314e-10 5.194149e-07 0.8140358 0.5117531 2.365294  114</span></span>
+<span><span class="co">#&gt; 5: GO:0046324 5.184816e-10 5.194149e-07 0.8012156 0.6314064 2.542207   59</span></span>
+<span><span class="co">#&gt; 6: GO:0015749 6.491366e-10 5.419208e-07 0.8012156 0.4997745 2.325238  120</span></span>
+<span><span class="co">#&gt;                                    leadingEdge</span></span>
+<span><span class="co">#&gt; 1:   PTPN11,TSC1,CREBL2,PTH,MIR107,SELENOS,...</span></span>
+<span><span class="co">#&gt; 2:    PTPN11,SLC2A8,TSC1,CREBL2,PTH,MIR107,...</span></span>
+<span><span class="co">#&gt; 3: PTPN11,CREBL2,PTH,MIR107,SELENOS,SLC1A2,...</span></span>
+<span><span class="co">#&gt; 4:    PTPN11,SLC2A8,TSC1,CREBL2,PTH,MIR107,...</span></span>
+<span><span class="co">#&gt; 5: PTPN11,CREBL2,PTH,MIR107,SELENOS,SLC1A2,...</span></span>
+<span><span class="co">#&gt; 6:    PTPN11,SLC2A8,TSC1,CREBL2,PTH,MIR107,...</span></span>
+<span></span>
+<span><span class="co"># iSEE ---</span></span>
+<span></span>
+<span><span class="va">ngenes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">feature_stats</span><span class="op">)</span></span>
+<span><span class="va">cnts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/NegBinomial.html" class="external-link">rnbinom</a></span><span class="op">(</span>n<span class="op">=</span><span class="va">ngenes</span><span class="op">*</span><span class="fl">2</span>, mu<span class="op">=</span><span class="fl">100</span>, size<span class="op">=</span><span class="fl">1</span><span class="op">/</span><span class="fl">0.5</span><span class="op">)</span>, nrow<span class="op">=</span><span class="va">ngenes</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">cnts</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">feature_stats</span><span class="op">)</span></span>
+<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></span><span class="op">(</span>assay <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>counts <span class="op">=</span> <span class="va">cnts</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/utils-SummarizedExperiment.html">embedPathwaysResults</a></span><span class="op">(</span><span class="va">fgseaRes</span>, <span class="va">se</span>, name <span class="op">=</span> <span class="st">"fgsea"</span>, class <span class="op">=</span> <span class="st">"fgsea"</span>, pathwayType <span class="op">=</span> <span class="st">"GO"</span>,</span>
+<span>                           pathways <span class="op">=</span> <span class="va">pathways</span>, stats <span class="op">=</span> <span class="va">feature_stats</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/iSEE.html" class="external-link">iSEE</a></span><span class="op">(</span><span class="va">se</span>, initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/PathwaysTable-class.html">PathwaysTable</a></span><span class="op">(</span>ResultName<span class="op">=</span><span class="st">"fgsea"</span>, PanelWidth <span class="op">=</span> <span class="fl">6L</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="reference/FgseaEnrichmentPlot-class.html">FgseaEnrichmentPlot</a></span><span class="op">(</span>ResultName<span class="op">=</span><span class="st">"fgsea"</span>, PathwayId<span class="op">=</span><span class="st">"GO:0000002"</span>, PanelWidth <span class="op">=</span> <span class="fl">6L</span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/runApp.html" class="external-link">runApp</a></span><span class="op">(</span><span class="va">app</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
@@ -120,10 +185,9 @@
 <p>Below is the citation output from using <code>citation('iSEEpathways')</code> in R. Please run this yourself to check for any updates on how to cite <strong>iSEEpathways</strong>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">'iSEEpathways'</span><span class="op">)</span>, bibtex <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; To cite package 'iSEEpathways' in publications use:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Rue-Albrecht K (2022). _iSEEpathways: iSEE extension for panels</span></span>
+<span><span class="co">#&gt;   Rue-Albrecht K (2023). _iSEEpathways: iSEE extension for panels</span></span>
 <span><span class="co">#&gt;   related to pathway analysis_. R package version 0.99.0,</span></span>
 <span><span class="co">#&gt;   &lt;https://github.com/iSEE/iSEEpathways&gt;.</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -132,7 +196,7 @@
 <span><span class="co">#&gt;   @Manual{,</span></span>
 <span><span class="co">#&gt;     title = {iSEEpathways: iSEE extension for panels related to pathway analysis},</span></span>
 <span><span class="co">#&gt;     author = {Kevin Rue-Albrecht},</span></span>
-<span><span class="co">#&gt;     year = {2022},</span></span>
+<span><span class="co">#&gt;     year = {2023},</span></span>
 <span><span class="co">#&gt;     note = {R package version 0.99.0},</span></span>
 <span><span class="co">#&gt;     url = {https://github.com/iSEE/iSEEpathways},</span></span>
 <span><span class="co">#&gt;   }</span></span></code></pre></div>
@@ -147,14 +211,14 @@
 <h2 id="development-tools">Development tools<a class="anchor" aria-label="anchor" href="#development-tools"></a>
 </h2>
 <ul>
-<li>Continuous code testing is possible thanks to <a href="https://www.tidyverse.org/blog/2020/04/usethis-1-6-0/" class="external-link">GitHub actions</a> through <em><a href="https://CRAN.R-project.org/package=usethis" class="external-link">usethis</a></em>, <em><a href="https://CRAN.R-project.org/package=remotes" class="external-link">remotes</a></em>, and <em><a href="https://CRAN.R-project.org/package=rcmdcheck" class="external-link">rcmdcheck</a></em> customized to use <a href="https://www.bioconductor.org/help/docker/" class="external-link">Bioconductor’s docker containers</a> and <em><a href="https://bioconductor.org/packages/3.16/BiocCheck" class="external-link">BiocCheck</a></em>.</li>
+<li>Continuous code testing is possible thanks to <a href="https://www.tidyverse.org/blog/2020/04/usethis-1-6-0/" class="external-link">GitHub actions</a> through <em><a href="https://CRAN.R-project.org/package=usethis" class="external-link">usethis</a></em>, <em><a href="https://CRAN.R-project.org/package=remotes" class="external-link">remotes</a></em>, and <em><a href="https://CRAN.R-project.org/package=rcmdcheck" class="external-link">rcmdcheck</a></em> customized to use <a href="https://www.bioconductor.org/help/docker/" class="external-link">Bioconductor’s docker containers</a> and <em><a href="https://bioconductor.org/packages/3.18/BiocCheck" class="external-link">BiocCheck</a></em>.</li>
 <li>Code coverage assessment is possible thanks to <a href="https://codecov.io/gh" class="external-link">codecov</a> and <em><a href="https://CRAN.R-project.org/package=covr" class="external-link">covr</a></em>.</li>
 <li>The <a href="http://iSEE.github.io/iSEEpathways" class="external-link">documentation website</a> is automatically updated thanks to <em><a href="https://CRAN.R-project.org/package=pkgdown" class="external-link">pkgdown</a></em>.</li>
 <li>The code is styled automatically thanks to <em><a href="https://CRAN.R-project.org/package=styler" class="external-link">styler</a></em>.</li>
 <li>The documentation is formatted thanks to <em><a href="https://CRAN.R-project.org/package=devtools" class="external-link">devtools</a></em> and <em><a href="https://CRAN.R-project.org/package=roxygen2" class="external-link">roxygen2</a></em>.</li>
 </ul>
 <p>For more details, check the <code>dev</code> directory.</p>
-<p>This package was developed using <em><a href="https://bioconductor.org/packages/3.16/biocthis" class="external-link">biocthis</a></em>.</p>
+<p>This package was developed using <em><a href="https://bioconductor.org/packages/3.18/biocthis" class="external-link">biocthis</a></em>.</p>
 </div>
 <div class="section level2">
 <h2 id="code-of-conduct-1">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct-1"></a>

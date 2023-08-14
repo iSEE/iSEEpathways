@@ -23,5 +23,5 @@ The \code{PathwaysTable} is a \linkS4class{Panel} where each row represents a se
 Selections in this panel can be transmitted to other row-oriented panels.
 }
 \examples{
-x <- PathwaysTable(ResultName="fgsea")
+PathwaysTable(ResultName="fgsea")
 }

@@ -26,5 +26,5 @@ The \code{FgseaEnrichmentPlot} is a \linkS4class{Panel} where each row represent
 Selections in this panel can be transmitted to other row-oriented panels.
 }
 \examples{
-x <- FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002")
+FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002")
 }

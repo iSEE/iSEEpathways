@@ -25,7 +25,7 @@
 #' @name FgseaEnrichmentPlot-class
 #'
 #' @examples
-#' x <- FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002")
+#' FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002")
 NULL
 
 slotDefs <- character(0)

@@ -22,7 +22,7 @@
 #' @name PathwaysTable-class
 #'
 #' @examples
-#' x <- PathwaysTable(ResultName="fgsea")
+#' PathwaysTable(ResultName="fgsea")
 NULL
 
 #' @export

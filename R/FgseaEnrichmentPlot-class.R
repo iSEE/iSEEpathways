@@ -74,7 +74,7 @@ setValidity2("FgseaEnrichmentPlot", function(object) {
 #' @importMethodsFrom iSEE .cacheCommonInfo
 #' @importFrom iSEE .getCachedCommonInfo .setCachedCommonInfo
 #' @importFrom methods callNextMethod
-#' @importFrom SummarizedExperiment rowData
+#' @importFrom S4Vectors metadata
 setMethod(".cacheCommonInfo", "FgseaEnrichmentPlot", function(x, se) {
     if (!is.null(.getCachedCommonInfo(se, "FgseaEnrichmentPlot"))) {
         return(se)

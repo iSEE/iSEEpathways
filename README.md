@@ -18,7 +18,7 @@ coverage](https://codecov.io/gh/iSEE/iSEEpathways/branch/main/graph/badge.svg)](
 
 The goal of `iSEEpathways` is to provide panels to facilitate the
 interactive visualisation of pathway analysis results in
-*[iSEE](https://bioconductor.org/packages/3.16/iSEE)* applications.
+*[iSEE](https://bioconductor.org/packages/3.18/iSEE)* applications.
 
 ## Installation instructions
 
@@ -47,7 +47,72 @@ This is a basic example which shows you how to load the package:
 
 ``` r
 library("iSEEpathways")
-## basic example code
+library("org.Hs.eg.db")
+library("fgsea")
+library("iSEE")
+
+# Example data ----
+
+## Pathways
+pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "SYMBOL"), c("GOALL"), keytype = "SYMBOL")
+pathways <- subset(pathways, ONTOLOGYALL == "BP")
+pathways <- unique(pathways[, c("SYMBOL", "GOALL")])
+pathways <- split(pathways$SYMBOL, pathways$GOALL)
+len_pathways <- lengths(pathways)
+pathways <- pathways[len_pathways > 15 & len_pathways < 500]
+
+## Features
+set.seed(1)
+# simulate a score for all genes found across all pathways
+feature_stats <- rnorm(length(unique(unlist(pathways))))
+names(feature_stats) <- unique(unlist(pathways))
+# arbitrarily select a pathway to simulate enrichment
+pathway_id <- "GO:0046324"
+pathway_genes <- pathways[[pathway_id]]
+# increase score of genes in the selected pathway to simulate enrichment
+feature_stats[pathway_genes] <- feature_stats[pathway_genes] + 1
+
+# fgsea ----
+
+set.seed(42)
+fgseaRes <- fgsea(pathways = pathways, 
+                  stats    = feature_stats,
+                  minSize  = 15,
+                  maxSize  = 500)
+head(fgseaRes[order(pval), ])
+#>       pathway         pval         padj   log2err        ES      NES size
+#> 1: GO:0046323 1.174458e-10 4.609944e-07 0.8266573 0.5982413 2.555596   75
+#> 2: GO:0008645 1.840665e-10 4.609944e-07 0.8266573 0.5115897 2.367116  117
+#> 3: GO:0010827 4.296846e-10 5.194149e-07 0.8140358 0.5797781 2.475614   77
+#> 4: GO:1904659 4.524314e-10 5.194149e-07 0.8140358 0.5117531 2.365294  114
+#> 5: GO:0046324 5.184816e-10 5.194149e-07 0.8012156 0.6314064 2.542207   59
+#> 6: GO:0015749 6.491366e-10 5.419208e-07 0.8012156 0.4997745 2.325238  120
+#>                                    leadingEdge
+#> 1:   PTPN11,TSC1,CREBL2,PTH,MIR107,SELENOS,...
+#> 2:    PTPN11,SLC2A8,TSC1,CREBL2,PTH,MIR107,...
+#> 3: PTPN11,CREBL2,PTH,MIR107,SELENOS,SLC1A2,...
+#> 4:    PTPN11,SLC2A8,TSC1,CREBL2,PTH,MIR107,...
+#> 5: PTPN11,CREBL2,PTH,MIR107,SELENOS,SLC1A2,...
+#> 6:    PTPN11,SLC2A8,TSC1,CREBL2,PTH,MIR107,...
+
+# iSEE ---
+
+ngenes <- length(feature_stats)
+cnts <- matrix(rnbinom(n=ngenes*2, mu=100, size=1/0.5), nrow=ngenes)
+rownames(cnts) <- names(feature_stats)
+se <- SummarizedExperiment(assay = list(counts = cnts))
+
+se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO",
+                           pathways = pathways, stats = feature_stats)
+
+app <- iSEE(se, initial = list(
+  PathwaysTable(ResultName="fgsea", PanelWidth = 6L),
+  FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002", PanelWidth = 6L)
+))
+
+if (interactive()) {
+  shiny::runApp(app)
+}
 ```
 
 ## Citation
@@ -58,10 +123,9 @@ Please run this yourself to check for any updates on how to cite
 
 ``` r
 print(citation('iSEEpathways'), bibtex = TRUE)
-#> 
 #> To cite package 'iSEEpathways' in publications use:
 #> 
-#>   Rue-Albrecht K (2022). _iSEEpathways: iSEE extension for panels
+#>   Rue-Albrecht K (2023). _iSEEpathways: iSEE extension for panels
 #>   related to pathway analysis_. R package version 0.99.0,
 #>   <https://github.com/iSEE/iSEEpathways>.
 #> 
@@ -70,7 +134,7 @@ print(citation('iSEEpathways'), bibtex = TRUE)
 #>   @Manual{,
 #>     title = {iSEEpathways: iSEE extension for panels related to pathway analysis},
 #>     author = {Kevin Rue-Albrecht},
-#>     year = {2022},
+#>     year = {2023},
 #>     note = {R package version 0.99.0},
 #>     url = {https://github.com/iSEE/iSEEpathways},
 #>   }
@@ -96,7 +160,7 @@ contributing to this project, you agree to abide by its terms.
   *[rcmdcheck](https://CRAN.R-project.org/package=rcmdcheck)* customized
   to use [Bioconductor’s docker
   containers](https://www.bioconductor.org/help/docker/) and
-  *[BiocCheck](https://bioconductor.org/packages/3.16/BiocCheck)*.
+  *[BiocCheck](https://bioconductor.org/packages/3.18/BiocCheck)*.
 - Code coverage assessment is possible thanks to
   [codecov](https://codecov.io/gh) and
   *[covr](https://CRAN.R-project.org/package=covr)*.
@@ -112,7 +176,7 @@ contributing to this project, you agree to abide by its terms.
 For more details, check the `dev` directory.
 
 This package was developed using
-*[biocthis](https://bioconductor.org/packages/3.16/biocthis)*.
+*[biocthis](https://bioconductor.org/packages/3.18/biocthis)*.
 
 ## Code of Conduct
 

@@ -124,7 +124,7 @@ library("org.Hs.eg.db")
 pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "ENSEMBL"), c("GOALL"), keytype = "ENSEMBL")
 pathways <- subset(pathways, ONTOLOGYALL == "BP")
 pathways <- unique(pathways[, c("ENSEMBL", "GOALL")])
-pathways <- merge(pathways, rowData(airway)[, c("ENSEMBL", "uniquifyFeatureNames")], )
+pathways <- merge(pathways, rowData(airway)[, c("ENSEMBL", "uniquifyFeatureNames")])
 pathways <- split(pathways$uniquifyFeatureNames, pathways$GOALL)
 ```
 
@@ -137,7 +137,7 @@ Due to the use of `uniquifyFeatureNames()` above, the function must first map to
 map_GO <- function(pathway_id, se) {
     pathway_ensembl <- mapIds(org.Hs.eg.db, pathway_id, "ENSEMBL", keytype = "GOALL", multiVals = "CharacterList")[[pathway_id]]
     pathway_rownames <- rownames(se)[rowData(se)[["gene_id"]] %in% pathway_ensembl]
-    intersect(pathway_rownames, rownames(se))
+    pathway_rownames
 }
 airway <- registerAppOptions(airway, Pathways.map.functions = list(GO = map_GO))
 ```
@@ -253,7 +253,7 @@ map_GO_v2 <- function(pathway_id, se) {
         warning("Pathway identifier %s not found.", sQuote(pathway_id))
         return(character(0))
     }
-    intersect(pathway_list[[pathway_id]], rownames(se))
+    pathway_list[[pathway_id]]
 }
 airway <- registerAppOptions(airway, Pathways.map.functions = list(GO = map_GO_v2))
 ```

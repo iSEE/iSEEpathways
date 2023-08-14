@@ -36,7 +36,7 @@ slotDefs[.pathwayId] <- "character"
 slotDefs[iSEE:::.brushData] <- "list"
 
 #' @export
-#' @importClassesFrom iSEE Table
+#' @importClassesFrom iSEE Panel
 setClass("FgseaEnrichmentPlot", contains="Panel",
     slots=slotDefs
 )

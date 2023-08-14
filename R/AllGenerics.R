@@ -16,7 +16,9 @@
 #' @author Kevin Rue-Albrecht
 #'
 #' @examples
+#' showMethods(pathways)
 #' showMethods(pathwayType)
+#' showMethods(featuresStats)
 NULL
 
 setGeneric(

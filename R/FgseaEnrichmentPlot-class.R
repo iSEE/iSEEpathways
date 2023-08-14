@@ -108,7 +108,8 @@ setMethod(".refineParameters", "FgseaEnrichmentPlot", function(x, se) {
 })
 
 #' @export
-#' @importMethodsFrom iSEE .defineOutput .getPanelColor
+#' @importMethodsFrom iSEE .defineOutput
+#' @importFrom iSEE .getPanelColor
 #' @importFrom shiny brushOpts plotOutput
 #' @importFrom shinyWidgets addSpinner
 setMethod(".defineOutput", "FgseaEnrichmentPlot", function(x, ...){
@@ -201,10 +202,10 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_me
 })
 
 #' @export
-#' @importMethodsFrom iSEE .defineDataInterface .selectizeInput.iSEE
+#' @importMethodsFrom iSEE .defineDataInterface
 #' @importFrom methods callNextMethod
 #' @importFrom shiny hr
-#' @importFrom iSEE .addSpecificTour .getCachedCommonInfo .getEncodedName
+#' @importFrom iSEE .addSpecificTour .getCachedCommonInfo .getEncodedName .selectizeInput.iSEE
 #' .selectInput.iSEE
 setMethod(".defineDataInterface", "FgseaEnrichmentPlot", function(x, se, select_info) {
   plot_name <- .getEncodedName(x)

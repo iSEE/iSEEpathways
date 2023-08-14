@@ -20,7 +20,9 @@ An overview of the generics for accessing common pieces of information in pathwa
 }
 
 \examples{
+showMethods(pathways)
 showMethods(pathwayType)
+showMethods(featuresStats)
 }
 \author{
 Kevin Rue-Albrecht

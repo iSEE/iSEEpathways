@@ -3,7 +3,9 @@
 \docType{methods}
 \name{pathway-generics}
 \alias{pathway-generics}
+\alias{featuresStats}
 \alias{pathwayType}
+\alias{pathways}
 \title{Generics for Pathway Analysis Results}
 \description{
 An overview of the generics for accessing common pieces of information in pathway analysis results.

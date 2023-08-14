@@ -21,7 +21,6 @@
 #' @rdname iSEEpathwaysResults-class
 #' @aliases
 #' show,iSEEpathwaysResults-method
-#' pathwayType,iSEEpathwaysResults-method
 #'
 #' @examples
 #' showClass("iSEEpathwaysResults")
@@ -73,8 +72,10 @@ setValidity2("iSEEpathwaysResults", function(object) {
 #' @docType methods
 #' @name iSEEfgseaResults-class
 #' @aliases
-#' iSEEfgseaResults
+#' iSEEfgseaResults iSEEfgseaResults-class
 #' embedPathwaysResults,iSEEfgseaResults-method
+#' featuresStats,iSEEfgseaResults-method
+#' pathways,iSEEfgseaResults-method
 #' pathwayType,iSEEfgseaResults-method
 #'
 #' @examples

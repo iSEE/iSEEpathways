@@ -9,6 +9,7 @@
 #' .cacheCommonInfo,PathwaysTable-method
 #' .createObservers,PathwaysTable-method
 #' .defineDataInterface,PathwaysTable-method
+#' .defineInterface,PathwaysTable-method
 #' .fullName,PathwaysTable-method
 #' .generateTable,PathwaysTable-method
 #' .multiSelectionActive,PathwaysTable-method
@@ -187,6 +188,7 @@ setMethod(".defineDataInterface", "PathwaysTable", function(x, se, select_info) 
 })
 
 #' @export
+#' @importMethodsFrom iSEE .defineInterface
 setMethod(".defineInterface", "PathwaysTable", function(x, se, select_info) {
   list(
     do.call(iSEE:::.collapseBoxHidden,

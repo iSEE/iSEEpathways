@@ -53,7 +53,7 @@ See \code{vignette("integration", package = "iSEEpathways")} for examples in act
 \section{Definitions}{
 
 \itemize{
-\item \code{embedPathwaysResults(x, se, name, pathwayType, ...)} embeds the results \code{x} in the \linkS4class{SummarizedExperiment} \code{se}.
+\item \code{embedPathwaysResults(x, se, name, pathwayType, ...)} embeds the results \code{x} in the \linkS4class{SummarizedExperiment} \code{se} under the key \code{name}; \code{pathwayType} is a character scalar required to identify a function mapping a pathway identifier to asssociated feature identifiers.
 }
 }
 

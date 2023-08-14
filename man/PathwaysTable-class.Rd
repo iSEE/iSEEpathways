@@ -8,6 +8,7 @@
 \alias{.cacheCommonInfo,PathwaysTable-method}
 \alias{.createObservers,PathwaysTable-method}
 \alias{.defineDataInterface,PathwaysTable-method}
+\alias{.defineInterface,PathwaysTable-method}
 \alias{.fullName,PathwaysTable-method}
 \alias{.generateTable,PathwaysTable-method}
 \alias{.multiSelectionActive,PathwaysTable-method}

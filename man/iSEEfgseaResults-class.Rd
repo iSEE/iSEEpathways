@@ -5,6 +5,8 @@
 \alias{iSEEfgseaResults-class}
 \alias{iSEEfgseaResults}
 \alias{embedPathwaysResults,iSEEfgseaResults-method}
+\alias{featuresStats,iSEEfgseaResults-method}
+\alias{pathways,iSEEfgseaResults-method}
 \alias{pathwayType,iSEEfgseaResults-method}
 \title{The iSEEfgseaResults class}
 \description{

@@ -3,7 +3,6 @@
 \name{iSEEpathwaysResults-class}
 \alias{iSEEpathwaysResults-class}
 \alias{show,iSEEpathwaysResults-method}
-\alias{pathwayType,iSEEpathwaysResults-method}
 \title{The iSEEpathwaysResults class}
 \description{
 The iSEEpathwaysResults class represents an undefined resource.

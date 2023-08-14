@@ -9,14 +9,17 @@
 #' .cacheCommonInfo,FgseaEnrichmentPlot-method
 #' .createObservers,FgseaEnrichmentPlot-method
 #' .defineDataInterface,FgseaEnrichmentPlot-method
+#' .defineInterface,FgseaEnrichmentPlot-method
+#' .defineOutput,FgseaEnrichmentPlot-method
 #' .fullName,FgseaEnrichmentPlot-method
-#' .generateTable,FgseaEnrichmentPlot-method
+#' .generateOutput,FgseaEnrichmentPlot-method
+#' .isBrushable,FgseaEnrichmentPlot-method
 #' .multiSelectionActive,FgseaEnrichmentPlot-method
 #' .multiSelectionCommands,FgseaEnrichmentPlot-method
 #' .multiSelectionDimension,FgseaEnrichmentPlot-method
-#' .isBrushable,FgseaEnrichmentPlot-method
 #' .panelColor,FgseaEnrichmentPlot-method
 #' .refineParameters,FgseaEnrichmentPlot-method
+#' .renderOutput,FgseaEnrichmentPlot-method
 #' .showSelectionDetails,FgseaEnrichmentPlot-method
 #'
 #' @name FgseaEnrichmentPlot-class
@@ -247,6 +250,7 @@ setMethod(".defineDataInterface", "FgseaEnrichmentPlot", function(x, se, select_
 })
 
 #' @export
+#' @importMethodsFrom iSEE .defineInterface
 setMethod(".defineInterface", "FgseaEnrichmentPlot", function(x, se, select_info) {
   list(
     do.call(iSEE:::.collapseBoxHidden,

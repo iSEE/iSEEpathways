@@ -10,7 +10,8 @@
 #' }
 #'
 #' @docType methods
-#' @aliases pathwayType
+#' @aliases featuresStats pathwayType pathways
+#'
 #' @name pathway-generics
 #' @author Kevin Rue-Albrecht
 #'
@@ -39,7 +40,7 @@ setGeneric(
 #'
 #' @section Definitions:
 #' \itemize{
-#' \item `embedPathwaysResults(x, se, name, pathwayType, ...)` embeds the results `x` in the \linkS4class{SummarizedExperiment} `se`.
+#' \item `embedPathwaysResults(x, se, name, pathwayType, ...)` embeds the results `x` in the \linkS4class{SummarizedExperiment} `se` under the key `name`; `pathwayType` is a character scalar required to identify a function mapping a pathway identifier to asssociated feature identifiers.
 #' }
 #'
 #' @docType methods

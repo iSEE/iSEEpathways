@@ -89,7 +89,7 @@ setMethod(".cacheCommonInfo", "FgseaEnrichmentPlot", function(x, se) {
 
 #' @export
 #' @importMethodsFrom iSEE .refineParameters
-#' @importFrom iSEE .replaceMissingWithFirst
+#' @importFrom iSEE .getCachedCommonInfo .replaceMissingWithFirst
 #' @importFrom methods slot
 #' @importFrom S4Vectors metadata
 setMethod(".refineParameters", "FgseaEnrichmentPlot", function(x, se) {
@@ -109,7 +109,7 @@ setMethod(".refineParameters", "FgseaEnrichmentPlot", function(x, se) {
 
 #' @export
 #' @importMethodsFrom iSEE .defineOutput
-#' @importFrom iSEE .getPanelColor
+#' @importFrom iSEE .getEncodedName .getPanelColor
 #' @importFrom shiny brushOpts plotOutput
 #' @importFrom shinyWidgets addSpinner
 setMethod(".defineOutput", "FgseaEnrichmentPlot", function(x, ...){

@@ -91,7 +91,7 @@ citation("iSEEpathways")
 
 # Quick start to using to `iSEEpathways`
 
-```{r "start", message=FALSE}
+```{r "start", message=FALSE, warning=FALSE}
 library("iSEEpathways")
 library("org.Hs.eg.db")
 library("fgsea")

@@ -68,7 +68,7 @@ data("airway")
 airway$dex <- relevel(airway$dex, "untrt")
 ```
 
-We also map the Ensembl gene identifiers to more recognisable gene symbols, setting `?rownames` to a unique identifier composed of either gene symbol, gene identifier, of a concatenate of both.
+We also map the Ensembl gene identifiers to more recognisable gene symbols, setting row names to a unique identifier composed of either gene symbol, gene identifier, of a concatenate of both.
 
 ```{r, message=FALSE, warning=FALSE}
 library("org.Hs.eg.db")
@@ -91,7 +91,7 @@ airway <- logNormCounts(airway)
 
 We run a standard Limma-Voom analysis using `limma::voom()`, `limma::lmFit()`, `limma::makeContrasts()`, and `limma::eBayes()`.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library("edgeR")
 
 counts <- assay(airway, "counts")
@@ -117,7 +117,7 @@ rowData(airway)
 
 We prepare Gene Ontology gene sets of biological pathways using `r BiocStyle::Biocpkg("org.Hs.eg.db")`.
 
-Due to the use of `uniquifyFeatureNames()` above, the function must first map to the unique Ensembl gene identifier, to accurately perform pathway analysis using the identifiers matching those of the embedded differential expression results.
+Due to the use of `uniquifyFeatureNames()` above, we must first map pathway identifiers to the unique Ensembl gene identifier, to accurately perform pathway analysis using the feature identifiers matching those of the embedded differential expression results.
 
 ```{r}
 library("org.Hs.eg.db")
@@ -155,9 +155,10 @@ fgseaRes <- fgsea(pathways = pathways,
 head(fgseaRes[order(pval), ])
 ```
 
-We embed this set of pathway analysis results in the airway object.
+Then, we embed this set of pathway analysis results in the `airway` object, using the `?iSEEpathways::embedPathwaysResults` method.
 
 But first, we reorder the results by increasing p-value, and set the `rownames` to the pathway identifier.
+Although not essential, this implicitly defines the default ordering of the table in the live app.
 
 ```{r}
 library("iSEEpathways")
@@ -168,9 +169,9 @@ airway <- embedPathwaysResults(
 airway
 ```
 
-To showcase a choice of pathway analysis results, we repeat the process above, but sorting by a score that combines the log-transformed p-value and the absolute log-transformed fold-change.
+To showcase a choice of pathway analysis results in the live ap, we repeat the process above, this time sorting by a different score that combines the log-transformed p-value and the absolute log-transformed fold-change.
 
-```{r}
+```{r, warning=FALSE}
 stats <- na.omit(
   log2FoldChange(contrastResults(airway, "Limma-Voom")) *
   -log10(pValue(contrastResults(airway, "Limma-Voom")))
@@ -188,9 +189,9 @@ airway
 ```
 
 
-We define and register a function that displays details for the selected Gene Ontology gene set using the `r BiocStyle::Biocpkg("GO.db")` package.
+For further user-friendliness in the live app, we define and register a function that displays details for the selected Gene Ontology gene set using the `r BiocStyle::Biocpkg("GO.db")` package.
 
-```{r}
+```{r, warning=FALSE}
 library("GO.db")
 library("shiny")
 library("iSEE")
@@ -205,6 +206,7 @@ go_details <- function(x) {
 airway <- registerAppOptions(airway, PathwaysTable.select.details = go_details)
 ```
 
+Finally, we configure the initial state and launch the live app.
 
 ```{r "start", message=FALSE, warning=FALSE}
 app <- iSEE(airway, initial = list(
@@ -234,7 +236,7 @@ The function `map_GO()` that we defined earlier to map a pathway identifier to a
 While memory-efficient, the repeated calls to the database of gene annotations introduce a bottleneck that limits the reactivity of the app.
 
 We can restore the speed of the app rendering by trading off an increased memory usage.
-Specifically, we can use the object `pathways` that we also created earlier as a named list of pathway identifiers and character vectors of gene identifiers associated with each pathway.
+Specifically, we can use the object `pathways` that we created earlier as a named list of pathway identifiers and character vectors of gene identifiers associated with each pathway, instead of querying the `GO.db` database.
 
 First, for the app to be self-contained, the list of pathways should be stored within the `airway` object itself.
 
@@ -242,9 +244,10 @@ First, for the app to be self-contained, the list of pathways should be stored w
 metadata(airway)[["pathways"]] <- list(GO = pathways)
 ```
 
-Then, we can write a new faster function that fetches gene identifiers directly from that list rather than the database.
+Then, we can write a new, faster, function that fetches gene identifiers directly from that list rather than the database.
 The function should take as first argument a single pathway identifier, and the second argument must be called `se` to match the name of the `SummarizedExperiment` object used within the app.
-As a a trade off, the app now relies on the list of pathway annotations being available as an object in the <i class="fab fa-r-project"></i> session, using additional memory for the benefit of dramatically faster access.
+
+As a a trade off, the app now relies on the list of pathway annotations being available in the metadata of the `se` object, using additional memory for the benefit of dramatically faster access.
 
 ```{r}
 map_GO_v2 <- function(pathway_id, se) {

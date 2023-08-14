@@ -189,6 +189,7 @@ setMethod(".defineDataInterface", "PathwaysTable", function(x, se, select_info) 
 
 #' @export
 #' @importMethodsFrom iSEE .defineInterface
+#' @importFrom methods slot
 setMethod(".defineInterface", "PathwaysTable", function(x, se, select_info) {
   list(
     do.call(iSEE:::.collapseBoxHidden,

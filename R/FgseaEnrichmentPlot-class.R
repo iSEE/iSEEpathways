@@ -108,7 +108,8 @@ setMethod(".refineParameters", "FgseaEnrichmentPlot", function(x, se) {
 })
 
 #' @export
-#' @importMethodsFrom iSEE .defineOutput
+#' @importMethodsFrom iSEE .defineOutput .getPanelColor
+#' @importFrom shiny brushOpts plotOutput
 #' @importFrom shinyWidgets addSpinner
 setMethod(".defineOutput", "FgseaEnrichmentPlot", function(x, ...){
     plot_name <- .getEncodedName(x)
@@ -200,7 +201,7 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_me
 })
 
 #' @export
-#' @importMethodsFrom iSEE .defineDataInterface
+#' @importMethodsFrom iSEE .defineDataInterface .selectizeInput.iSEE
 #' @importFrom methods callNextMethod
 #' @importFrom shiny hr
 #' @importFrom iSEE .addSpecificTour .getCachedCommonInfo .getEncodedName
@@ -266,8 +267,8 @@ setMethod(".defineInterface", "FgseaEnrichmentPlot", function(x, se, select_info
 #' @export
 #' @importMethodsFrom iSEE .createObservers
 #' @importFrom iSEE .createProtectedParameterObservers .getEncodedName .requestActiveSelectionUpdate
-#' @importFrom methods callNextMethod
-#' @importFrom shiny observeEvent
+#' @importFrom methods callNextMethod slot slot<-
+#' @importFrom shiny observeEvent updateSelectizeInput
 setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, session, pObjects, rObjects) {
   callNextMethod()
 

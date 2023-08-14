@@ -187,6 +187,19 @@ setMethod(".defineDataInterface", "PathwaysTable", function(x, se, select_info) 
 })
 
 #' @export
+setMethod(".defineInterface", "PathwaysTable", function(x, se, select_info) {
+  list(
+    do.call(iSEE:::.collapseBoxHidden,
+      c(
+        list(x=x, field=iSEE::.dataParamBoxOpen, title="Data parameters"),
+        open=slot(x, iSEE::.dataParamBoxOpen),
+        iSEE::.defineDataInterface(x, se, select_info)
+      )
+    )
+  )
+})
+
+#' @export
 #' @importMethodsFrom iSEE .multiSelectionDimension
 setMethod(".multiSelectionDimension", "PathwaysTable", function(x) "row")
 
@@ -196,7 +209,7 @@ setMethod(".multiSelectionCommands", "PathwaysTable", function(x, index) {
     # NOTE: 'index' is unused as x[["Selected"]] is used instead
     c(
         sprintf(".pathway_id <- %s;", deparse(x[["Selected"]])),
-        sprintf(".pathway_type <- iSEEpathways::pathwayType(metadata(airway)[['iSEEpathways']][[%s]])", deparse(x[[.resultName]])),
+        sprintf(".pathway_type <- iSEEpathways::pathwayType(metadata(se)[['iSEEpathways']][[%s]])", deparse(x[[.resultName]])),
         'FUN <- getAppOption("Pathways.map.functions", se)[[.pathway_type]]',
         "selected <- FUN(.pathway_id, se)"
     )

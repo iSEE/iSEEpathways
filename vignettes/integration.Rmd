@@ -68,17 +68,18 @@ data("airway")
 airway$dex <- relevel(airway$dex, "untrt")
 ```
 
-We also map the Ensembl gene identifiers to more recognisable gene symbols, setting `?rownames` to a unique identifier composed of either gene symbol, gene identifier, of a concatenate of both.
+We also map the Ensembl gene identifiers to more recognisable gene symbols, setting row names to a unique identifier composed of either gene symbol, gene identifier, of a concatenate of both.
 
 ```{r, message=FALSE, warning=FALSE}
 library("org.Hs.eg.db")
 library("scater")
 rowData(airway)[["ENSEMBL"]] <- rownames(airway)
 rowData(airway)[["SYMBOL"]] <- mapIds(org.Hs.eg.db, rownames(airway), "SYMBOL", "ENSEMBL")
-rownames(airway) <- uniquifyFeatureNames(
+rowData(airway)[["uniquifyFeatureNames"]] <- uniquifyFeatureNames(
   ID = rowData(airway)[["ENSEMBL"]],
   names = rowData(airway)[["SYMBOL"]]
 )
+rownames(airway) <- rowData(airway)[["uniquifyFeatureNames"]]
 ```
 
 We also compute log-counts for better visualisation of differential expression in the `r BiocStyle::Biocpkg("iSEE")` app.
@@ -90,7 +91,7 @@ airway <- logNormCounts(airway)
 
 We run a standard Limma-Voom analysis using `limma::voom()`, `limma::lmFit()`, `limma::makeContrasts()`, and `limma::eBayes()`.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library("edgeR")
 
 counts <- assay(airway, "counts")
@@ -114,23 +115,29 @@ airway <- iSEEde::embedContrastResults(res_limma, airway, name = "Limma-Voom", c
 rowData(airway)
 ```
 
-We prepare Gene Ontology gene sets using `r BiocStyle::Biocpkg("org.Hs.eg.db")`.
+We prepare Gene Ontology gene sets of biological pathways using `r BiocStyle::Biocpkg("org.Hs.eg.db")`.
+
+Due to the use of `uniquifyFeatureNames()` above, we must first map pathway identifiers to the unique Ensembl gene identifier, to accurately perform pathway analysis using the feature identifiers matching those of the embedded differential expression results.
 
 ```{r}
 library("org.Hs.eg.db")
-pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "SYMBOL"), c("GOALL"), keytype = "SYMBOL")
+pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "ENSEMBL"), c("GOALL"), keytype = "ENSEMBL")
 pathways <- subset(pathways, ONTOLOGYALL == "BP")
-pathways <- unique(pathways[, c("SYMBOL", "GOALL")])
-pathways <- split(pathways$SYMBOL, pathways$GOALL)
+pathways <- unique(pathways[, c("ENSEMBL", "GOALL")])
+pathways <- merge(pathways, rowData(airway)[, c("ENSEMBL", "uniquifyFeatureNames")])
+pathways <- split(pathways$uniquifyFeatureNames, pathways$GOALL)
 ```
 
 Separately, we define and register a function that fetches the gene identifiers associated with a given pathway identifier.
-The function definition must include an ellipsis to accommodate optional arguments passed to other variants of the function.
-For instance, see section [Trading off memory usage for speed](#speed-mapping).
+This function is required to transmit selections from pathway-level panels to feature-level panels.
+
+Due to the use of `uniquifyFeatureNames()` above, the function must first map to the unique Ensembl gene identifier, to accurately identify the corresponding value in `rownames(airway)`.
 
 ```{r}
-map_GO <- function(pathway_id, ...) {
-    select(org.Hs.eg.db::org.Hs.eg.db, pathway_id, "SYMBOL", keytype = "GOALL")[["SYMBOL"]]
+map_GO <- function(pathway_id, se) {
+    pathway_ensembl <- mapIds(org.Hs.eg.db, pathway_id, "ENSEMBL", keytype = "GOALL", multiVals = "CharacterList")[[pathway_id]]
+    pathway_rownames <- rownames(se)[rowData(se)[["gene_id"]] %in% pathway_ensembl]
+    pathway_rownames
 }
 airway <- registerAppOptions(airway, Pathways.map.functions = list(GO = map_GO))
 ```
@@ -140,43 +147,51 @@ We run a standard GSEA analysis using `r BiocStyle::Biocpkg("fgsea")`.
 ```{r}
 library("fgsea")
 set.seed(42)
+stats <- na.omit(log2FoldChange(contrastResults(airway, "Limma-Voom")))
 fgseaRes <- fgsea(pathways = pathways, 
-                  stats    = na.omit(log2FoldChange(contrastResults(airway, "Limma-Voom"))),
+                  stats    = stats,
                   minSize  = 15,
                   maxSize  = 500)
 head(fgseaRes[order(pval), ])
 ```
 
-We embed this set of pathway analysis results in the airway object.
+Then, we embed this set of pathway analysis results in the `airway` object, using the `?iSEEpathways::embedPathwaysResults` method.
 
 But first, we reorder the results by increasing p-value, and set the `rownames` to the pathway identifier.
+Although not essential, this implicitly defines the default ordering of the table in the live app.
 
 ```{r}
 library("iSEEpathways")
 fgseaRes <- fgseaRes[order(pval), ]
-airway <- embedPathwaysResults(fgseaRes, airway, name = "fgsea (p-value)", class = "fgsea", pathwayType = "GO")
+airway <- embedPathwaysResults(
+  fgseaRes, airway, name = "fgsea (p-value)", class = "fgsea",
+  pathwayType = "GO", pathways = pathways, stats = stats)
 airway
 ```
 
-To showcase a choice of pathway analysis results, we repeat the process above, but sorting by a score that combines the log-transformed p-value and the absolute log-transformed fold-change.
+To showcase a choice of pathway analysis results in the live ap, we repeat the process above, this time sorting by a different score that combines the log-transformed p-value and the absolute log-transformed fold-change.
 
-```{r}
-stats <- log2FoldChange(contrastResults(airway, "Limma-Voom")) *
-    -log10(pValue(contrastResults(airway, "Limma-Voom")))
+```{r, warning=FALSE}
+stats <- na.omit(
+  log2FoldChange(contrastResults(airway, "Limma-Voom")) *
+  -log10(pValue(contrastResults(airway, "Limma-Voom")))
+)
 set.seed(42)
 fgseaRes <- fgsea(pathways = pathways, 
                   stats    = na.omit(stats),
                   minSize  = 15,
                   maxSize  = 500)
 fgseaRes <- fgseaRes[order(pval), ]
-airway <- embedPathwaysResults(fgseaRes, airway, name = "fgsea (p-value & fold-change)", class = "fgsea", pathwayType = "GO")
+airway <- embedPathwaysResults(
+  fgseaRes, airway, name = "fgsea (p-value & fold-change)", class = "fgsea",
+  pathwayType = "GO", pathways = pathways, stats = stats)
 airway
 ```
 
 
-We define and register a function that displays details for the selected Gene Ontology gene set.
+For further user-friendliness in the live app, we define and register a function that displays details for the selected Gene Ontology gene set using the `r BiocStyle::Biocpkg("GO.db")` package.
 
-```{r}
+```{r, warning=FALSE}
 library("GO.db")
 library("shiny")
 library("iSEE")
@@ -191,15 +206,17 @@ go_details <- function(x) {
 airway <- registerAppOptions(airway, PathwaysTable.select.details = go_details)
 ```
 
+Finally, we configure the initial state and launch the live app.
 
 ```{r "start", message=FALSE, warning=FALSE}
 app <- iSEE(airway, initial = list(
-  PathwaysTable(ResultName="fgsea", PanelWidth = 4L),
-  VolcanoPlot(RowSelectionSource = "PathwaysTable1", PanelWidth = 4L),
+  PathwaysTable(ResultName="fgsea (p-value)", Selected = "GO:0046323", PanelWidth = 4L),
+  VolcanoPlot(RowSelectionSource = "PathwaysTable1", ColorBy = "Row selection", PanelWidth = 4L),
   ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
       PanelWidth = 4L, PanelHeight = 700L,
       CustomRows = FALSE, ColumnData = "dex",
-      ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE)
+      ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE),
+  FgseaEnrichmentPlot(ResultName="fgsea (p-value)", PathwayId = "GO:0046323", PanelWidth = 12L)
 ))
 
 if (interactive()) {
@@ -219,7 +236,7 @@ The function `map_GO()` that we defined earlier to map a pathway identifier to a
 While memory-efficient, the repeated calls to the database of gene annotations introduce a bottleneck that limits the reactivity of the app.
 
 We can restore the speed of the app rendering by trading off an increased memory usage.
-Specifically, we can use the object `pathways` that we also created earlier as a named list of pathway identifiers and character vectors of gene identifiers associated with each pathway.
+Specifically, we can use the object `pathways` that we created earlier as a named list of pathway identifiers and character vectors of gene identifiers associated with each pathway, instead of querying the `GO.db` database.
 
 First, for the app to be self-contained, the list of pathways should be stored within the `airway` object itself.
 
@@ -227,9 +244,10 @@ First, for the app to be self-contained, the list of pathways should be stored w
 metadata(airway)[["pathways"]] <- list(GO = pathways)
 ```
 
-Then, we can write a new faster function that fetches gene identifiers directly from that list rather than the database.
+Then, we can write a new, faster, function that fetches gene identifiers directly from that list rather than the database.
 The function should take as first argument a single pathway identifier, and the second argument must be called `se` to match the name of the `SummarizedExperiment` object used within the app.
-As a a trade off, the app now relies on the list of pathway annotations being available as an object in the <i class="fab fa-r-project"></i> session, using additional memory for the benefit of dramatically faster access.
+
+As a a trade off, the app now relies on the list of pathway annotations being available in the metadata of the `se` object, using additional memory for the benefit of dramatically faster access.
 
 ```{r}
 map_GO_v2 <- function(pathway_id, se) {
@@ -247,12 +265,13 @@ We can then launch a new instance of the app, using the same initial configurati
 
 ```{r "faster", message=FALSE, warning=FALSE}
 app <- iSEE(airway, initial = list(
-  PathwaysTable(ResultName="fgsea", Selected = "GO:0046323", PanelWidth = 4L),
-  VolcanoPlot(RowSelectionSource = "PathwaysTable1", PanelWidth = 4L),
+  PathwaysTable(ResultName="fgsea (p-value)", Selected = "GO:0046323", PanelWidth = 4L),
+  VolcanoPlot(RowSelectionSource = "PathwaysTable1", ColorBy = "Row selection", PanelWidth = 4L),
   ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
       PanelWidth = 4L, PanelHeight = 700L,
       CustomRows = FALSE, ColumnData = "dex",
-      ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE)
+      ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE),
+  FgseaEnrichmentPlot(ResultName="fgsea (p-value)", PathwayId = "GO:0046323", PanelWidth = 12L)
 ))
 
 if (interactive()) {

@@ -4,7 +4,6 @@
 \name{utils-SummarizedExperiment}
 \alias{utils-SummarizedExperiment}
 \alias{embedPathwaysResults}
-\alias{embedPathwaysResults,ANY-method}
 \alias{embedPathwaysResultsMethods}
 \alias{embedPathwaysResults,data.frame-method}
 \title{Generics for Embbedding Pathway Analysis Results into a SummarizedExperiment Object}
@@ -27,7 +26,7 @@ embedPathwaysResultsMethods
 
 \item{pathwayType}{Character scalar indicating the type of pathway. See Details.}
 
-\item{...}{Arguments passed to and from other methods.}
+\item{...}{Arguments passed to individual constructors of pathway analysis result classes.}
 
 \item{class}{Class to use for embedding \code{x}. Only used when \code{class(x)} does
 not uniquely identify the package that generated the object \code{x}.}
@@ -37,23 +36,32 @@ not uniquely identify the package that generated the object \code{x}.}
 embedded object.
 }
 \description{
-An overview of the generics for embedding pathway analysis results into a \linkS4class{SummarizedExperiment} object, in a format compatible with \pkg{iSEEpathways}.
+An overview of the generics for embedding pathway analysis results into a \linkS4class{SummarizedExperiment} object,
+in a format compatible with \pkg{iSEEpathways}.
 }
 \details{
-The character scalar given to the argument \verb{pathwayType=} is used to identify the function mapping a certain type of pathway identifier to the corresponding feature identifiers.
+The argument \verb{pathwayType=} is used to identify the function mapping a certain type of pathway identifier to the corresponding feature identifiers.
 Pathway mapping functions must be registered as a named list using \code{registerAppOptions(se, Pathways.map.functions = list(...))},
-where names must match values of \code{pathwayType},
+where the name matching \code{pathwayType} identifies the function to use to map pathway identifiers to feature identifiers in a given pathway analysis result,
 e.g.
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{se <- registerAppOptions(se, Pathways.map.functions = list(GO = map_go))
+\if{html}{\out{<div class="sourceCode">}}\preformatted{library(org.Hs.eg.db)
+map_GO <- function(pathway_id) \{
+  mapIds(org.Hs.eg.db, pathway_id, "ENSEMBL", keytype = "GOALL", multiVals = "CharacterList")[[pathway_id]]
+\}
+se <- registerAppOptions(se, Pathways.map.functions = list(GO = map_go))
 }\if{html}{\out{</div>}}
 
-See \code{vignette("integration", package = "iSEEpathways")} for examples in action.
+See \code{vignette("integration", package = "iSEEpathways")} for examples.
 }
 \section{Definitions}{
 
 \itemize{
-\item \code{embedPathwaysResults(x, se, name, pathwayType, ...)} embeds the results \code{x} in the \linkS4class{SummarizedExperiment} \code{se}.
+\item \code{embedPathwaysResults(x, se, name, pathwayType, ...)} embeds
+the results \code{x} in the \linkS4class{SummarizedExperiment} \code{se} under the key \code{name};
+\code{pathwayType} is a character scalar required to identify a function mapping
+a pathway identifier to asssociated feature identifiers;
+additional named arguments in \code{...} are passed to the constructor of the pathway results class.
 }
 }
 

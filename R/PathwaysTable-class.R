@@ -3,12 +3,21 @@
 #' The `PathwaysTable` is a \linkS4class{Panel} where each row represents a set of features (i.e., rows).
 #' Selections in this panel can be transmitted to other row-oriented panels.
 #'
+#' @section Slot overview:
+#' The following slots control the test procedure:
+#' \itemize{
+#' \item `ResultName`, a character scalar indicating the name of the pathway analysis result to display.
+#' }
+#'
+#' In addition, this class inherits all slots from its parent [Table-class] and [Panel-class] class.
+#'
 #' @docType methods
 #' @aliases PathwaysTable PathwaysTable-class
 #' initialize,PathwaysTable-method
 #' .cacheCommonInfo,PathwaysTable-method
 #' .createObservers,PathwaysTable-method
 #' .defineDataInterface,PathwaysTable-method
+#' .defineInterface,PathwaysTable-method
 #' .fullName,PathwaysTable-method
 #' .generateTable,PathwaysTable-method
 #' .multiSelectionActive,PathwaysTable-method
@@ -22,6 +31,7 @@
 #'
 #' @examples
 #' x <- PathwaysTable(ResultName="fgsea")
+#' x
 NULL
 
 #' @export
@@ -50,7 +60,7 @@ setMethod(".fullName", "PathwaysTable", function(x) "Pathways Analysis Table")
 #' @importMethodsFrom methods initialize
 #' @importFrom methods callNextMethod
 setMethod("initialize", "PathwaysTable", function(.Object,
-                                                  ResultName = NA_character_, ...) {
+    ResultName = NA_character_, ...) {
     args <- list(ResultName = ResultName, ...)
 
     do.call(callNextMethod, c(list(.Object), args))
@@ -65,7 +75,7 @@ setValidity2("PathwaysTable", function(object) {
 #' @importMethodsFrom iSEE .cacheCommonInfo
 #' @importFrom iSEE .getCachedCommonInfo .setCachedCommonInfo
 #' @importFrom methods callNextMethod
-#' @importFrom SummarizedExperiment rowData
+#' @importFrom S4Vectors metadata
 setMethod(".cacheCommonInfo", "PathwaysTable", function(x, se) {
     if (!is.null(.getCachedCommonInfo(se, "PathwaysTable"))) {
         return(se)
@@ -80,8 +90,8 @@ setMethod(".cacheCommonInfo", "PathwaysTable", function(x, se) {
 
 #' @export
 #' @importMethodsFrom iSEE .refineParameters
-#' @importFrom iSEE .replaceMissingWithFirst
-#' @importFrom methods slot
+#' @importFrom iSEE .getCachedCommonInfo .replaceMissingWithFirst
+#' @importFrom methods callNextMethod slot
 #' @importFrom S4Vectors metadata
 setMethod(".refineParameters", "PathwaysTable", function(x, se) {
     x <- callNextMethod() # Trigger warnings from base classes.
@@ -152,8 +162,7 @@ setMethod(".createObservers", "PathwaysTable", function(x, se, input, session, p
 #' @importMethodsFrom iSEE .defineDataInterface
 #' @importFrom methods callNextMethod
 #' @importFrom shiny hr
-#' @importFrom iSEE .addSpecificTour .getCachedCommonInfo .getEncodedName
-#' .selectInput.iSEE
+#' @importFrom iSEE .addSpecificTour .getCachedCommonInfo .getEncodedName .selectInput.iSEE
 setMethod(".defineDataInterface", "PathwaysTable", function(x, se, select_info) {
     plot_name <- .getEncodedName(x)
     input_FUN <- function(field) paste0(plot_name, "_", field)
@@ -187,6 +196,8 @@ setMethod(".defineDataInterface", "PathwaysTable", function(x, se, select_info) 
 })
 
 #' @export
+#' @importMethodsFrom iSEE .defineInterface
+#' @importFrom methods slot
 setMethod(".defineInterface", "PathwaysTable", function(x, se, select_info) {
   list(
     do.call(iSEE:::.collapseBoxHidden,
@@ -209,7 +220,7 @@ setMethod(".multiSelectionCommands", "PathwaysTable", function(x, index) {
     # NOTE: 'index' is unused as x[["Selected"]] is used instead
     c(
         sprintf(".pathway_id <- %s;", deparse(x[["Selected"]])),
-        sprintf(".pathway_type <- iSEEpathways::pathwayType(metadata(se)[['iSEEpathways']][[%s]])", deparse(x[[.resultName]])),
+        sprintf(".pathway_type <- pathwayType(metadata(se)[['iSEEpathways']][[%s]])", deparse(x[[.resultName]])),
         'FUN <- getAppOption("Pathways.map.functions", se)[[.pathway_type]]',
         "selected <- FUN(.pathway_id, se)"
     )

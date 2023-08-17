@@ -8,20 +8,37 @@
 \alias{.cacheCommonInfo,FgseaEnrichmentPlot-method}
 \alias{.createObservers,FgseaEnrichmentPlot-method}
 \alias{.defineDataInterface,FgseaEnrichmentPlot-method}
+\alias{.defineInterface,FgseaEnrichmentPlot-method}
+\alias{.defineOutput,FgseaEnrichmentPlot-method}
 \alias{.fullName,FgseaEnrichmentPlot-method}
-\alias{.generateTable,FgseaEnrichmentPlot-method}
+\alias{.generateOutput,FgseaEnrichmentPlot-method}
+\alias{.isBrushable,FgseaEnrichmentPlot-method}
 \alias{.multiSelectionActive,FgseaEnrichmentPlot-method}
 \alias{.multiSelectionCommands,FgseaEnrichmentPlot-method}
 \alias{.multiSelectionDimension,FgseaEnrichmentPlot-method}
-\alias{.isBrushable,FgseaEnrichmentPlot-method}
 \alias{.panelColor,FgseaEnrichmentPlot-method}
 \alias{.refineParameters,FgseaEnrichmentPlot-method}
+\alias{.renderOutput,FgseaEnrichmentPlot-method}
 \alias{.showSelectionDetails,FgseaEnrichmentPlot-method}
 \title{The FgseaEnrichmentPlot class}
 \description{
-The \code{FgseaEnrichmentPlot} is a \linkS4class{Panel} where each row represents a set of features (i.e., rows).
+The \code{FgseaEnrichmentPlot} is a \linkS4class{Panel} subclass where each row represents a set of features (i.e., rows).
 Selections in this panel can be transmitted to other row-oriented panels.
 }
+\section{Slot overview}{
+
+The following slots control the test procedure:
+\itemize{
+\item \code{ResultName}, a character scalar indicating the name of the pathway analysis result to display.
+\item \code{PathwayId}, a character scalar indicating the identifier of the pathway to display.
+\item \code{BrushData}, a list containing a Shiny brush along the x-axis (see \code{?brushedPoints}).
+Defaults to an empty list, i.e., no brush or lasso.
+}
+
+In addition, this class inherits all slots from its parent \linkS4class{Panel} class.
+}
+
 \examples{
 x <- FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002")
+x
 }

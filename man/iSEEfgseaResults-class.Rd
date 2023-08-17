@@ -5,28 +5,38 @@
 \alias{iSEEfgseaResults-class}
 \alias{iSEEfgseaResults}
 \alias{embedPathwaysResults,iSEEfgseaResults-method}
+\alias{featuresStats,iSEEfgseaResults-method}
+\alias{pathways,iSEEfgseaResults-method}
 \alias{pathwayType,iSEEfgseaResults-method}
 \title{The iSEEfgseaResults class}
 \description{
 The \code{iSEEfgseaResults} class is used to provide an common interface to pathway analysis results produced by the \pkg{fgsea} package.
 It provides methods to access the set of features in each pathway.
 }
-\details{
-This class inherits all its slots directly from its parent class \linkS4class{DataFrame}.
+\section{Slot overview}{
+
+This class inherits all its slots directly from its parent class \code{iSEEpathwaysResults}.
 }
+
 \section{Constructor}{
 
-\code{iSEEfgseaResults(data, row.names = rownames(data))} creates an instance of a \code{iSEEfgseaResults} class, with:
+\code{iSEEfgseaResults(data, pathwayType, pathways = NULL, stats = NULL)} creates an instance of a \code{iSEEfgseaResults} class, with:
 
 \describe{
 \item{\code{data}}{A \code{data.frame} produced by \code{fgsea::fgsea()}.}
+\item{\code{pathwayType}}{A character scalar specifying the type of pathway (e.g., \code{"GO"}). See \link{embedPathwaysResults}.}
+\item{\code{pathways}}{A named list of pathways and associated feature identifiers.}
+\item{\code{stats}}{Feature-level statistics used in the pathway analysis.}
 }
 }
 
 \section{Supported methods}{
 
+In the following code snippets, \code{x} is an instance of a \code{iSEEfgseaResults} class.
+Refer to the documentation for each method for more details on the remaining arguments.
+
 \itemize{
-\item \code{embedPathwaysResults(x, se, name, pathwayType, class = "fgsea", ...)} embeds \code{x} in the column \code{name} of \code{metadata(se)[["iSEEpathways"]]}.
+\item \code{embedPathwaysResults(x, se, name, pathwayType, ...)} embeds \code{x} in the column \code{name} of \code{metadata(se)[["iSEEpathways"]]}.
 }
 }
 
@@ -73,7 +83,8 @@ se <- SummarizedExperiment()
 ##
 
 # Embed the FGSEA results in the SummarizedExperiment object
-se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO")
+se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea",
+  pathwayType = "GO", pathways = pathways, stats = gene_stats)
 se
 
 ##

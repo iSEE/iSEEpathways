@@ -83,7 +83,7 @@ setMethod(".cacheCommonInfo", "PathwaysTable", function(x, se) {
 
     se <- callNextMethod()
 
-    result_names <- names(metadata(se)[["iSEEpathways"]])
+    result_names <- pathwaysResultsNames(se)
 
     .setCachedCommonInfo(se, "PathwaysTable", valid.result.names = result_names)
 })
@@ -102,7 +102,7 @@ setMethod(".refineParameters", "PathwaysTable", function(x, se) {
     result_names <- .getCachedCommonInfo(se, "PathwaysTable")$valid.result.names
     x <- .replaceMissingWithFirst(x, .resultName, result_names)
 
-    pathway_ids <- rownames(metadata(se)[["iSEEpathways"]][[slot(x, .resultName)]])
+    pathway_ids <- rownames(pathwaysResults(se, slot(x, .resultName)))
     x <- .replaceMissingWithFirst(x, iSEE:::.TableSelected, pathway_ids)
 
     x
@@ -112,7 +112,7 @@ setMethod(".refineParameters", "PathwaysTable", function(x, se) {
 #' @importMethodsFrom iSEE .generateTable
 #' @importFrom iSEE .textEval
 setMethod(".generateTable", "PathwaysTable", function(x, envir) {
-    cmds <- sprintf("tab <- as.data.frame(metadata(se)[['iSEEpathways']][[%s]]);", deparse(x[[.resultName]]))
+    cmds <- sprintf("tab <- as.data.frame(pathwaysResults(se, %s));", deparse(x[[.resultName]]))
 
     .textEval(cmds, envir)
 
@@ -220,7 +220,7 @@ setMethod(".multiSelectionCommands", "PathwaysTable", function(x, index) {
     # NOTE: 'index' is unused as x[["Selected"]] is used instead
     c(
         sprintf(".pathway_id <- %s;", deparse(x[["Selected"]])),
-        sprintf(".pathway_type <- pathwayType(metadata(se)[['iSEEpathways']][[%s]])", deparse(x[[.resultName]])),
+        sprintf(".pathway_type <- pathwayType(pathwaysResults(se, %s))", deparse(x[[.resultName]])),
         'FUN <- getAppOption("Pathways.map.functions", se)[[.pathway_type]]',
         "selected <- FUN(.pathway_id, se)"
     )

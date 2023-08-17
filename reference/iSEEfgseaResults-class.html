@@ -81,17 +81,17 @@ It provides methods to access the set of features in each pathway.</p>
     <h2>Constructor</h2>
     
 
-<p><code>iSEEfgseaResults(data, pathwayType, pathways = NULL, stats = NULL)</code> creates an instance of a <code>iSEEfgseaResults</code> class, with:</p>
+<p><code>iSEEfgseaResults(data, pathwayType, pathwaysList = NULL, featuresStats = NULL)</code> creates an instance of a <code>iSEEfgseaResults</code> class, with:</p>
 <dl><dt><code>data</code></dt>
 <dd><p>A <code>data.frame</code> produced by <code><a href="https://rdrr.io/pkg/fgsea/man/fgsea.html" class="external-link">fgsea::fgsea()</a></code>.</p></dd>
 
 <dt><code>pathwayType</code></dt>
 <dd><p>A character scalar specifying the type of pathway (e.g., <code>"GO"</code>). See <a href="utils-SummarizedExperiment.html">embedPathwaysResults</a>.</p></dd>
 
-<dt><code>pathways</code></dt>
+<dt><code>pathwaysList</code></dt>
 <dd><p>A named list of pathways and associated feature identifiers.</p></dd>
 
-<dt><code>stats</code></dt>
+<dt><code>featuresStats</code></dt>
 <dd><p>Feature-level statistics used in the pathway analysis.</p></dd>
 
 
@@ -144,19 +144,19 @@ Refer to the documentation for each method for more details on the remaining arg
 <span class="r-in"><span>                  maxSize  <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">fgseaRes</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">pval</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       pathway         pval      padj   log2err         ES       NES size</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: GO:0032303 0.0002148044 0.6172444 0.5188481  0.6428120  2.125928   22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: GO:0030520 0.0003320775 0.6172444 0.4984931 -0.4674205 -1.875579   54</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: GO:0032305 0.0003759212 0.6172444 0.4984931  0.6326501  2.071780   21</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: GO:0033143 0.0005231086 0.6172444 0.4772708 -0.4156387 -1.746156   72</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5: GO:0055003 0.0008869538 0.6172444 0.4772708 -0.6220239 -1.935973   19</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6: GO:0033147 0.0009598696 0.6172444 0.4772708 -0.6670516 -1.913302   15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                       leadingEdge</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: PLA2R1,EDN1,TNFRSF11A,TNFSF11,P2RX7,PLA2G6,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:         PPARGC1B,VPS18,ISL1,SRC,TAF7,DEFA1,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: PLA2R1,EDN1,TNFRSF11A,TNFSF11,P2RX7,PLA2G6,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:          ZBTB7A,NCOR1,VPS18,SIRT1,ISL1,SRC,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:              PROX1,ACTC1,NRAP,SRF,TCAP,ADPRHL1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:         VPS18,ISL1,ZNF366,CNOT9,TP63,KANK2,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: GO:0032467 8.655085e-05 0.4516223 0.5384341 -0.5209010 -2.031124   46</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: GO:0006874 4.185815e-04 0.6263911 0.4984931  0.2865056  1.505873  303</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: GO:0002758 5.914817e-04 0.6263911 0.4772708  0.3164823  1.601669  209</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: GO:0055074 7.438285e-04 0.6263911 0.4772708  0.2800043  1.478614  327</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5: GO:0060964 7.454386e-04 0.6263911 0.4772708  0.5270390  1.935447   34</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6: GO:1901386 8.224892e-04 0.6263911 0.4772708 -0.6021877 -1.978540   22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                  leadingEdge</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:  SPAST,TAS1R2,CENPV,RHOA,CDC14B,CHMP3,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: PLCH2,ATP2B4,CHERP,CASQ2,FKBP1A,TRPC3,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     PUM2,TYROBP,TYRO3,LGR4,SRC,HSPA1B,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: PLCH2,ATP2B4,CHERP,CASQ2,FKBP1A,TRPC3,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:   PUM2,DND1,ZC3H10,POU5F1,PUM1,ELAVL1,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:  MIR208A,CBARP,CRHR1,OPRL1,PPP3CC,GEM,...</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">##</span></span></span>
 <span class="r-in"><span><span class="co"># Simulate a SummarizedExperiment object</span></span></span>
@@ -170,7 +170,7 @@ Refer to the documentation for each method for more details on the remaining arg
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Embed the FGSEA results in the SummarizedExperiment object</span></span></span>
 <span class="r-in"><span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="utils-SummarizedExperiment.html">embedPathwaysResults</a></span><span class="op">(</span><span class="va">fgseaRes</span>, <span class="va">se</span>, name <span class="op">=</span> <span class="st">"fgsea"</span>, class <span class="op">=</span> <span class="st">"fgsea"</span>,</span></span>
-<span class="r-in"><span>  pathwayType <span class="op">=</span> <span class="st">"GO"</span>, pathways <span class="op">=</span> <span class="va">pathways</span>, stats <span class="op">=</span> <span class="va">gene_stats</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  pathwayType <span class="op">=</span> <span class="st">"GO"</span>, pathwaysList <span class="op">=</span> <span class="va">pathways</span>, featuresStats <span class="op">=</span> <span class="va">gene_stats</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">se</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class: SummarizedExperiment </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> dim: 0 0 </span>
@@ -190,30 +190,30 @@ Refer to the documentation for each method for more details on the remaining arg
 <span class="r-out co"><span class="r-pr">#&gt;</span> iSEEfgseaResults with 5218 rows and 7 columns</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 pval      padj   log2err        ES       NES      size</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;integer&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000002  0.754579  0.978507 0.0545681 -0.231912 -0.824937        30</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000018  0.892532  0.992110 0.0466015 -0.175636 -0.808703       134</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000027  0.818015  0.989709 0.0510114 -0.230529 -0.778262        25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000028  0.893750  0.992110 0.0526973  0.225600  0.712414        19</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000038  0.238971  0.951532 0.1182875 -0.313185 -1.143174        35</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000002  0.297414  0.895741 0.1142665  0.310539  1.113417        30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000018  0.420601  0.946474 0.0925529  0.214258  1.014846       134</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000027  0.267161  0.887883 0.1114627 -0.335166 -1.141478        25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000028  0.761079  0.996120 0.0565300 -0.258580 -0.811337        19</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000038  0.493590  0.969277 0.0833634  0.263242  0.976530        35</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ...              ...       ...       ...       ...       ...       ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001257  0.894161  0.992110 0.0466015 -0.172363 -0.815488       154</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001258  0.638636  0.975393 0.0730744  0.220801  0.911106        59</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001259  0.801457  0.985602 0.0515309 -0.202385 -0.834795        66</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001267  0.267686  0.951532 0.1133129 -0.382593 -1.143486        17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001279  0.984344  1.000000 0.0454059 -0.189490 -0.543514        15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                          leadingEdge</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                               &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000002  PRIMPOL,SESN2,DNAJA3,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000018  EXOSC3,H1-3,RAD51AP1,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000027      NLE1,MRPL20,RPL6,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000028     RPS27L,RPS5,RPS28,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000038     ACSL1,HACD2,ABCD3,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ...                              ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001257         NPPA,HCN4,DMD,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001258 CASQ2,MIR200C,MIR208B,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001259      NPPA,AKAP6,TREM2,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001267             ST18,NLE1,GSN</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001279    SIRT1,AVPR1A,PIBF1,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001257 0.7775424  0.996120 0.0599892  0.183261  0.888384       154</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001258 0.2490909  0.882086 0.1147507 -0.272550 -1.125086        59</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001259 0.5911602  0.991846 0.0664364 -0.225623 -0.941642        66</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001267 0.0842912  0.768936 0.2139279 -0.461393 -1.390403        17</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001279 0.9368836  0.996120 0.0480220 -0.230175 -0.664146        15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        leadingEdge</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                             &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000002   DNAJA3,SESN2,DNA2,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000018    KPNA2,EPC1,EP400,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000027     TRAF7,MRM2,RPL5,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000028    RRP7A,ABT1,RPS27,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000038   ELOVL4,PEX5,HACD4,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ...                            ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001257 CASQ2,FKBP1A,KCNAB1,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001258 GSTO1,MIR208A,SUMO1,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001259    GSTO1,NPPA,KCNE2,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001267     BAX,LGALS9,JAK2,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001279   AVP,MIR766,MIR132,...</span>
 </code></pre></div>
     </div>
   </div>

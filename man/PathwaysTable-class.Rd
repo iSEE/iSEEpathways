@@ -22,6 +22,17 @@
 The \code{PathwaysTable} is a \linkS4class{Panel} where each row represents a set of features (i.e., rows).
 Selections in this panel can be transmitted to other row-oriented panels.
 }
+\section{Slot overview}{
+
+The following slots control the test procedure:
+\itemize{
+\item \code{ResultName}, a character scalar indicating the name of the pathway analysis result to display.
+}
+
+In addition, this class inherits all slots from its parent \linkS4class{Table} and \linkS4class{Panel} class.
+}
+
 \examples{
-PathwaysTable(ResultName="fgsea")
+x <- PathwaysTable(ResultName="fgsea")
+x
 }

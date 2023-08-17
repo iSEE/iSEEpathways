@@ -14,14 +14,14 @@ An overview of the generics for accessing common pieces of information in pathwa
 
 \itemize{
 \item \code{pathwayType(x)} returns a character scalar indicating the type of pathways analysed.
-\item \code{pathways(x)} returns NULL or the named list of pathways used in the analysis.
-\item \code{featuresStats(x)} returns NULL or the named numeric vector of feature-level statistics used in the analysis.
+\item \code{pathways(x)} returns the named list of pathways used in the analysis, or \code{NULL}.
+\item \code{featuresStats(x)} returns the named numeric vector of feature-level statistics used in the analysis, or \code{NULL}.
 }
 }
 
 \examples{
-showMethods(pathways)
 showMethods(pathwayType)
+showMethods(pathways)
 showMethods(featuresStats)
 }
 \author{

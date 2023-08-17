@@ -1,11 +1,9 @@
 #' The iSEEpathwaysResults class
 #'
-#' The iSEEpathwaysResults class represents an undefined resource.
+#' The iSEEpathwaysResults is a virtual class for storing a set of pathway analysis results.
 #'
 #' @section Slot overview:
-#' \itemize{
-#' \item \code{pathwayType}, a character scalar specifying the type of pathway (e.g., `"GO"`).
-#' }
+#' This class inherits all its slots directly from its parent class `DataFrame`.
 #'
 #' @section Supported methods:
 #' In the following code snippets, \code{x} is an instance of a [`iSEEpathwaysResults-class`] class.
@@ -17,10 +15,12 @@
 #'
 #' @author Kevin Rue-Albrecht
 #'
-#' @name iSEEpathwaysResults-class
-#' @rdname iSEEpathwaysResults-class
+#' @docType methods
 #' @aliases
+#' iSEEpathwaysResults
 #' show,iSEEpathwaysResults-method
+#'
+#' @name iSEEpathwaysResults-class
 #'
 #' @examples
 #' showClass("iSEEpathwaysResults")
@@ -53,18 +53,25 @@ setValidity2("iSEEpathwaysResults", function(object) {
 #' The `iSEEfgseaResults` class is used to provide an common interface to pathway analysis results produced by the \pkg{fgsea} package.
 #' It provides methods to access the set of features in each pathway.
 #'
-#' This class inherits all its slots directly from its parent class \linkS4class{DataFrame}.
+#' @section Slot overview:
+#' This class inherits all its slots directly from its parent class `iSEEpathwaysResults`.
 #'
 #' @section Constructor:
-#' \code{iSEEfgseaResults(data, row.names = rownames(data))} creates an instance of a `iSEEfgseaResults` class, with:
+#' \code{iSEEfgseaResults(data, pathwayType, pathways = NULL, stats = NULL)} creates an instance of a `iSEEfgseaResults` class, with:
 #'
 #' \describe{
 #' \item{`data`}{A `data.frame` produced by `fgsea::fgsea()`.}
+#' \item{`pathwayType`}{A character scalar specifying the type of pathway (e.g., `"GO"`). See [embedPathwaysResults].}
+#' \item{`pathways`}{A named list of pathways and associated feature identifiers.}
+#' \item{`stats`}{Feature-level statistics used in the pathway analysis.}
 #' }
 #'
 #' @section Supported methods:
+#' In the following code snippets, `x` is an instance of a `iSEEfgseaResults` class.
+#' Refer to the documentation for each method for more details on the remaining arguments.
+#'
 #' \itemize{
-#' \item `embedPathwaysResults(x, se, name, pathwayType, class = "fgsea", ...)` embeds `x` in the column `name` of `metadata(se)[["iSEEpathways"]]`.
+#' \item `embedPathwaysResults(x, se, name, pathwayType, ...)` embeds `x` in the column `name` of `metadata(se)[["iSEEpathways"]]`.
 #' }
 #'
 #' @author Kevin Rue-Albrecht
@@ -121,7 +128,8 @@ setValidity2("iSEEpathwaysResults", function(object) {
 #' ##
 #'
 #' # Embed the FGSEA results in the SummarizedExperiment object
-#' se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO")
+#' se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea",
+#'   pathwayType = "GO", pathways = pathways, stats = gene_stats)
 #' se
 #'
 #' ##
@@ -153,18 +161,21 @@ iSEEfgseaResults <- function(data, pathwayType, pathways = NULL, stats = NULL) {
 }
 
 #' @export
+#' @importFrom S4Vectors metadata
 setMethod("pathwayType", "iSEEfgseaResults", function(x) {
     out <- metadata(x)[["pathwayType"]]
     out
 })
 
 #' @export
+#' @importFrom S4Vectors metadata
 setMethod("pathways", "iSEEfgseaResults", function(x) {
-  out <- metadata(x)[["pathways"]]
+  out <- metadata(x)$pathways
   out
 })
 
 #' @export
+#' @importFrom S4Vectors metadata
 setMethod("featuresStats", "iSEEfgseaResults", function(x) {
   out <- metadata(x)[["stats"]]
   out

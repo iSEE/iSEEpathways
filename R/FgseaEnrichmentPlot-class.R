@@ -1,7 +1,18 @@
 #' The FgseaEnrichmentPlot class
 #'
-#' The `FgseaEnrichmentPlot` is a \linkS4class{Panel} where each row represents a set of features (i.e., rows).
+#' The `FgseaEnrichmentPlot` is a \linkS4class{Panel} subclass where each row represents a set of features (i.e., rows).
 #' Selections in this panel can be transmitted to other row-oriented panels.
+#'
+#' @section Slot overview:
+#' The following slots control the test procedure:
+#' \itemize{
+#' \item `ResultName`, a character scalar indicating the name of the pathway analysis result to display.
+#' \item `PathwayId`, a character scalar indicating the identifier of the pathway to display.
+#' \item `BrushData`, a list containing a Shiny brush along the x-axis (see `?brushedPoints`).
+#' Defaults to an empty list, i.e., no brush or lasso.
+#' }
+#'
+#' In addition, this class inherits all slots from its parent [Panel-class] class.
 #'
 #' @docType methods
 #' @aliases FgseaEnrichmentPlot FgseaEnrichmentPlot-class
@@ -25,7 +36,8 @@
 #' @name FgseaEnrichmentPlot-class
 #'
 #' @examples
-#' FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002")
+#' x <- FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002")
+#' x
 NULL
 
 slotDefs <- character(0)
@@ -37,7 +49,8 @@ slotDefs[iSEE:::.brushData] <- "list"
 
 #' @export
 #' @importClassesFrom iSEE Panel
-setClass("FgseaEnrichmentPlot", contains="Panel",
+setClass("FgseaEnrichmentPlot",
+    contains="Panel",
     slots=slotDefs
 )
 
@@ -76,15 +89,15 @@ setValidity2("FgseaEnrichmentPlot", function(object) {
 #' @importFrom methods callNextMethod
 #' @importFrom S4Vectors metadata
 setMethod(".cacheCommonInfo", "FgseaEnrichmentPlot", function(x, se) {
-    if (!is.null(.getCachedCommonInfo(se, "FgseaEnrichmentPlot"))) {
-        return(se)
-    }
+  if (!is.null(.getCachedCommonInfo(se, "FgseaEnrichmentPlot"))) {
+    return(se)
+  }
 
-    se <- callNextMethod()
+  se <- callNextMethod()
 
-    result_names <- names(metadata(se)[["iSEEpathways"]])
+  result_names <- names(metadata(se)[["iSEEpathways"]])
 
-    .setCachedCommonInfo(se, "FgseaEnrichmentPlot", valid.result.names = result_names)
+  .setCachedCommonInfo(se, "FgseaEnrichmentPlot", valid.result.names = result_names)
 })
 
 #' @export
@@ -93,120 +106,117 @@ setMethod(".cacheCommonInfo", "FgseaEnrichmentPlot", function(x, se) {
 #' @importFrom methods slot
 #' @importFrom S4Vectors metadata
 setMethod(".refineParameters", "FgseaEnrichmentPlot", function(x, se) {
-    x <- callNextMethod() # Trigger warnings from base classes.
-    if (is.null(x)) {
-        return(NULL)
-    }
+  x <- callNextMethod() # Trigger warnings from base classes.
+  if (is.null(x)) {
+    return(NULL)
+  }
 
-    result_names <- .getCachedCommonInfo(se, "FgseaEnrichmentPlot")$valid.result.names
-    x <- .replaceMissingWithFirst(x, .resultName, result_names)
+  result_names <- .getCachedCommonInfo(se, "FgseaEnrichmentPlot")$valid.result.names
+  x <- .replaceMissingWithFirst(x, .resultName, result_names)
 
-    pathway_ids <- names(pathways(metadata(se)[["iSEEpathways"]][[slot(x, .resultName)]]))
-    x <- .replaceMissingWithFirst(x, .pathwayId, pathway_ids)
+  pathway_ids <- names(pathways(metadata(se)[["iSEEpathways"]][[slot(x, .resultName)]]))
+  x <- .replaceMissingWithFirst(x, .pathwayId, pathway_ids)
 
-    x
+  x
 })
 
 #' @export
 #' @importMethodsFrom iSEE .defineOutput
-#' @importFrom iSEE .getEncodedName .getPanelColor
+#' @importFrom iSEE .getEncodedName .getPanelColor .organizationHeight
 #' @importFrom shiny brushOpts plotOutput
 #' @importFrom shinyWidgets addSpinner
-setMethod(".defineOutput", "FgseaEnrichmentPlot", function(x, ...){
-    plot_name <- .getEncodedName(x)
-    .input_FUN <- function(field) {
-        paste0(plot_name, "_", field)
-    }
-    col <- .getPanelColor(x)
-    brush_stroke <- col
-    brush_fill <- iSEE:::.lighten_color_for_fill(col)
-    brush.opts <- brushOpts(.input_FUN(iSEE:::.brushField), resetOnNew = TRUE,
-        delay = 2000, direction = "x", fill = brush_fill,
-        stroke = brush_stroke, opacity = iSEE:::.brushFillOpacity)
-    dblclick <- .input_FUN(iSEE:::.zoomClick)
-    clickopt <- .input_FUN(iSEE:::.lassoClick)
-    panel_height <- paste0(slot(x, iSEE:::.organizationHeight), "px")
-    addSpinner(plotOutput(plot_name, brush = brush.opts, dblclick = dblclick,
-        click = clickopt, height = panel_height),
-        color = brush_fill)
+setMethod(".defineOutput", "FgseaEnrichmentPlot", function(x, ...) {
+  plot_name <- .getEncodedName(x)
+  .input_FUN <- function(field) {
+    paste0(plot_name, "_", field)
+  }
+  col <- .getPanelColor(x)
+  brush_stroke <- col
+  brush_fill <- iSEE:::.lighten_color_for_fill(col)
+  brush.opts <- brushOpts(.input_FUN(iSEE:::.brushField), resetOnNew = TRUE,
+    delay = 2000, direction = "x", fill = brush_fill,
+    stroke = brush_stroke, opacity = iSEE:::.brushFillOpacity)
+  dblclick <- .input_FUN(iSEE:::.zoomClick)
+  clickopt <- .input_FUN(iSEE:::.lassoClick)
+  panel_height <- paste0(slot(x, .organizationHeight), "px")
+  addSpinner(plotOutput(plot_name, brush = brush.opts, dblclick = dblclick,
+    click = clickopt, height = panel_height),
+    color = brush_fill)
 })
 
 #' @export
 #' @importMethodsFrom iSEE .renderOutput
-#' @importFrom iSEE .retrieveOutput
-setMethod(".renderOutput", "FgseaEnrichmentPlot", function (x, se, ..., output, pObjects, rObjects)  {
-    .local <- function (x, se, output, pObjects, rObjects)
-    {
-        plot_name <- .getEncodedName(x)
-        force(se)
-        output[[plot_name]] <- renderPlot({
-            .retrieveOutput(plot_name, se, pObjects, rObjects)$plot
-        })
-        callNextMethod()
-    }
-    .local(x, se, ..., output, pObjects, rObjects)
+#' @importFrom iSEE .getEncodedName .retrieveOutput
+#' @importFrom shiny renderPlot
+#' @importFrom methods callNextMethod
+setMethod(".renderOutput", "FgseaEnrichmentPlot", function (x, se, output, pObjects, rObjects)  {
+  plot_name <- .getEncodedName(x)
+  force(se) # defensive programming to avoid difficult bugs due to delayed evaluation.
+
+  # nocov start
+  output[[plot_name]] <- renderPlot({
+    .retrieveOutput(plot_name, se, pObjects, rObjects)$plot
+  })
+  # nocov end
+
+  callNextMethod()
 })
 
 #' @export
 #' @importMethodsFrom iSEE .generateOutput
-#' @importFrom iSEE .textEval
-#' @importFrom ggplot2 geom_rect
-setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, ..., all_memory, all_contents)
-{
-    .local <- function (x, se, all_memory, all_contents) {
-        pathway_id <- x[[.pathwayId]]
-        if (identical(pathway_id, "")) {
-            return(NULL)
-        }
-        plot_env <- new.env()
-        plot_env$se <- se
-        plot_env$colormap <- iSEE:::.get_colormap(se)
-        plot_name <- iSEE::.getEncodedName(x)
-        result_name <- x[[.resultName]]
-        all_cmds <- list()
-        # Doing this first so all_active is available in the environment
-        iSEE:::.populate_selection_environment(x, plot_env)
-        all_cmds$pre_cmds = paste0(c(
-            sprintf('.pathways <- pathways(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(result_name, FALSE)),
-            sprintf('.stats <- featuresStats(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(result_name, FALSE))
-            ), collapse = "\n")
-        plot_cmds <- sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats)', dQuote(pathway_id, FALSE))
-        if (!is.null(.multiSelectionActive(x))) {
-            brush_src <- sprintf("all_active[['%s']]", plot_name)
-            brush_data <- sprintf("%s[c('xmin', 'xmax', 'ymin', 'ymax')]", brush_src)
-            stroke_color <- .getPanelColor(x)
-            fill_color <- iSEE:::.lighten_color_for_fill(stroke_color)
-            aes_call <- sprintf("xmin=%s, xmax=%s, ymin=%s, ymax=%s", 'xmin', 'xmax', 'ymin', 'ymax')
-            # Build up the command that draws the brush
-            brush_draw_cmd <- sprintf(
-"geom_rect(aes(%s), color='%s', alpha=%s, fill='%s',
-    data=do.call(data.frame, %s),
-    inherit.aes=FALSE)",
-                aes_call, stroke_color, iSEE:::.brushFillOpacity, fill_color, brush_data)
-            plot_cmds <- paste0(plot_cmds, " +", "\n", brush_draw_cmd)
-        }
-        all_cmds$plot_cmds <- plot_cmds
-        all_cmds$plot_data_cmds <- paste0(c(
-          ".stats_rank <- rank(-.stats)",
-          sprintf(".stats_rank_in_pathway <- .stats_rank[names(.stats_rank) %%in%% .pathways[[%s]]]", dQuote(pathway_id, FALSE)),
-          "plot.data <- data.frame(
-  rank = .stats_rank_in_pathway,
-  row.names = names(.stats_rank_in_pathway)
+#' @importFrom iSEE .getEncodedName .getPanelColor .multiSelectionActive .textEval
+#' @importFrom ggplot2 aes geom_rect
+setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, all_memory, all_contents) {
+  pathway_id <- x[[.pathwayId]]
+  if (identical(pathway_id, "")) {
+    return(NULL)
+  }
+  plot_env <- new.env()
+  plot_env$se <- se
+  plot_env$colormap <- iSEE:::.get_colormap(se)
+  plot_name <- .getEncodedName(x)
+  result_name <- x[[.resultName]]
+  all_cmds <- list()
+  # Doing this first so all_active is available in the environment
+  iSEE:::.populate_selection_environment(x, plot_env)
+  all_cmds$pre_cmds = paste0(c(
+    sprintf('.pathways <- pathways(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(result_name, FALSE)),
+    sprintf('.stats <- featuresStats(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(result_name, FALSE))
+  ), collapse = "\n")
+  plot_cmds <- sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats)', dQuote(pathway_id, FALSE))
+  if (!is.null(.multiSelectionActive(x))) {
+    brush_src <- sprintf("all_active[['%s']]", plot_name)
+    brush_data <- sprintf("%s[c('xmin', 'xmax', 'ymin', 'ymax')]", brush_src)
+    stroke_color <- .getPanelColor(x)
+    fill_color <- iSEE:::.lighten_color_for_fill(stroke_color)
+    aes_call <- sprintf("xmin=%s, xmax=%s, ymin=%s, ymax=%s", 'xmin', 'xmax', 'ymin', 'ymax')
+    # Build up the command that draws the brush
+    brush_draw_cmd <- sprintf(
+      "geom_rect(aes(%s), color='%s', alpha=%s, fill='%s',
+  data=do.call(data.frame, %s),
+  inherit.aes=FALSE)",
+      aes_call, stroke_color, iSEE:::.brushFillOpacity, fill_color, brush_data)
+    plot_cmds <- paste0(plot_cmds, " +", "\n", brush_draw_cmd)
+  }
+  all_cmds$plot_cmds <- plot_cmds
+  all_cmds$plot_data_cmds <- paste0(c(
+    ".stats_rank <- rank(-.stats)",
+    sprintf(".stats_rank_in_pathway <- .stats_rank[names(.stats_rank) %%in%% .pathways[[%s]]]", dQuote(pathway_id, FALSE)),
+    "plot.data <- data.frame(
+rank = .stats_rank_in_pathway,
+row.names = names(.stats_rank_in_pathway)
 )"
-          ), collapse = "\n")
-        .textEval(all_cmds, plot_env)
-        list(commands = all_cmds, contents = plot_env$plot.data, plot = plot_env$fgsea_plot,
-            varname = "plot.data")
-    }
-    .local(x, se, ..., all_memory, all_contents)
+  ), collapse = "\n")
+  .textEval(all_cmds, plot_env)
+  list(commands = all_cmds, contents = plot_env$plot.data, plot = plot_env$fgsea_plot,
+    varname = "plot.data")
 })
 
 #' @export
 #' @importMethodsFrom iSEE .defineDataInterface
 #' @importFrom methods callNextMethod
 #' @importFrom shiny hr
-#' @importFrom iSEE .addSpecificTour .getCachedCommonInfo .getEncodedName .selectizeInput.iSEE
-#' .selectInput.iSEE
+#' @importFrom iSEE .addSpecificTour .getCachedCommonInfo .getEncodedName .selectInput.iSEE .selectizeInput.iSEE
 setMethod(".defineDataInterface", "FgseaEnrichmentPlot", function(x, se, select_info) {
   plot_name <- .getEncodedName(x)
   input_FUN <- function(field) paste0(plot_name, "_", field)
@@ -253,6 +263,8 @@ setMethod(".defineDataInterface", "FgseaEnrichmentPlot", function(x, se, select_
 
 #' @export
 #' @importMethodsFrom iSEE .defineInterface
+#' @importFrom iSEE .defineDataInterface
+#' @importFrom methods slot
 setMethod(".defineInterface", "FgseaEnrichmentPlot", function(x, se, select_info) {
   list(
     do.call(iSEE:::.collapseBoxHidden,
@@ -267,20 +279,19 @@ setMethod(".defineInterface", "FgseaEnrichmentPlot", function(x, se, select_info
 
 #' @export
 #' @importMethodsFrom iSEE .createObservers
-#' @importFrom iSEE .createProtectedParameterObservers .getEncodedName .requestActiveSelectionUpdate
-#' @importFrom methods callNextMethod slot slot<-
+#' @importFrom iSEE .createProtectedParameterObservers .getEncodedName
+#' @importFrom methods as callNextMethod slot slot<-
 #' @importFrom shiny observeEvent updateSelectizeInput
+#' @importFrom S4Vectors metadata
 setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, session, pObjects, rObjects) {
   callNextMethod()
 
   plot_name <- .getEncodedName(x)
-  .input_FUN <- function(field) {
-    paste0(plot_name, "_", field)
-  }
+  .input_FUN <- function(field) paste0(plot_name, "_", field)
   # do NOT add .resultName to the protected parameters as it automatically triggers rerendering through updateSelectizeInput(.pathwayId)
   .createProtectedParameterObservers(plot_name,
-                                     fields = c(.pathwayId),
-                                     input = input, pObjects = pObjects, rObjects = rObjects
+    fields = c(.pathwayId),
+    input = input, pObjects = pObjects, rObjects = rObjects
   )
 
   resultName_field <- .input_FUN(.resultName)
@@ -311,20 +322,22 @@ setMethod(".multiSelectionDimension", "FgseaEnrichmentPlot", function(x) "row")
 
 #' @export
 #' @importMethodsFrom iSEE .multiSelectionCommands
+#' @importFrom shiny brushedPoints
 setMethod(".multiSelectionCommands", "FgseaEnrichmentPlot", function(x, index) {
-    cmds <- "selected <- rownames(shiny::brushedPoints(contents, select));"
-    cmds
+  cmds <- "selected <- rownames(shiny::brushedPoints(contents, select));"
+  cmds
 })
 
 #' @export
 #' @importMethodsFrom iSEE .multiSelectionActive
+#' @importFrom methods slot
 setMethod(".multiSelectionActive", "FgseaEnrichmentPlot", function(x) {
-    brush_data <- slot(x, iSEE:::.brushData)
-    if (iSEE:::.is_brush(brush_data)) {
-        brush_data
-    } else {
-        NULL
-    }
+  brush_data <- slot(x, iSEE:::.brushData)
+  if (iSEE:::.is_brush(brush_data)) {
+    brush_data
+  } else {
+    NULL
+  }
 })
 
 #' @export

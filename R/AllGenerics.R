@@ -5,18 +5,18 @@
 #' @section Definitions:
 #' \itemize{
 #' \item `pathwayType(x)` returns a character scalar indicating the type of pathways analysed.
-#' \item `pathways(x)` returns the named list of pathways used in the analysis, or `NULL`.
+#' \item `pathwaysList(x)` returns the named list of pathways used in the analysis, or `NULL`.
 #' \item `featuresStats(x)` returns the named numeric vector of feature-level statistics used in the analysis, or `NULL`.
 #' }
 #'
 #' @docType methods
-#' @aliases featuresStats pathwayType pathways
+#' @aliases featuresStats pathwayType pathwaysList
 #' @name pathway-generics
 #' @author Kevin Rue-Albrecht
 #'
 #' @examples
 #' showMethods(pathwayType)
-#' showMethods(pathways)
+#' showMethods(pathwaysList)
 #' showMethods(featuresStats)
 NULL
 
@@ -26,8 +26,8 @@ setGeneric(
 )
 
 setGeneric(
-  "pathways",
-  function(x) standardGeneric("pathways")
+  "pathwaysList",
+  function(x) standardGeneric("pathwaysList")
 )
 
 setGeneric(

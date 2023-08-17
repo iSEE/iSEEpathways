@@ -57,13 +57,13 @@ setValidity2("iSEEpathwaysResults", function(object) {
 #' This class inherits all its slots directly from its parent class `iSEEpathwaysResults`.
 #'
 #' @section Constructor:
-#' \code{iSEEfgseaResults(data, pathwayType, pathways = NULL, stats = NULL)} creates an instance of a `iSEEfgseaResults` class, with:
+#' \code{iSEEfgseaResults(data, pathwayType, pathwaysList = NULL, featuresStats = NULL)} creates an instance of a `iSEEfgseaResults` class, with:
 #'
 #' \describe{
 #' \item{`data`}{A `data.frame` produced by `fgsea::fgsea()`.}
 #' \item{`pathwayType`}{A character scalar specifying the type of pathway (e.g., `"GO"`). See [embedPathwaysResults].}
-#' \item{`pathways`}{A named list of pathways and associated feature identifiers.}
-#' \item{`stats`}{Feature-level statistics used in the pathway analysis.}
+#' \item{`pathwaysList`}{A named list of pathways and associated feature identifiers.}
+#' \item{`featuresStats`}{Feature-level statistics used in the pathway analysis.}
 #' }
 #'
 #' @section Supported methods:
@@ -82,7 +82,7 @@ setValidity2("iSEEpathwaysResults", function(object) {
 #' iSEEfgseaResults iSEEfgseaResults-class
 #' embedPathwaysResults,iSEEfgseaResults-method
 #' featuresStats,iSEEfgseaResults-method
-#' pathways,iSEEfgseaResults-method
+#' pathwaysList,iSEEfgseaResults-method
 #' pathwayType,iSEEfgseaResults-method
 #'
 #' @examples
@@ -129,7 +129,7 @@ setValidity2("iSEEpathwaysResults", function(object) {
 #'
 #' # Embed the FGSEA results in the SummarizedExperiment object
 #' se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea",
-#'   pathwayType = "GO", pathways = pathways, stats = gene_stats)
+#'   pathwayType = "GO", pathwaysList = pathways, featuresStats = gene_stats)
 #' se
 #'
 #' ##
@@ -145,14 +145,14 @@ setClass("iSEEfgseaResults", contains = "iSEEpathwaysResults")
 #' @export
 #' @importFrom methods as new validObject
 #' @importFrom S4Vectors DataFrame
-iSEEfgseaResults <- function(data, pathwayType, pathways = NULL, stats = NULL) {
+iSEEfgseaResults <- function(data, pathwayType, pathwaysList = NULL, featuresStats = NULL) {
     data <- as(data, "DataFrame")
     rownames(data) <- data$pathway
     data$pathway <- NULL
     metadata <- list(
       pathwayType = pathwayType,
-      pathways = pathways,
-      stats = stats
+      pathwaysList = pathwaysList,
+      featuresStats = featuresStats
     )
     out <- new("iSEEfgseaResults", data,
                metadata = metadata)
@@ -169,14 +169,14 @@ setMethod("pathwayType", "iSEEfgseaResults", function(x) {
 
 #' @export
 #' @importFrom S4Vectors metadata
-setMethod("pathways", "iSEEfgseaResults", function(x) {
-  out <- metadata(x)$pathways
+setMethod("pathwaysList", "iSEEfgseaResults", function(x) {
+  out <- metadata(x)$pathwaysList
   out
 })
 
 #' @export
 #' @importFrom S4Vectors metadata
 setMethod("featuresStats", "iSEEfgseaResults", function(x) {
-  out <- metadata(x)[["stats"]]
+  out <- metadata(x)[["featuresStats"]]
   out
 })

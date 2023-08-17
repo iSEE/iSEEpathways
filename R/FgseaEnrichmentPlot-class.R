@@ -114,7 +114,7 @@ setMethod(".refineParameters", "FgseaEnrichmentPlot", function(x, se) {
   result_names <- .getCachedCommonInfo(se, "FgseaEnrichmentPlot")$valid.result.names
   x <- .replaceMissingWithFirst(x, .resultName, result_names)
 
-  pathway_ids <- names(pathways(metadata(se)[["iSEEpathways"]][[slot(x, .resultName)]]))
+  pathway_ids <- names(pathwaysList(metadata(se)[["iSEEpathways"]][[slot(x, .resultName)]]))
   x <- .replaceMissingWithFirst(x, .pathwayId, pathway_ids)
 
   x
@@ -180,7 +180,7 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, all_memory,
   # Doing this first so all_active is available in the environment
   iSEE:::.populate_selection_environment(x, plot_env)
   all_cmds$pre_cmds = paste0(c(
-    sprintf('.pathways <- pathways(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(result_name, FALSE)),
+    sprintf('.pathways <- pathwaysList(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(result_name, FALSE)),
     sprintf('.stats <- featuresStats(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(result_name, FALSE))
   ), collapse = "\n")
   plot_cmds <- sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats)', dQuote(pathway_id, FALSE))
@@ -305,7 +305,7 @@ setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, sess
     }
     current_value_pathwayId <- slot(pObjects$memory[[plot_name]], .pathwayId)
     matched_input_pathwayId <- as(input[[pathwayId_field]], typeof(current_value_pathwayId))
-    pathwayId_choices <- names(pathways(metadata(se)[["iSEEpathways"]][[slot(x, .resultName)]]))
+    pathwayId_choices <- names(pathwaysList(metadata(se)[["iSEEpathways"]][[slot(x, .resultName)]]))
     pathwayId_selected <- ifelse(matched_input_pathwayId %in% pathwayId_choices, matched_input_pathwayId, pathwayId_choices[1])
     # Update the choices of pathwayId, including when initialised
     updateSelectizeInput(session, .input_FUN(.pathwayId), choices = pathwayId_choices, selected = pathwayId_selected, server = TRUE)

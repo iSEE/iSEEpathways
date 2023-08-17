@@ -165,7 +165,7 @@ library("iSEEpathways")
 fgseaRes <- fgseaRes[order(pval), ]
 airway <- embedPathwaysResults(
   fgseaRes, airway, name = "fgsea (p-value)", class = "fgsea",
-  pathwayType = "GO", pathways = pathways, stats = stats)
+  pathwayType = "GO", pathwaysList = pathways, featuresStats = stats)
 airway
 ```
 
@@ -184,7 +184,7 @@ fgseaRes <- fgsea(pathways = pathways,
 fgseaRes <- fgseaRes[order(pval), ]
 airway <- embedPathwaysResults(
   fgseaRes, airway, name = "fgsea (p-value & fold-change)", class = "fgsea",
-  pathwayType = "GO", pathways = pathways, stats = stats)
+  pathwayType = "GO", pathwaysList = pathways, featuresStats = stats)
 airway
 ```
 

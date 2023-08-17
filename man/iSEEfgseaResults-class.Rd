@@ -6,7 +6,7 @@
 \alias{iSEEfgseaResults}
 \alias{embedPathwaysResults,iSEEfgseaResults-method}
 \alias{featuresStats,iSEEfgseaResults-method}
-\alias{pathways,iSEEfgseaResults-method}
+\alias{pathwaysList,iSEEfgseaResults-method}
 \alias{pathwayType,iSEEfgseaResults-method}
 \title{The iSEEfgseaResults class}
 \description{
@@ -20,13 +20,13 @@ This class inherits all its slots directly from its parent class \code{iSEEpathw
 
 \section{Constructor}{
 
-\code{iSEEfgseaResults(data, pathwayType, pathways = NULL, stats = NULL)} creates an instance of a \code{iSEEfgseaResults} class, with:
+\code{iSEEfgseaResults(data, pathwayType, pathwaysList = NULL, featuresStats = NULL)} creates an instance of a \code{iSEEfgseaResults} class, with:
 
 \describe{
 \item{\code{data}}{A \code{data.frame} produced by \code{fgsea::fgsea()}.}
 \item{\code{pathwayType}}{A character scalar specifying the type of pathway (e.g., \code{"GO"}). See \link{embedPathwaysResults}.}
-\item{\code{pathways}}{A named list of pathways and associated feature identifiers.}
-\item{\code{stats}}{Feature-level statistics used in the pathway analysis.}
+\item{\code{pathwaysList}}{A named list of pathways and associated feature identifiers.}
+\item{\code{featuresStats}}{Feature-level statistics used in the pathway analysis.}
 }
 }
 
@@ -84,7 +84,7 @@ se <- SummarizedExperiment()
 
 # Embed the FGSEA results in the SummarizedExperiment object
 se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea",
-  pathwayType = "GO", pathways = pathways, stats = gene_stats)
+  pathwayType = "GO", pathwaysList = pathways, featuresStats = gene_stats)
 se
 
 ##

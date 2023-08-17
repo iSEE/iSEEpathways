@@ -153,6 +153,7 @@ setClass("iSEEfgseaResults", contains = "iSEEpathwaysResults")
 #' @importFrom S4Vectors DataFrame
 iSEEfgseaResults <- function(data, pathwayType, pathwaysList = NULL, featuresStats = NULL) {
     data <- as(data, "DataFrame")
+    # TODO: throw error if column 'pathway' not found
     rownames(data) <- data$pathway
     data$pathway <- NULL
     metadata <- list(

@@ -104,11 +104,14 @@ In this case, we first create an empty `?SummarizedExperiment-class` object, wit
 
 We then embed the pathway analysis results in the newly created `?SummarizedExperiment-class` object.
 
+But first, we reorder the results by increasing p-value.
+Although not essential, this implicitly defines the default ordering of the table in the live app.
+
 ```{r, message=FALSE, warning=FALSE}
 library("SummarizedExperiment")
 library("iSEEpathways")
 se <- SummarizedExperiment()
-
+fgseaRes <- fgseaRes[order(pval), ]
 se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO")
 ```
 
@@ -140,7 +143,7 @@ Finally, we configure the app initial state and launch the live app.
 
 ```{r, message=FALSE}
 app <- iSEE(se, initial = list(
-  PathwaysTable(ResultName="fgsea", PanelWidth = 12L)
+  PathwaysTable(ResultName="fgsea", Selected = "GO:0046324", PanelWidth = 12L)
 ))
 
 if (interactive()) {

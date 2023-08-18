@@ -157,7 +157,7 @@ head(fgseaRes[order(pval), ])
 
 Then, we embed this set of pathway analysis results in the `airway` object, using the `?iSEEpathways::embedPathwaysResults` method.
 
-But first, we reorder the results by increasing p-value, and set the `rownames` to the pathway identifier.
+But first, we reorder the results by increasing p-value.
 Although not essential, this implicitly defines the default ordering of the table in the live app.
 
 ```{r}
@@ -210,13 +210,13 @@ Finally, we configure the initial state and launch the live app.
 
 ```{r "start", message=FALSE, warning=FALSE}
 app <- iSEE(airway, initial = list(
-  PathwaysTable(ResultName="fgsea (p-value)", Selected = "GO:0046323", PanelWidth = 4L),
+  PathwaysTable(ResultName="fgsea (p-value)", Selected = "GO:0046324", PanelWidth = 4L),
   VolcanoPlot(RowSelectionSource = "PathwaysTable1", ColorBy = "Row selection", PanelWidth = 4L),
   ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
       PanelWidth = 4L, PanelHeight = 700L,
       CustomRows = FALSE, ColumnData = "dex",
       ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE),
-  FgseaEnrichmentPlot(ResultName="fgsea (p-value)", PathwayId = "GO:0046323", PanelWidth = 12L)
+  FgseaEnrichmentPlot(ResultName="fgsea (p-value)", PathwayId = "GO:0046324", PanelWidth = 12L)
 ))
 
 if (interactive()) {
@@ -265,13 +265,13 @@ We can then launch a new instance of the app, using the same initial configurati
 
 ```{r "faster", message=FALSE, warning=FALSE}
 app <- iSEE(airway, initial = list(
-  PathwaysTable(ResultName="fgsea (p-value)", Selected = "GO:0046323", PanelWidth = 4L),
+  PathwaysTable(ResultName="fgsea (p-value)", Selected = "GO:0046324", PanelWidth = 4L),
   VolcanoPlot(RowSelectionSource = "PathwaysTable1", ColorBy = "Row selection", PanelWidth = 4L),
   ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
       PanelWidth = 4L, PanelHeight = 700L,
       CustomRows = FALSE, ColumnData = "dex",
       ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE),
-  FgseaEnrichmentPlot(ResultName="fgsea (p-value)", PathwayId = "GO:0046323", PanelWidth = 12L)
+  FgseaEnrichmentPlot(ResultName="fgsea (p-value)", PathwayId = "GO:0046324", PanelWidth = 12L)
 ))
 
 if (interactive()) {

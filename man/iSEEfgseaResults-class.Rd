@@ -36,7 +36,8 @@ In the following code snippets, \code{x} is an instance of a \code{iSEEfgseaResu
 Refer to the documentation for each method for more details on the remaining arguments.
 
 \itemize{
-\item \code{embedPathwaysResults(x, se, name, pathwayType, ...)} embeds \code{x} in the column \code{name} of \code{metadata(se)[["iSEEpathways"]]}.
+\item \code{embedPathwaysResults(x, se, name, pathwayType, ...)} embeds \code{x} in se under the identifier \code{name}. See \code{embedPathwaysResults()} for more details.
+\item \code{pathwaysList(x)} returns the named list of pathway identifiers and associated
 }
 }
 
@@ -91,8 +92,13 @@ se
 # Access ----
 ##
 
-# TODO: create getter function
-metadata(se)[["iSEEpathways"]][["fgsea"]]
+pathwaysResultsNames(se)
+pathwaysResults(se)
+pathwaysResults(se, "fgsea")
+
+pathwayType(pathwaysResults(se, "fgsea"))
+head(lengths(pathwaysList(pathwaysResults(se, "fgsea"))))
+head(featuresStats(pathwaysResults(se, "fgsea")))
 }
 \author{
 Kevin Rue-Albrecht

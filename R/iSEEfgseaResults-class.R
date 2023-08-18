@@ -71,7 +71,8 @@ setValidity2("iSEEpathwaysResults", function(object) {
 #' Refer to the documentation for each method for more details on the remaining arguments.
 #'
 #' \itemize{
-#' \item `embedPathwaysResults(x, se, name, pathwayType, ...)` embeds `x` in the column `name` of `metadata(se)[["iSEEpathways"]]`.
+#' \item `embedPathwaysResults(x, se, name, pathwayType, ...)` embeds `x` in se under the identifier `name`. See `embedPathwaysResults()` for more details.
+#' \item `pathwaysList(x)` returns the named list of pathway identifiers and associated
 #' }
 #'
 #' @author Kevin Rue-Albrecht
@@ -136,8 +137,13 @@ setValidity2("iSEEpathwaysResults", function(object) {
 #' # Access ----
 #' ##
 #'
-#' # TODO: create getter function
-#' metadata(se)[["iSEEpathways"]][["fgsea"]]
+#' pathwaysResultsNames(se)
+#' pathwaysResults(se)
+#' pathwaysResults(se, "fgsea")
+#'
+#' pathwayType(pathwaysResults(se, "fgsea"))
+#' head(lengths(pathwaysList(pathwaysResults(se, "fgsea"))))
+#' head(featuresStats(pathwaysResults(se, "fgsea")))
 NULL
 
 setClass("iSEEfgseaResults", contains = "iSEEpathwaysResults")
@@ -147,6 +153,7 @@ setClass("iSEEfgseaResults", contains = "iSEEpathwaysResults")
 #' @importFrom S4Vectors DataFrame
 iSEEfgseaResults <- function(data, pathwayType, pathwaysList = NULL, featuresStats = NULL) {
     data <- as(data, "DataFrame")
+    # TODO: throw error if column 'pathway' not found
     rownames(data) <- data$pathway
     data$pathway <- NULL
     metadata <- list(

@@ -125,7 +125,8 @@ fgseaRes <- fgsea(pathways = pathways,
                   stats    = feature_stats,
                   minSize  = 15,
                   maxSize  = 500)
-head(fgseaRes[order(pval), ])
+fgseaRes <- fgseaRes[order(pval), ]
+head(fgseaRes)
 
 # iSEE ---
 
@@ -138,8 +139,8 @@ se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwa
                            pathwaysList = pathways, featuresStats = feature_stats)
 
 app <- iSEE(se, initial = list(
-  PathwaysTable(ResultName="fgsea", PanelWidth = 6L),
-  FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002", PanelWidth = 6L)
+  PathwaysTable(ResultName="fgsea", Selected = "GO:0046324", PanelWidth = 6L),
+  FgseaEnrichmentPlot(ResultName="fgsea", PathwayId = "GO:0046324", PanelWidth = 6L)
 ))
 
 if (interactive()) {

@@ -95,7 +95,7 @@ setMethod(".cacheCommonInfo", "FgseaEnrichmentPlot", function(x, se) {
 
   se <- callNextMethod()
 
-  result_names <- names(metadata(se)[["iSEEpathways"]])
+  result_names <- pathwaysResultsNames(se)
 
   .setCachedCommonInfo(se, "FgseaEnrichmentPlot", valid.result.names = result_names)
 })
@@ -114,7 +114,7 @@ setMethod(".refineParameters", "FgseaEnrichmentPlot", function(x, se) {
   result_names <- .getCachedCommonInfo(se, "FgseaEnrichmentPlot")$valid.result.names
   x <- .replaceMissingWithFirst(x, .resultName, result_names)
 
-  pathway_ids <- names(pathwaysList(metadata(se)[["iSEEpathways"]][[slot(x, .resultName)]]))
+  pathway_ids <- rownames(pathwaysResults(se, slot(x, .resultName)))
   x <- .replaceMissingWithFirst(x, .pathwayId, pathway_ids)
 
   x
@@ -180,8 +180,8 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, all_memory,
   # Doing this first so all_active is available in the environment
   iSEE:::.populate_selection_environment(x, plot_env)
   all_cmds$pre_cmds = paste0(c(
-    sprintf('.pathways <- pathwaysList(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(result_name, FALSE)),
-    sprintf('.stats <- featuresStats(metadata(se)[["iSEEpathways"]][[%s]])', dQuote(result_name, FALSE))
+    sprintf('.pathways <- pathwaysList(pathwaysResults(se, %s))', dQuote(result_name, FALSE)),
+    sprintf('.stats <- featuresStats(pathwaysResults(se, %s))', dQuote(result_name, FALSE))
   ), collapse = "\n")
   plot_cmds <- sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats)', dQuote(pathway_id, FALSE))
   if (!is.null(.multiSelectionActive(x))) {
@@ -305,7 +305,7 @@ setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, sess
     }
     current_value_pathwayId <- slot(pObjects$memory[[plot_name]], .pathwayId)
     matched_input_pathwayId <- as(input[[pathwayId_field]], typeof(current_value_pathwayId))
-    pathwayId_choices <- names(pathwaysList(metadata(se)[["iSEEpathways"]][[slot(x, .resultName)]]))
+    pathwayId_choices <- rownames(pathwaysResults(se, slot(x, .resultName)))
     pathwayId_selected <- ifelse(matched_input_pathwayId %in% pathwayId_choices, matched_input_pathwayId, pathwayId_choices[1])
     # Update the choices of pathwayId, including when initialised
     updateSelectizeInput(session, .input_FUN(.pathwayId), choices = pathwayId_choices, selected = pathwayId_selected, server = TRUE)

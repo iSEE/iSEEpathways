@@ -297,6 +297,7 @@ setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, sess
   resultName_field <- .input_FUN(.resultName)
   pathwayId_field <- .input_FUN(.pathwayId)
 
+  #nocov start
   observeEvent(input[[resultName_field]], {
     current_value_resultName <- slot(pObjects$memory[[plot_name]], .resultName)
     matched_input_resultName <- as(input[[resultName_field]], typeof(current_value_resultName))
@@ -310,6 +311,7 @@ setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, sess
     # Update the choices of pathwayId, including when initialised
     updateSelectizeInput(session, .input_FUN(.pathwayId), choices = pathwayId_choices, selected = pathwayId_selected, server = TRUE)
   }, ignoreNULL = TRUE, ignoreInit = TRUE)
+  #nocov end
 
   iSEE:::.create_brush_observer(plot_name, input, session, pObjects, rObjects)
 

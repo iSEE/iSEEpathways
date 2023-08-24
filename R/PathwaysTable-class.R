@@ -44,6 +44,7 @@ setClass("PathwaysTable", contains="Table",
 
 #' @export
 #' @importFrom methods new
+
 PathwaysTable <- function(...) {
     new("PathwaysTable", ...)
 }
@@ -147,6 +148,7 @@ setMethod(".createObservers", "PathwaysTable", function(x, se, input, session, p
     single_name <- paste0(plot_name, "_", iSEE:::.flagSingleSelect)
 
     select_field <- paste0(plot_name, iSEE:::.int_statTableSelected)
+    #nocov start
     observeEvent(input[[select_field]], {
         # Single-selection reactive updates the selection details
         iSEE:::.safe_reactive_bump(rObjects, single_name)
@@ -154,7 +156,7 @@ setMethod(".createObservers", "PathwaysTable", function(x, se, input, session, p
         .requestActiveSelectionUpdate(plot_name, session=session, pObjects=pObjects,
                                       rObjects=rObjects, update_output=FALSE)
     })
-
+    #nocov end
     invisible(NULL)
 })
 
@@ -229,7 +231,7 @@ setMethod(".multiSelectionCommands", "PathwaysTable", function(x, index) {
 #' @export
 #' @importMethodsFrom iSEE .multiSelectionActive
 setMethod(".multiSelectionActive", "PathwaysTable", function(x) {
-    if (nzchar(x[["Selected"]])) {
+    if (!is.na(x[["Selected"]])) {
         x[["Selected"]]
     } else {
         NULL

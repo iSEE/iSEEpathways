@@ -30,15 +30,17 @@ NULL
 setClass("iSEEpathwaysResults",
          contains = c("DFrame", "VIRTUAL"))
 
-setValidity2("iSEEpathwaysResults", function(object) {
+setValidity2("iSEEpathwaysResults", function(.Object) {
     msg <- NULL
 
-    pathwayType <- metadata(object)[["pathwayType"]]
+    pathwayType <- pathwayType(.Object)
     if (!is(pathwayType, "character")) {
-        msg <- c(msg, "metadata(object)[['pathwayType']] must be a character scalar")
+        msg <- c(msg,
+          "pathwayType(.Object) must be a character scalar")
     }
     if (!identical(length(pathwayType), 1L)) {
-        msg <- c(msg, "metadata(object)[['pathwayType']] must be length 1")
+        msg <- c(msg,
+          "pathwayType(.Object) must be length 1")
     }
 
     if (length(msg)) {

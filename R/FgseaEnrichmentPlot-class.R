@@ -314,6 +314,7 @@ setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, sess
   #nocov end
 
   iSEE:::.create_brush_observer(plot_name, input, session, pObjects, rObjects)
+  .create_double_click_observer(plot_name, input, session, pObjects, rObjects)
 
   invisible(NULL)
 })

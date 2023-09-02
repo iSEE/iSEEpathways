@@ -56,7 +56,9 @@ bib <- c(
 
 In this vignette, we demonstrate how one may use the package `r BiocStyle::Biocpkg("GO.db")` to dynamically display additional information about selected pathways in the interactive user interface.
 
-# Example data
+# Demonstration
+
+## Example data
 
 First, we generate pathway analysis results for simulated data using `r BiocStyle::Biocpkg("fgsea")`.
 

@@ -7,7 +7,8 @@
 simulateExampleData(
   n_pathways = 5000,
   n_features = 15000,
-  pathway_sizes = 16:500,
+  n_samples = 8,
+  pathway_sizes = 15:500,
   seed = 1
 )
 }
@@ -16,23 +17,42 @@ simulateExampleData(
 
 \item{n_features}{integer scalar, number of features to simulate.}
 
+\item{n_samples}{integer scalar, number of samples to simulate.}
+
 \item{pathway_sizes}{integer vector, possible sizes of pathway to sample from.}
 
 \item{seed}{a single value, passed to \code{\link[=set.seed]{set.seed()}}.}
 }
 \value{
-A list of two elements:
+A list of three elements:
 \describe{
 \item{pathwaysList}{A named list of dummy pathways.
 Names represent pathway identifiers;
 values represent character vectors of feature identifiers.}
-}
-\item{featuresStat}{A named numeric vector.
+\item{featuresStat}{A named numeric vector of dummy feature-wise statistics.
 Names represent feature identifiers;
 values represent 'scores' (e.g., log2 fold-change)}
+\item{summarizedexperiment}{A \linkS4class{SummarizedExperiment} object
+that contains a count matrix with rownames and colnames.}
+}
 }
 \description{
-Simulate Example Data
+Simulates various pieces of data for the purpose of demonstration in vignettes
+and help pages.
+}
+\details{
+At least for the time being, this function generates dummy data
+purely for the purpose of demonstrating the \emph{format} of expected inputs.
+
+As such, the independent pieces of simulated data are just that -- independent --
+in the meaning that simulated counts, statistics, and pathways are not related
+numerically, and do not make any biological sense.
+
+The only coherent piece of information is the set of feature identifiers,
+carefully coordinated between the rownames of the count matrix,
+the names of the feature statistics,
+and the set of features in the list of pathways,
+so that panels in the app can transmit and interpret that shared piece of information.
 }
 \examples{
 simulated_data <- simulateExampleData()

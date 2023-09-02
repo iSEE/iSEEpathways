@@ -1,5 +1,5 @@
 test_that(".embed_pathway_result", {
-  x <- iSEEfgseaResults(data = fgsea_result, pathwayType = "demo", pathwaysList = pathways_list, featuresStats = gene_stats)
+  x <- iSEEfgseaResults(data = fgsea_result, pathwayType = "demo", pathwaysList = setup_data$pathwaysList, featuresStats = setup_data$featuresStat)
   se <- SummarizedExperiment()
 
   out <- iSEEpathways:::.embed_pathway_result(x, se, name = "result")
@@ -31,7 +31,7 @@ test_that("embedPathwaysResults throw an error if class of result is not specifi
 })
 
 test_that("embedPathwaysResults method works for iSEEfgseaResults", {
-  x <- iSEEfgseaResults(data = fgsea_result, pathwayType = "demo", pathwaysList = pathways_list, featuresStats = gene_stats)
+  x <- iSEEfgseaResults(data = fgsea_result, pathwayType = "demo", pathwaysList = setup_data$pathwaysList, featuresStats = setup_data$featuresStat)
   se <- SummarizedExperiment()
 
   out <- embedPathwaysResults(x, se, name = "result")
@@ -40,7 +40,7 @@ test_that("embedPathwaysResults method works for iSEEfgseaResults", {
 })
 
 test_that("pathwaysResultsNames works", {
-  x <- iSEEfgseaResults(data = fgsea_result, pathwayType = "demo", pathwaysList = pathways_list, featuresStats = gene_stats)
+  x <- iSEEfgseaResults(data = fgsea_result, pathwayType = "demo", pathwaysList = setup_data$pathwaysList, featuresStats = setup_data$featuresStat)
   se <- SummarizedExperiment()
 
   se <- embedPathwaysResults(x, se, name = "result")
@@ -51,7 +51,7 @@ test_that("pathwaysResultsNames works", {
 })
 
 test_that("pathwaysResults works", {
-  x <- iSEEfgseaResults(data = fgsea_result, pathwayType = "demo", pathwaysList = pathways_list, featuresStats = gene_stats)
+  x <- iSEEfgseaResults(data = fgsea_result, pathwayType = "demo", pathwaysList = setup_data$pathwaysList, featuresStats = setup_data$featuresStat)
   se <- SummarizedExperiment()
 
   se <- embedPathwaysResults(x, se, name = "result")
@@ -67,7 +67,7 @@ test_that("pathwaysResults works", {
 })
 
 test_that("pathwaysResults throws an error when the result name does not exist", {
-  x <- iSEEfgseaResults(data = fgsea_result, pathwayType = "demo", pathwaysList = pathways_list, featuresStats = gene_stats)
+  x <- iSEEfgseaResults(data = fgsea_result, pathwayType = "demo", pathwaysList = setup_data$pathwaysList, featuresStats = setup_data$featuresStat)
   se <- SummarizedExperiment()
 
   se <- embedPathwaysResults(x, se, name = "result")

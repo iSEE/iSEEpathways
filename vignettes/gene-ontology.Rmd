@@ -54,14 +54,19 @@ bib <- c(
 
 # Scenario
 
-In this vignette, we use the example of a simulated pathway analysis workflow to demonstrate how one may work with Gene Ontology biological pathways.
-
-In particular, we use the package `r BiocStyle::Biocpkg("org.Hs.eg.db")` to fetch gene sets,
-and we define a custom function to display information given the identifier of the pathway currently selected in a panel.
+In this vignette, we demonstrate how one may use the package `r BiocStyle::Biocpkg("GO.db")` to dynamically display additional information about selected pathways in the interactive user interface.
 
 # Example data
 
 First, we generate pathway analysis results for simulated data using `r BiocStyle::Biocpkg("fgsea")`.
+
+In particular, we use the package `r BiocStyle::Biocpkg("org.Hs.eg.db")` to fetch real gene sets.
+To reduce memory footprint, we retain only the gene sets associated with 15 to 500 genes.
+
+Then, we simulate a score for each of the gene present in any of those remaining gene sets.
+In practice, that score could be the log~2~ fold-change of the gene in a differential expression analysis (among other possibilities).
+
+Finally, we perform an FGSEA on the simulated data.
 
 ```{r "start", message=FALSE, warning=FALSE}
 library("org.Hs.eg.db")
@@ -100,7 +105,7 @@ head(fgseaRes[order(pval), ])
 
 Then, we embed the `r BiocStyle::Biocpkg("fgsea")` results in a `r BiocStyle::Biocpkg("SummarizedExperiment")` object.
 
-In this case, we first create an empty `?SummarizedExperiment-class` object, without any simulated count data nor metadata, as we will not be using any of those data in this example.
+In this case, we create an empty `?SummarizedExperiment-class` object, without any simulated count data nor metadata, as we will not be using any of those data in this example.
 
 We then embed the pathway analysis results in the newly created `?SummarizedExperiment-class` object.
 
@@ -117,9 +122,11 @@ se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwa
 
 ## Pathway information
 
-We also configure configure the app option `PathwaysTable.select.details` to define a function that displays information about the currently selected GO term.
+In this example, we configure the app option `PathwaysTable.select.details` to define a function that,
+given the identifier of the GO term currently selected in a panel,
+displays information about that GO term.
 
-Although not essential, this is a user-friendly and immediate way to translate database identifiers into a human-friendly description.
+Although not essential, this is a user-friendly and immediate way to 'translate' machine-friendly database identifiers into human-friendly descriptions.
 
 ```{r, message=FALSE, warning=FALSE}
 library("iSEE")
@@ -139,7 +146,6 @@ se <- registerAppOptions(se, PathwaysTable.select.details = go_details)
 ## Live app
 
 Finally, we configure the app initial state and launch the live app.
-
 
 ```{r, message=FALSE}
 app <- iSEE(se, initial = list(

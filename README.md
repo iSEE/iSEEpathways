@@ -47,67 +47,49 @@ This is a basic example which shows you how to load the package:
 
 ``` r
 library("iSEEpathways")
-library("org.Hs.eg.db")
 library("fgsea")
 library("iSEE")
 
 # Example data ----
 
-## Pathways
-pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "SYMBOL"), c("GOALL"), keytype = "SYMBOL")
-pathways <- subset(pathways, ONTOLOGYALL == "BP")
-pathways <- unique(pathways[, c("SYMBOL", "GOALL")])
-pathways <- split(pathways$SYMBOL, pathways$GOALL)
-len_pathways <- lengths(pathways)
-pathways <- pathways[len_pathways > 15 & len_pathways < 500]
+simulated_data <- simulateExampleData()
 
-## Features
-set.seed(1)
-# simulate a score for all genes found across all pathways
-feature_stats <- rnorm(length(unique(unlist(pathways))))
-names(feature_stats) <- unique(unlist(pathways))
-# arbitrarily select a pathway to simulate enrichment
-pathway_id <- "GO:0046324"
-pathway_genes <- pathways[[pathway_id]]
-# increase score of genes in the selected pathway to simulate enrichment
-feature_stats[pathway_genes] <- feature_stats[pathway_genes] + 1
+pathways_list <- simulated_data[["pathwaysList"]]
+features_stat <- simulated_data[["featuresStat"]]
+se <- simulated_data[["summarizedexperiment"]]
 
 # fgsea ----
 
 set.seed(42)
-fgseaRes <- fgsea(pathways = pathways, 
-                  stats    = feature_stats,
+fgseaRes <- fgsea(pathways = pathways_list, 
+                  stats    = features_stat,
                   minSize  = 15,
                   maxSize  = 500)
-head(fgseaRes[order(pval), ])
-#>       pathway         pval         padj   log2err        ES      NES size
-#> 1: GO:0046323 1.174458e-10 4.609944e-07 0.8266573 0.5982413 2.555596   75
-#> 2: GO:0008645 1.840665e-10 4.609944e-07 0.8266573 0.5115897 2.367116  117
-#> 3: GO:0010827 4.296846e-10 5.194149e-07 0.8140358 0.5797781 2.475614   77
-#> 4: GO:1904659 4.524314e-10 5.194149e-07 0.8140358 0.5117531 2.365294  114
-#> 5: GO:0046324 5.184816e-10 5.194149e-07 0.8012156 0.6314064 2.542207   59
-#> 6: GO:0015749 6.491366e-10 5.419208e-07 0.8012156 0.4997745 2.325238  120
-#>                                    leadingEdge
-#> 1:   PTPN11,TSC1,CREBL2,PTH,MIR107,SELENOS,...
-#> 2:    PTPN11,SLC2A8,TSC1,CREBL2,PTH,MIR107,...
-#> 3: PTPN11,CREBL2,PTH,MIR107,SELENOS,SLC1A2,...
-#> 4:    PTPN11,SLC2A8,TSC1,CREBL2,PTH,MIR107,...
-#> 5: PTPN11,CREBL2,PTH,MIR107,SELENOS,SLC1A2,...
-#> 6:    PTPN11,SLC2A8,TSC1,CREBL2,PTH,MIR107,...
+fgseaRes <- fgseaRes[order(pval), ]
+head(fgseaRes)
+#>         pathway         pval      padj   log2err         ES       NES size
+#> 1: pathway_1350 0.0004373110 0.5905978 0.4984931  0.2858201  1.503211  299
+#> 2: pathway_4907 0.0005947840 0.5905978 0.4772708  0.3250965  1.599638  178
+#> 3: pathway_3983 0.0007509197 0.5905978 0.4772708  0.2558001  1.398213  451
+#> 4:  pathway_398 0.0008716489 0.5905978 0.4772708  0.2799932  1.477849  305
+#> 5: pathway_3359 0.0009809867 0.5905978 0.4550599 -0.3724340 -1.674911  106
+#> 6: pathway_1289 0.0009835850 0.5905978 0.4550599  0.3479133  1.638048  124
+#>                                                                            leadingEdge
+#> 1:  feature_6060,feature_9203,feature_1852,feature_1883,feature_12903,feature_2143,...
+#> 2: feature_9265,feature_6286,feature_14879,feature_9600,feature_5335,feature_12205,...
+#> 3:  feature_495,feature_12466,feature_13128,feature_3069,feature_5278,feature_4248,...
+#> 4:    feature_6478,feature_2164,feature_922,feature_4298,feature_6585,feature_1633,...
+#> 5:    feature_3879,feature_2726,feature_6870,feature_6787,feature_9700,feature_693,...
+#> 6: feature_6376,feature_12953,feature_8391,feature_3147,feature_7330,feature_11551,...
 
 # iSEE ---
 
-ngenes <- length(feature_stats)
-cnts <- matrix(rnbinom(n=ngenes*2, mu=100, size=1/0.5), nrow=ngenes)
-rownames(cnts) <- names(feature_stats)
-se <- SummarizedExperiment(assay = list(counts = cnts))
-
-se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO",
-                           pathways = pathways, stats = feature_stats)
+se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "simulated",
+                           pathwaysList = pathways_list, featuresStats = features_stat)
 
 app <- iSEE(se, initial = list(
-  PathwaysTable(ResultName="fgsea", PanelWidth = 6L),
-  FgseaEnrichmentPlot(ResultName="fgsea", PathwayId="GO:0000002", PanelWidth = 6L)
+  PathwaysTable(ResultName="fgsea", Selected = "pathway_3363 ", PanelWidth = 6L),
+  FgseaEnrichmentPlot(ResultName="fgsea", PathwayId = "pathway_3363", PanelWidth = 6L)
 ))
 
 if (interactive()) {

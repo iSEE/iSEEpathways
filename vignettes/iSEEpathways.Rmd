@@ -120,8 +120,8 @@ se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwa
                            pathwaysList = pathways_list, featuresStats = features_stat)
 
 app <- iSEE(se, initial = list(
-  PathwaysTable(ResultName="fgsea", Selected = "pathway_3363 ", PanelWidth = 6L),
-  FgseaEnrichmentPlot(ResultName="fgsea", PathwayId = "pathway_3363", PanelWidth = 6L)
+  PathwaysTable(ResultName="fgsea", Selected = "pathway_1350 ", PanelWidth = 6L),
+  FgseaEnrichmentPlot(ResultName="fgsea", PathwayId = "pathway_1350", PanelWidth = 6L)
 ))
 
 if (interactive()) {

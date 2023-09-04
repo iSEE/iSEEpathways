@@ -15,7 +15,11 @@
 <meta property="og:title" content="iSEE extension for panels related to pathway analysis">
 <meta property="og:description" content="This package contains diverse functionality to extend the usage
     of the iSEE package, including additional classes for the panels or modes
-    facilitating the analysis of pathway analysis results.">
+    facilitating the analysis of pathway analysis results.
+    This package does not perform pathway analysis. Instead, it provides methods
+    to embed precomputed pathway analysis results in a SummarizedExperiment
+    object, in a manner that is compatible with interactive visualisation
+    in iSEE applications.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -112,67 +116,49 @@
 <p>This is a basic example which shows you how to load the package:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/iSEE/iSEEpathways" class="external-link">"iSEEpathways"</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"org.Hs.eg.db"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ctlab/fgsea/" class="external-link">"fgsea"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/iSEE/iSEE" class="external-link">"iSEE"</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Example data ----</span></span>
 <span></span>
-<span><span class="co">## Pathways</span></span>
-<span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/AnnotationDb-class.html" class="external-link">select</a></span><span class="op">(</span><span class="va">org.Hs.eg.db</span>, <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/AnnotationDb-class.html" class="external-link">keys</a></span><span class="op">(</span><span class="va">org.Hs.eg.db</span>, <span class="st">"SYMBOL"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GOALL"</span><span class="op">)</span>, keytype <span class="op">=</span> <span class="st">"SYMBOL"</span><span class="op">)</span></span>
-<span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">pathways</span>, <span class="va">ONTOLOGYALL</span> <span class="op">==</span> <span class="st">"BP"</span><span class="op">)</span></span>
-<span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SYMBOL"</span>, <span class="st">"GOALL"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">$</span><span class="va">SYMBOL</span>, <span class="va">pathways</span><span class="op">$</span><span class="va">GOALL</span><span class="op">)</span></span>
-<span><span class="va">len_pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lengths.html" class="external-link">lengths</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">)</span></span>
-<span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="va">pathways</span><span class="op">[</span><span class="va">len_pathways</span> <span class="op">&gt;</span> <span class="fl">15</span> <span class="op">&amp;</span> <span class="va">len_pathways</span> <span class="op">&lt;</span> <span class="fl">500</span><span class="op">]</span></span>
+<span><span class="va">simulated_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/simulateExampleData.html">simulateExampleData</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">## Features</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co"># simulate a score for all genes found across all pathways</span></span>
-<span><span class="va">feature_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">feature_stats</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co"># arbitrarily select a pathway to simulate enrichment</span></span>
-<span><span class="va">pathway_id</span> <span class="op">&lt;-</span> <span class="st">"GO:0046324"</span></span>
-<span><span class="va">pathway_genes</span> <span class="op">&lt;-</span> <span class="va">pathways</span><span class="op">[[</span><span class="va">pathway_id</span><span class="op">]</span><span class="op">]</span></span>
-<span><span class="co"># increase score of genes in the selected pathway to simulate enrichment</span></span>
-<span><span class="va">feature_stats</span><span class="op">[</span><span class="va">pathway_genes</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">feature_stats</span><span class="op">[</span><span class="va">pathway_genes</span><span class="op">]</span> <span class="op">+</span> <span class="fl">1</span></span>
+<span><span class="va">pathways_list</span> <span class="op">&lt;-</span> <span class="va">simulated_data</span><span class="op">[[</span><span class="st">"pathwaysList"</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="va">features_stat</span> <span class="op">&lt;-</span> <span class="va">simulated_data</span><span class="op">[[</span><span class="st">"featuresStat"</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="va">simulated_data</span><span class="op">[[</span><span class="st">"summarizedexperiment"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co"># fgsea ----</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
-<span><span class="va">fgseaRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/fgsea/man/fgsea.html" class="external-link">fgsea</a></span><span class="op">(</span>pathways <span class="op">=</span> <span class="va">pathways</span>, </span>
-<span>                  stats    <span class="op">=</span> <span class="va">feature_stats</span>,</span>
+<span><span class="va">fgseaRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/fgsea/man/fgsea.html" class="external-link">fgsea</a></span><span class="op">(</span>pathways <span class="op">=</span> <span class="va">pathways_list</span>, </span>
+<span>                  stats    <span class="op">=</span> <span class="va">features_stat</span>,</span>
 <span>                  minSize  <span class="op">=</span> <span class="fl">15</span>,</span>
 <span>                  maxSize  <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">fgseaRes</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">pval</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       pathway         pval         padj   log2err        ES      NES size</span></span>
-<span><span class="co">#&gt; 1: GO:0046323 1.174458e-10 4.609944e-07 0.8266573 0.5982413 2.555596   75</span></span>
-<span><span class="co">#&gt; 2: GO:0008645 1.840665e-10 4.609944e-07 0.8266573 0.5115897 2.367116  117</span></span>
-<span><span class="co">#&gt; 3: GO:0010827 4.296846e-10 5.194149e-07 0.8140358 0.5797781 2.475614   77</span></span>
-<span><span class="co">#&gt; 4: GO:1904659 4.524314e-10 5.194149e-07 0.8140358 0.5117531 2.365294  114</span></span>
-<span><span class="co">#&gt; 5: GO:0046324 5.184816e-10 5.194149e-07 0.8012156 0.6314064 2.542207   59</span></span>
-<span><span class="co">#&gt; 6: GO:0015749 6.491366e-10 5.419208e-07 0.8012156 0.4997745 2.325238  120</span></span>
-<span><span class="co">#&gt;                                    leadingEdge</span></span>
-<span><span class="co">#&gt; 1:   PTPN11,TSC1,CREBL2,PTH,MIR107,SELENOS,...</span></span>
-<span><span class="co">#&gt; 2:    PTPN11,SLC2A8,TSC1,CREBL2,PTH,MIR107,...</span></span>
-<span><span class="co">#&gt; 3: PTPN11,CREBL2,PTH,MIR107,SELENOS,SLC1A2,...</span></span>
-<span><span class="co">#&gt; 4:    PTPN11,SLC2A8,TSC1,CREBL2,PTH,MIR107,...</span></span>
-<span><span class="co">#&gt; 5: PTPN11,CREBL2,PTH,MIR107,SELENOS,SLC1A2,...</span></span>
-<span><span class="co">#&gt; 6:    PTPN11,SLC2A8,TSC1,CREBL2,PTH,MIR107,...</span></span>
+<span><span class="va">fgseaRes</span> <span class="op">&lt;-</span> <span class="va">fgseaRes</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">pval</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">fgseaRes</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         pathway         pval      padj   log2err         ES       NES size</span></span>
+<span><span class="co">#&gt; 1: pathway_1350 0.0004373110 0.5905978 0.4984931  0.2858201  1.503211  299</span></span>
+<span><span class="co">#&gt; 2: pathway_4907 0.0005947840 0.5905978 0.4772708  0.3250965  1.599638  178</span></span>
+<span><span class="co">#&gt; 3: pathway_3983 0.0007509197 0.5905978 0.4772708  0.2558001  1.398213  451</span></span>
+<span><span class="co">#&gt; 4:  pathway_398 0.0008716489 0.5905978 0.4772708  0.2799932  1.477849  305</span></span>
+<span><span class="co">#&gt; 5: pathway_3359 0.0009809867 0.5905978 0.4550599 -0.3724340 -1.674911  106</span></span>
+<span><span class="co">#&gt; 6: pathway_1289 0.0009835850 0.5905978 0.4550599  0.3479133  1.638048  124</span></span>
+<span><span class="co">#&gt;                                                                            leadingEdge</span></span>
+<span><span class="co">#&gt; 1:  feature_6060,feature_9203,feature_1852,feature_1883,feature_12903,feature_2143,...</span></span>
+<span><span class="co">#&gt; 2: feature_9265,feature_6286,feature_14879,feature_9600,feature_5335,feature_12205,...</span></span>
+<span><span class="co">#&gt; 3:  feature_495,feature_12466,feature_13128,feature_3069,feature_5278,feature_4248,...</span></span>
+<span><span class="co">#&gt; 4:    feature_6478,feature_2164,feature_922,feature_4298,feature_6585,feature_1633,...</span></span>
+<span><span class="co">#&gt; 5:    feature_3879,feature_2726,feature_6870,feature_6787,feature_9700,feature_693,...</span></span>
+<span><span class="co">#&gt; 6: feature_6376,feature_12953,feature_8391,feature_3147,feature_7330,feature_11551,...</span></span>
 <span></span>
 <span><span class="co"># iSEE ---</span></span>
 <span></span>
-<span><span class="va">ngenes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">feature_stats</span><span class="op">)</span></span>
-<span><span class="va">cnts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/NegBinomial.html" class="external-link">rnbinom</a></span><span class="op">(</span>n<span class="op">=</span><span class="va">ngenes</span><span class="op">*</span><span class="fl">2</span>, mu<span class="op">=</span><span class="fl">100</span>, size<span class="op">=</span><span class="fl">1</span><span class="op">/</span><span class="fl">0.5</span><span class="op">)</span>, nrow<span class="op">=</span><span class="va">ngenes</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">cnts</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">feature_stats</span><span class="op">)</span></span>
-<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></span><span class="op">(</span>assay <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>counts <span class="op">=</span> <span class="va">cnts</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/utils-SummarizedExperiment.html">embedPathwaysResults</a></span><span class="op">(</span><span class="va">fgseaRes</span>, <span class="va">se</span>, name <span class="op">=</span> <span class="st">"fgsea"</span>, class <span class="op">=</span> <span class="st">"fgsea"</span>, pathwayType <span class="op">=</span> <span class="st">"GO"</span>,</span>
-<span>                           pathways <span class="op">=</span> <span class="va">pathways</span>, stats <span class="op">=</span> <span class="va">feature_stats</span><span class="op">)</span></span>
+<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/utils-SummarizedExperiment.html">embedPathwaysResults</a></span><span class="op">(</span><span class="va">fgseaRes</span>, <span class="va">se</span>, name <span class="op">=</span> <span class="st">"fgsea"</span>, class <span class="op">=</span> <span class="st">"fgsea"</span>, pathwayType <span class="op">=</span> <span class="st">"simulated"</span>,</span>
+<span>                           pathwaysList <span class="op">=</span> <span class="va">pathways_list</span>, featuresStats <span class="op">=</span> <span class="va">features_stat</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/iSEE.html" class="external-link">iSEE</a></span><span class="op">(</span><span class="va">se</span>, initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="reference/PathwaysTable-class.html">PathwaysTable</a></span><span class="op">(</span>ResultName<span class="op">=</span><span class="st">"fgsea"</span>, PanelWidth <span class="op">=</span> <span class="fl">6L</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="reference/FgseaEnrichmentPlot-class.html">FgseaEnrichmentPlot</a></span><span class="op">(</span>ResultName<span class="op">=</span><span class="st">"fgsea"</span>, PathwayId<span class="op">=</span><span class="st">"GO:0000002"</span>, PanelWidth <span class="op">=</span> <span class="fl">6L</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="reference/PathwaysTable-class.html">PathwaysTable</a></span><span class="op">(</span>ResultName<span class="op">=</span><span class="st">"fgsea"</span>, Selected <span class="op">=</span> <span class="st">"pathway_3363 "</span>, PanelWidth <span class="op">=</span> <span class="fl">6L</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="reference/FgseaEnrichmentPlot-class.html">FgseaEnrichmentPlot</a></span><span class="op">(</span>ResultName<span class="op">=</span><span class="st">"fgsea"</span>, PathwayId <span class="op">=</span> <span class="st">"pathway_3363"</span>, PanelWidth <span class="op">=</span> <span class="fl">6L</span><span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -264,6 +250,8 @@
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Kevin Rue-Albrecht <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3899-3872" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Denali Therapeutics <br><small class="roles"> Funder </small>  </li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
 
@@ -284,7 +272,7 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Kevin Rue-Albrecht.</p>
+<p>Developed by Kevin Rue-Albrecht, Denali Therapeutics.</p>
 </div>
 
 <div class="pkgdown">

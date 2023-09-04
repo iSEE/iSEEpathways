@@ -115,7 +115,7 @@ pathwaysResultsNames <- function(object){
 #' ##
 #'
 #' se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO",
-#'   pathwaysList = pathways, featuresStats = feature_stats)
+#'   pathwaysList = pathways_list, featuresStats = features_stats)
 #'
 #' ##
 #' # List result names ---

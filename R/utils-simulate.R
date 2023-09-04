@@ -1,17 +1,17 @@
 #' Simulate Example Data
-#' 
+#'
 #' @description
 #' Simulates various pieces of data for the purpose of demonstration in vignettes
 #' and help pages.
-#' 
+#'
 #' @details
 #' At least for the time being, this function generates dummy data
 #' purely for the purpose of demonstrating the *format* of expected inputs.
-#' 
+#'
 #' As such, the independent pieces of simulated data are just that -- independent --
 #' in the meaning that simulated counts, statistics, and pathways are not related
 #' numerically, and do not make any biological sense.
-#' 
+#'
 #' The only coherent piece of information is the set of feature identifiers,
 #' carefully coordinated between the rownames of the count matrix,
 #' the names of the feature statistics,
@@ -36,6 +36,8 @@
 #' that contains a count matrix with rownames and colnames.}
 #' }
 #' @export
+#' @importFrom stats rnbinom rnorm
+#' @importFrom SummarizedExperiment SummarizedExperiment
 #'
 #' @examples
 #' simulated_data <- simulateExampleData()

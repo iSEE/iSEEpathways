@@ -61,7 +61,7 @@ simulateExampleData <- function(n_pathways = 5E3, n_features = 15E3, n_samples =
   names(feature_stats) <- feature_ids
   # samples
   count_matrix <- matrix(rnbinom(n=n_features*n_samples, mu=100, size=1/0.5), nrow=n_features, dimnames = list(feature_ids, sample_ids))
-  se_object <- SummarizedExperiment(assay = list(counts = count_matrix))
+  se_object <- SummarizedExperiment(assays = list(counts = count_matrix))
   return(list(
     pathwaysList = pathways_list,
     featuresStat = feature_stats,

@@ -43,6 +43,9 @@
     <loc>/reference/iSEEfgseaResults-class.html</loc>
   </url>
   <url>
+    <loc>/reference/iSEEpathways-pkg.html</loc>
+  </url>
+  <url>
     <loc>/reference/iSEEpathwaysResults-class.html</loc>
   </url>
   <url>
@@ -53,6 +56,9 @@
   </url>
   <url>
     <loc>/reference/pathwaysResults.html</loc>
+  </url>
+  <url>
+    <loc>/reference/simulateExampleData.html</loc>
   </url>
   <url>
     <loc>/reference/utils-SummarizedExperiment.html</loc>

@@ -112,58 +112,40 @@ Refer to the documentation for each method for more details on the remaining arg
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"org.Hs.eg.db"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: AnnotationDbi</span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ctlab/fgsea/" class="external-link">"fgsea"</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">"SummarizedExperiment"</a></span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ctlab/fgsea/" class="external-link">"fgsea"</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">##</span></span></span>
-<span class="r-in"><span><span class="co"># Prepare pathways</span></span></span>
+<span class="r-in"><span><span class="co"># Simulate example data</span></span></span>
 <span class="r-in"><span><span class="co">##</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/AnnotationDb-class.html" class="external-link">select</a></span><span class="op">(</span><span class="va">org.Hs.eg.db</span>, <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/AnnotationDb-class.html" class="external-link">keys</a></span><span class="op">(</span><span class="va">org.Hs.eg.db</span>, <span class="st">"SYMBOL"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GOALL"</span><span class="op">)</span>, keytype <span class="op">=</span> <span class="st">"SYMBOL"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'select()' returned 1:many mapping between keys and columns</span>
-<span class="r-in"><span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">pathways</span>, <span class="va">ONTOLOGYALL</span> <span class="op">==</span> <span class="st">"BP"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SYMBOL"</span>, <span class="st">"GOALL"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">$</span><span class="va">SYMBOL</span>, <span class="va">pathways</span><span class="op">$</span><span class="va">GOALL</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">simulated_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulateExampleData.html">simulateExampleData</a></span><span class="op">(</span>n_pathways <span class="op">=</span> <span class="fl">5</span>, n_features <span class="op">=</span> <span class="fl">100</span>, pathway_sizes <span class="op">=</span> <span class="fl">15</span><span class="op">:</span><span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">##</span></span></span>
-<span class="r-in"><span><span class="co"># Prepare gene statistics</span></span></span>
-<span class="r-in"><span><span class="co">##</span></span></span>
-<span class="r-in"><span><span class="va">gene_symbols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">gene_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">gene_symbols</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gene_stats</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">gene_symbols</span></span></span>
+<span class="r-in"><span><span class="va">pathways_list</span> <span class="op">&lt;-</span> <span class="va">simulated_data</span><span class="op">$</span><span class="va">pathwaysList</span></span></span>
+<span class="r-in"><span><span class="va">features_stats</span> <span class="op">&lt;-</span> <span class="va">simulated_data</span><span class="op">$</span><span class="va">featuresStat</span></span></span>
+<span class="r-in"><span><span class="va">se</span> <span class="op">&lt;-</span> <span class="va">simulated_data</span><span class="op">$</span><span class="va">summarizedexperiment</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">##</span></span></span>
 <span class="r-in"><span><span class="co"># Run pathway analysis ----</span></span></span>
 <span class="r-in"><span><span class="co">##</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fgseaRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/fgsea/man/fgsea.html" class="external-link">fgsea</a></span><span class="op">(</span>pathways <span class="op">=</span> <span class="va">pathways</span>,</span></span>
-<span class="r-in"><span>                  stats    <span class="op">=</span> <span class="va">gene_stats</span>,</span></span>
+<span class="r-in"><span><span class="va">fgseaRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/fgsea/man/fgsea.html" class="external-link">fgsea</a></span><span class="op">(</span>pathways <span class="op">=</span> <span class="va">pathways_list</span>,</span></span>
+<span class="r-in"><span>                  stats    <span class="op">=</span> <span class="va">features_stats</span>,</span></span>
 <span class="r-in"><span>                  minSize  <span class="op">=</span> <span class="fl">15</span>,</span></span>
 <span class="r-in"><span>                  maxSize  <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">fgseaRes</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">pval</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       pathway         pval      padj   log2err         ES       NES size</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: GO:1902410 6.599405e-05 0.2984150 0.5384341  0.6312563  2.122435   24</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: GO:0001578 1.143791e-04 0.2984150 0.5384341  0.3803529  1.784655  123</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: GO:0031468 4.388735e-04 0.4346184 0.4984931  0.5877114  2.001651   25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: GO:1903170 4.911744e-04 0.4346184 0.4772708 -0.4537323 -1.853909   54</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5: GO:0061952 5.584567e-04 0.4346184 0.4772708  0.6548873  2.034907   18</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6: GO:0030322 5.858400e-04 0.4346184 0.4772708 -0.6523298 -1.970811   17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                     leadingEdge</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:    CEP55,NUP62,CHMP2A,ARF1,CHMP4C,CHMP1A,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: CEP131,DNAH8,CFAP69,NCKAP5,CCDC63,CC2D2A,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:   SIRT2,CHMP2A,REEP4,CHMP4C,CHMP1A,BANF1,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:       MIR208A,SLN,UBQLN1,EPO,NTSR1,OPRL1,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:   CEP55,CHMP2A,CHMP4C,CHMP1A,VPS4B,CHMP6,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:   KCNK13,KCNK3,KCNK18,KCNK9,KCNK1,KCNK15,...</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">##</span></span></span>
-<span class="r-in"><span><span class="co"># Simulate a SummarizedExperiment object</span></span></span>
-<span class="r-in"><span><span class="co">##</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      pathway      pval      padj    log2err         ES        NES size</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: pathway_1 0.1207430 0.6037152 0.22798720 -0.3490347 -1.2665429   82</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: pathway_3 0.6763926 0.8778409 0.07808923 -0.2900805 -0.8716798   15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: pathway_2 0.6802920 0.8778409 0.04889708  0.2488106  0.8686300   53</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: pathway_4 0.8075710 0.8778409 0.07788401 -0.2080141 -0.8073750   48</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5: pathway_5 0.8778409 0.8778409 0.03592087  0.2070929  0.7283728   57</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                              leadingEdge</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: feature_14,feature_24,feature_67,feature_84,feature_28,feature_35,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:                           feature_35,feature_75,feature_65,feature_46</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: feature_61,feature_70,feature_56,feature_55,feature_92,feature_93,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:                feature_14,feature_24,feature_67,feature_97,feature_75</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:  feature_61,feature_56,feature_4,feature_31,feature_83,feature_93,...</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">##</span></span></span>
 <span class="r-in"><span><span class="co"># iSEEfgseaResults ----</span></span></span>
@@ -171,15 +153,15 @@ Refer to the documentation for each method for more details on the remaining arg
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Embed the FGSEA results in the SummarizedExperiment object</span></span></span>
 <span class="r-in"><span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="utils-SummarizedExperiment.html">embedPathwaysResults</a></span><span class="op">(</span><span class="va">fgseaRes</span>, <span class="va">se</span>, name <span class="op">=</span> <span class="st">"fgsea"</span>, class <span class="op">=</span> <span class="st">"fgsea"</span>,</span></span>
-<span class="r-in"><span>  pathwayType <span class="op">=</span> <span class="st">"GO"</span>, pathwaysList <span class="op">=</span> <span class="va">pathways</span>, featuresStats <span class="op">=</span> <span class="va">gene_stats</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  pathwayType <span class="op">=</span> <span class="st">"simulated"</span>, pathwaysList <span class="op">=</span> <span class="va">pathways_list</span>, featuresStats <span class="op">=</span> <span class="va">features_stats</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">se</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class: SummarizedExperiment </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dim: 0 0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> dim: 100 8 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> metadata(1): iSEEpathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> assays(0):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> rownames: NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> assays(1): counts</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rownames(100): feature_1 feature_2 ... feature_99 feature_100</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> rowData names(0):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> colnames: NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> colnames(8): sample_1 sample_2 ... sample_7 sample_8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> colData names(0):</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">##</span></span></span>
@@ -190,71 +172,47 @@ Refer to the documentation for each method for more details on the remaining arg
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "fgsea"</span>
 <span class="r-in"><span><span class="fu"><a href="pathwaysResults.html">pathwaysResults</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $fgsea</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> iSEEfgseaResults with 5218 rows and 7 columns</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 pval      padj   log2err        ES       NES      size</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;integer&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000002  0.687898  1.000000 0.0659816  0.240615  0.863464        30</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000018  0.668737  1.000000 0.0661326  0.192601  0.917302       134</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000027  0.140449  0.881208 0.1608014 -0.370214 -1.272534        25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000028  0.077821  0.834332 0.2249661 -0.440668 -1.393772        19</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000038  0.122105  0.880116 0.1847065  0.349656  1.300379        35</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ...              ...       ...       ...       ...       ...       ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001257 0.0968992  0.860524 0.1999152 -0.256276 -1.237736       154</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001258 0.2197393  0.941755 0.1250334 -0.275806 -1.145440        59</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001259 0.0661626  0.832186 0.2413400 -0.310033 -1.301565        66</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001267 0.6294118  1.000000 0.0664364 -0.295362 -0.892345        17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001279 0.8920000  1.000000 0.0509083 -0.242359 -0.703232        15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                          leadingEdge</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                               &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000002   PRIMPOL,ENDOG,LONP1,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000018     ACTL6A,EP400,EPC1,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000027      MRM2,BOP1,RPL23A,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000028   RRP7BP,RPS27L,RRP7A,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000038 ELOVL5,CYP4F12,ELOVL3,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ...                              ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001257      MIR208A,DMD,EDN1,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001258    MIR208A,UBQLN1,EPO,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001259     EDN1,NTSR1,PPP3CA,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001267    HTRA2,LGALS9,TFAP4,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001279    PTGS2,PLA2G3,FABP5,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> iSEEfgseaResults with 5 rows and 7 columns</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                pval      padj   log2err        ES       NES      size</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;integer&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_1  0.120743  0.603715 0.2279872 -0.349035 -1.266543        82</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_2  0.680292  0.877841 0.0488971  0.248811  0.868630        53</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_3  0.676393  0.877841 0.0780892 -0.290080 -0.871680        15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_4  0.807571  0.877841 0.0778840 -0.208014 -0.807375        48</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_5  0.877841  0.877841 0.0359209  0.207093  0.728373        57</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                    leadingEdge</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                         &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_1 feature_14,feature_24,feature_67,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_2 feature_61,feature_70,feature_56,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_3 feature_35,feature_75,feature_65,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_4 feature_14,feature_24,feature_67,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_5  feature_61,feature_56,feature_4,...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="pathwaysResults.html">pathwaysResults</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"fgsea"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> iSEEfgseaResults with 5218 rows and 7 columns</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 pval      padj   log2err        ES       NES      size</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;integer&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000002  0.687898  1.000000 0.0659816  0.240615  0.863464        30</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000018  0.668737  1.000000 0.0661326  0.192601  0.917302       134</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000027  0.140449  0.881208 0.1608014 -0.370214 -1.272534        25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000028  0.077821  0.834332 0.2249661 -0.440668 -1.393772        19</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000038  0.122105  0.880116 0.1847065  0.349656  1.300379        35</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ...              ...       ...       ...       ...       ...       ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001257 0.0968992  0.860524 0.1999152 -0.256276 -1.237736       154</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001258 0.2197393  0.941755 0.1250334 -0.275806 -1.145440        59</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001259 0.0661626  0.832186 0.2413400 -0.310033 -1.301565        66</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001267 0.6294118  1.000000 0.0664364 -0.295362 -0.892345        17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001279 0.8920000  1.000000 0.0509083 -0.242359 -0.703232        15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                          leadingEdge</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                               &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000002   PRIMPOL,ENDOG,LONP1,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000018     ACTL6A,EP400,EPC1,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000027      MRM2,BOP1,RPL23A,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000028   RRP7BP,RPS27L,RRP7A,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000038 ELOVL5,CYP4F12,ELOVL3,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ...                              ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001257      MIR208A,DMD,EDN1,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001258    MIR208A,UBQLN1,EPO,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001259     EDN1,NTSR1,PPP3CA,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001267    HTRA2,LGALS9,TFAP4,...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:2001279    PTGS2,PLA2G3,FABP5,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> iSEEfgseaResults with 5 rows and 7 columns</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                pval      padj   log2err        ES       NES      size</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;integer&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_1  0.120743  0.603715 0.2279872 -0.349035 -1.266543        82</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_2  0.680292  0.877841 0.0488971  0.248811  0.868630        53</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_3  0.676393  0.877841 0.0780892 -0.290080 -0.871680        15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_4  0.807571  0.877841 0.0778840 -0.208014 -0.807375        48</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_5  0.877841  0.877841 0.0359209  0.207093  0.728373        57</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                    leadingEdge</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                         &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_1 feature_14,feature_24,feature_67,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_2 feature_61,feature_70,feature_56,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_3 feature_35,feature_75,feature_65,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_4 feature_14,feature_24,feature_67,...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_5  feature_61,feature_56,feature_4,...</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="pathway-generics.html">pathwayType</a></span><span class="op">(</span><span class="fu"><a href="pathwaysResults.html">pathwaysResults</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"fgsea"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GO"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "simulated"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lengths.html" class="external-link">lengths</a></span><span class="op">(</span><span class="fu"><a href="pathway-generics.html">pathwaysList</a></span><span class="op">(</span><span class="fu"><a href="pathwaysResults.html">pathwaysResults</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"fgsea"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0000002 GO:0000003 GO:0000012 GO:0000017 GO:0000018 GO:0000019 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         30       1506         12          2        134          7 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pathway_1 pathway_2 pathway_3 pathway_4 pathway_5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        82        53        15        48        57 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="pathway-generics.html">featuresStats</a></span><span class="op">(</span><span class="fu"><a href="pathwaysResults.html">pathwaysResults</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"fgsea"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       PARP1     SLC25A4        DNA2        TYMP       ENDOG        LIG3 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.05707239  0.70615619 -0.07111189 -0.83350069  1.84873957 -1.29495865 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  feature_1  feature_2  feature_3  feature_4  feature_5  feature_6 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6264538  0.1836433 -0.8356286  1.5952808  0.3295078 -0.8204684 </span>
 </code></pre></div>
     </div>
   </div>

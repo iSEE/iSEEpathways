@@ -93,7 +93,7 @@ Rue-Albrecht</h4>
 Oxford<br><a class="author_email" href="mailto:#"></a><a href="mailto:kevin.rue-albrecht@imm.ox.ac.uk" class="email">kevin.rue-albrecht@imm.ox.ac.uk</a>
       </address>
                   
-            <h4 data-toc-skip class="date">1 September 2023</h4>
+            <h4 data-toc-skip class="date">4 September 2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/iSEE/iSEEpathways/blob/HEAD/vignettes/integration.Rmd" class="external-link"><code>vignettes/integration.Rmd</code></a></small>
       <div class="hidden name"><code>integration.Rmd</code></div>
@@ -106,14 +106,21 @@ Oxford<br><a class="author_email" href="mailto:#"></a><a href="mailto:kevin.rue-
 <h2 id="scenario">Scenario<a class="anchor" aria-label="anchor" href="#scenario"></a>
 </h2>
 <p>In this vignette, we use the example of a differential expression and
-pathway analysis workflow to demonstrate how a selection made in a panel
-of pathway analysis results may be transmitted to other row-oriented
-panels in the <em><a href="https://bioconductor.org/packages/3.18/iSEE" class="external-link">iSEE</a></em>
+pathway analysis workflow on a real data set to demonstrate how a
+selection made in a panel of pathway analysis results may be transmitted
+to other row-oriented panels in the <em><a href="https://bioconductor.org/packages/3.18/iSEE" class="external-link">iSEE</a></em>
 application.</p>
 </div>
 <div class="section level2">
-<h2 id="example-data">Example data<a class="anchor" aria-label="anchor" href="#example-data"></a>
+<h2 id="demonstration">Demonstration<a class="anchor" aria-label="anchor" href="#demonstration"></a>
 </h2>
+<div class="section level3">
+<h3 id="example-data">Example data<a class="anchor" aria-label="anchor" href="#example-data"></a>
+</h3>
+</div>
+<div class="section level3">
+<h3 id="experimental-metadata">Experimental metadata<a class="anchor" aria-label="anchor" href="#experimental-metadata"></a>
+</h3>
 <p>We use the <code><a href="https://rdrr.io/pkg/airway/man/airway.html" class="external-link">?airway</a></code> data set.</p>
 <p>We briefly adjust the reference level of the treatment factor to the
 untreated condition.</p>
@@ -121,9 +128,18 @@ untreated condition.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"airway"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"airway"</span><span class="op">)</span></span>
 <span><span class="va">airway</span><span class="op">$</span><span class="va">dex</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/relevel.html" class="external-link">relevel</a></span><span class="op">(</span><span class="va">airway</span><span class="op">$</span><span class="va">dex</span>, <span class="st">"untrt"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="feature-identifiers">Feature identifiers<a class="anchor" aria-label="anchor" href="#feature-identifiers"></a>
+</h3>
 <p>We also map the Ensembl gene identifiers to more recognisable gene
 symbols, setting row names to a unique identifier composed of either
 gene symbol, gene identifier, of a concatenate of both.</p>
+<p>Although not essential, this implicitly defines the primary piece of
+information displayed for genes in the live app. No information is lost
+in the process, as the original Ensembl identifier and the corresponding
+gene symbol are both stored in the <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData()</a></code> of the
+object.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"org.Hs.eg.db"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="http://bioconductor.org/packages/scater/" class="external-link">"scater"</a></span><span class="op">)</span></span>
@@ -134,12 +150,19 @@ gene symbol, gene identifier, of a concatenate of both.</p>
 <span>  names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">airway</span><span class="op">)</span><span class="op">[[</span><span class="st">"SYMBOL"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">airway</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">airway</span><span class="op">)</span><span class="op">[[</span><span class="st">"uniquifyFeatureNames"</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
-<p>We also compute log-counts for better visualisation of differential
-expression in the <em><a href="https://bioconductor.org/packages/3.18/iSEE" class="external-link">iSEE</a></em>
-app.</p>
+</div>
+<div class="section level3">
+<h3 id="gene-expression">Gene expression<a class="anchor" aria-label="anchor" href="#gene-expression"></a>
+</h3>
+<p>We also compute log-transformed counts, for a better visualisation of
+differential expression in the live app.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"scuttle"</span><span class="op">)</span></span>
 <span><span class="va">airway</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/scuttle/man/logNormCounts.html" class="external-link">logNormCounts</a></span><span class="op">(</span><span class="va">airway</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="differential-expression-analysis">Differential expression analysis<a class="anchor" aria-label="anchor" href="#differential-expression-analysis"></a>
+</h3>
 <p>We run a standard Limma-Voom analysis using
 <code><a href="https://rdrr.io/pkg/limma/man/voom.html" class="external-link">limma::voom()</a></code>, <code><a href="https://rdrr.io/pkg/limma/man/lmFit.html" class="external-link">limma::lmFit()</a></code>,
 <code><a href="https://rdrr.io/pkg/limma/man/makeContrasts.html" class="external-link">limma::makeContrasts()</a></code>, and
@@ -226,6 +249,10 @@ app.</p>
 <span><span class="co">#&gt; ENSG00000273491      ENSG00000273491 &lt;iSEELimmaResults&gt;</span></span>
 <span><span class="co">#&gt; ENSG00000273492      ENSG00000273492 &lt;iSEELimmaResults&gt;</span></span>
 <span><span class="co">#&gt; ENSG00000273493      ENSG00000273493 &lt;iSEELimmaResults&gt;</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="pathways">Pathways<a class="anchor" aria-label="anchor" href="#pathways"></a>
+</h3>
 <p>We prepare Gene Ontology gene sets of biological pathways using
 <em><a href="https://bioconductor.org/packages/3.18/org.Hs.eg.db" class="external-link">org.Hs.eg.db</a></em>.</p>
 <p>Due to the use of <code><a href="https://rdrr.io/pkg/scuttle/man/uniquifyFeatureNames.html" class="external-link">uniquifyFeatureNames()</a></code> above, we must
@@ -240,6 +267,10 @@ matching those of the embedded differential expression results.</p>
 <span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ENSEMBL"</span>, <span class="st">"GOALL"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">pathways</span>, <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">airway</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ENSEMBL"</span>, <span class="st">"uniquifyFeatureNames"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">pathways</span><span class="op">$</span><span class="va">uniquifyFeatureNames</span>, <span class="va">pathways</span><span class="op">$</span><span class="va">GOALL</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="mapping-pathways-to-genes">Mapping pathways to genes<a class="anchor" aria-label="anchor" href="#mapping-pathways-to-genes"></a>
+</h3>
 <p>Separately, we define and register a function that fetches the gene
 identifiers associated with a given pathway identifier. This function is
 required to transmit selections from pathway-level panels to
@@ -255,6 +286,10 @@ accurately identify the corresponding value in
 <span>    <span class="va">pathway_rownames</span></span>
 <span><span class="op">}</span></span>
 <span><span class="va">airway</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/registerAppOptions.html" class="external-link">registerAppOptions</a></span><span class="op">(</span><span class="va">airway</span>, Pathways.map.functions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>GO <span class="op">=</span> <span class="va">map_GO</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="gene-set-enrichment-analysis">Gene set enrichment analysis<a class="anchor" aria-label="anchor" href="#gene-set-enrichment-analysis"></a>
+</h3>
 <p>We run a standard GSEA analysis using <em><a href="https://bioconductor.org/packages/3.18/fgsea" class="external-link">fgsea</a></em>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ctlab/fgsea/" class="external-link">"fgsea"</a></span><span class="op">)</span></span>
@@ -302,7 +337,7 @@ the live app.</p>
 <span><span class="co">#&gt; rowData names(14): gene_id gene_name ... uniquifyFeatureNames iSEEde</span></span>
 <span><span class="co">#&gt; colnames(8): SRR1039508 SRR1039509 ... SRR1039520 SRR1039521</span></span>
 <span><span class="co">#&gt; colData names(9): SampleName cell ... Sample BioSample</span></span></code></pre></div>
-<p>To showcase a choice of pathway analysis results in the live ap, we
+<p>To showcase a choice of pathway analysis results in the live app, we
 repeat the process above, this time sorting by a different score that
 combines the log-transformed p-value and the absolute log-transformed
 fold-change.</p>
@@ -329,6 +364,10 @@ fold-change.</p>
 <span><span class="co">#&gt; rowData names(14): gene_id gene_name ... uniquifyFeatureNames iSEEde</span></span>
 <span><span class="co">#&gt; colnames(8): SRR1039508 SRR1039509 ... SRR1039520 SRR1039521</span></span>
 <span><span class="co">#&gt; colData names(9): SampleName cell ... Sample BioSample</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="displaying-additional-pathway-information">Displaying additional pathway information<a class="anchor" aria-label="anchor" href="#displaying-additional-pathway-information"></a>
+</h3>
 <p>For further user-friendliness in the live app, we define and register
 a function that displays details for the selected Gene Ontology gene set
 using the <em><a href="https://bioconductor.org/packages/3.18/GO.db" class="external-link">GO.db</a></em>
@@ -352,6 +391,10 @@ package.</p>
 <span>    <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/tagList.html" class="external-link">tagList</a></span><span class="op">(</span><span class="va">html</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="va">airway</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/registerAppOptions.html" class="external-link">registerAppOptions</a></span><span class="op">(</span><span class="va">airway</span>, PathwaysTable.select.details <span class="op">=</span> <span class="va">go_details</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="live-app">Live app<a class="anchor" aria-label="anchor" href="#live-app"></a>
+</h3>
 <p>Finally, we configure the initial state and launch the live app.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/iSEE/man/iSEE.html" class="external-link">iSEE</a></span><span class="op">(</span><span class="va">airway</span>, initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -369,22 +412,25 @@ package.</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="screenshots/integration.png" width="100%"></p>
 </div>
+</div>
 <div class="section level2">
 <h2 id="speed-mapping">Trading off memory usage for speed<a class="anchor" aria-label="anchor" href="#speed-mapping"></a>
 </h2>
-<p>The function <code>map_GO()</code> that we defined earlier to map a
-pathway identifier to a set of gene identifiers uses the <em><a href="https://bioconductor.org/packages/3.18/org.Hs.eg.db" class="external-link">org.Hs.eg.db</a></em>
+<p>The function <code>map_GO()</code> that we defined earlier above – to
+map a pathway identifier to a set of gene identifiers – uses the <em><a href="https://bioconductor.org/packages/3.18/org.Hs.eg.db" class="external-link">org.Hs.eg.db</a></em>
 package and the <code>?AnnotationDbi::select()</code> function.</p>
 <p>While memory-efficient, the repeated calls to the database of gene
 annotations introduce a bottleneck that limits the reactivity of the
 app.</p>
-<p>We can restore the speed of the app rendering by trading off an
+<p>We can improve the speed of the app rendering by trading off an
 increased memory usage. Specifically, we can use the object
 <code>pathways</code> that we created earlier as a named list of pathway
 identifiers and character vectors of gene identifiers associated with
 each pathway, instead of querying the <code>GO.db</code> database.</p>
 <p>First, for the app to be self-contained, the list of pathways should
-be stored within the <code>airway</code> object itself.</p>
+be stored within the <code>airway</code> object itself. For instance, we
+store those in the <code><a href="https://pkgs.rstudio.com/rmarkdown/reference/metadata.html" class="external-link">metadata()</a></code> of the <code>airway</code>
+object.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/metadata.html" class="external-link">metadata</a></span><span class="op">(</span><span class="va">airway</span><span class="op">)</span><span class="op">[[</span><span class="st">"pathways"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>GO <span class="op">=</span> <span class="va">pathways</span><span class="op">)</span></span></code></pre></div>
 <p>Then, we can write a new, faster, function that fetches gene
@@ -462,9 +508,9 @@ Cheng, Chang, and Iannone, 2023)</li>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://yihui.org/knitr/" class="external-link">"knitr"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/knit.html" class="external-link">knit</a></span><span class="op">(</span><span class="st">"integration.Rmd"</span>, tangle <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Date the vignette was generated.</p>
-<pre><code><span><span class="co">#&gt; [1] "2023-09-01 18:32:48 UTC"</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; [1] "2023-09-04 11:05:53 UTC"</span></span></code></pre>
 <p>Wallclock time spent generating the vignette.</p>
-<pre><code><span><span class="co">#&gt; Time difference of 1.809 mins</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; Time difference of 1.766 mins</span></span></code></pre>
 <p><code>R</code> session information.</p>
 <pre><code><span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt;  <span style="color: #555555; font-style: italic;">setting </span> <span style="color: #555555; font-style: italic;">value</span></span></span>
@@ -476,7 +522,7 @@ Cheng, Chang, and Iannone, 2023)</li>
 <span><span class="co">#&gt;  collate  en_US.UTF-8</span></span>
 <span><span class="co">#&gt;  ctype    en_US.UTF-8</span></span>
 <span><span class="co">#&gt;  tz       UTC</span></span>
-<span><span class="co">#&gt;  date     2023-09-01</span></span>
+<span><span class="co">#&gt;  date     2023-09-04</span></span>
 <span><span class="co">#&gt;  pandoc   3.1.1 @ /usr/local/bin/ (via rmarkdown)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span></span>
@@ -521,7 +567,7 @@ Cheng, Chang, and Iannone, 2023)</li>
 <span><span class="co">#&gt;  DESeq2                 1.41.8    <span style="color: #555555;">2023-08-20</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">#&gt;  digest                 0.6.33    <span style="color: #555555;">2023-07-07</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  doParallel             1.0.17    <span style="color: #555555;">2022-02-07</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
-<span><span class="co">#&gt;  dplyr                  1.1.2     <span style="color: #555555;">2023-04-20</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
+<span><span class="co">#&gt;  dplyr                  1.1.3     <span style="color: #555555;">2023-09-03</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  DT                     0.29      <span style="color: #555555;">2023-08-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  edgeR                * 3.43.8    <span style="color: #555555;">2023-08-02</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">#&gt;  ellipsis               0.3.2     <span style="color: #555555;">2021-04-29</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
@@ -556,7 +602,7 @@ Cheng, Chang, and Iannone, 2023)</li>
 <span><span class="co">#&gt;  irlba                  2.3.5.1   <span style="color: #555555;">2022-10-03</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  iSEE                 * 2.13.5    <span style="color: #555555;">2023-07-23</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">#&gt;  iSEEde               * 0.99.0    <span style="color: #555555;">2023-09-01</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">Github (iSEE/iSEEde@dc2eb18)</span></span></span>
-<span><span class="co">#&gt;  iSEEpathways         * 0.99.0    <span style="color: #555555;">2023-09-01</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  iSEEpathways         * 0.99.0    <span style="color: #555555;">2023-09-04</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">#&gt;  iterators              1.0.14    <span style="color: #555555;">2022-02-05</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  jquerylib              0.1.4     <span style="color: #555555;">2021-04-26</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  jsonlite               1.8.7     <span style="color: #555555;">2023-06-29</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>

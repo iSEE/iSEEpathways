@@ -93,7 +93,7 @@ Rue-Albrecht</h4>
 Oxford<br><a class="author_email" href="mailto:#"></a><a href="mailto:kevin.rue-albrecht@imm.ox.ac.uk" class="email">kevin.rue-albrecht@imm.ox.ac.uk</a>
       </address>
                   
-            <h4 data-toc-skip class="date">1 September 2023</h4>
+            <h4 data-toc-skip class="date">4 September 2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/iSEE/iSEEpathways/blob/HEAD/vignettes/gene-ontology.Rmd" class="external-link"><code>vignettes/gene-ontology.Rmd</code></a></small>
       <div class="hidden name"><code>gene-ontology.Rmd</code></div>
@@ -105,19 +105,26 @@ Oxford<br><a class="author_email" href="mailto:#"></a><a href="mailto:kevin.rue-
 <div class="section level2">
 <h2 id="scenario">Scenario<a class="anchor" aria-label="anchor" href="#scenario"></a>
 </h2>
-<p>In this vignette, we use the example of a simulated pathway analysis
-workflow to demonstrate how one may work with Gene Ontology biological
-pathways.</p>
-<p>In particular, we use the package <em><a href="https://bioconductor.org/packages/3.18/org.Hs.eg.db" class="external-link">org.Hs.eg.db</a></em>
-to fetch gene sets, and we define a custom function to display
-information given the identifier of the pathway currently selected in a
-panel.</p>
+<p>In this vignette, we demonstrate how one may use the package <em><a href="https://bioconductor.org/packages/3.18/GO.db" class="external-link">GO.db</a></em> to
+dynamically display additional information about selected pathways in
+the interactive user interface.</p>
 </div>
 <div class="section level2">
-<h2 id="example-data">Example data<a class="anchor" aria-label="anchor" href="#example-data"></a>
+<h2 id="demonstration">Demonstration<a class="anchor" aria-label="anchor" href="#demonstration"></a>
 </h2>
+<div class="section level3">
+<h3 id="example-data">Example data<a class="anchor" aria-label="anchor" href="#example-data"></a>
+</h3>
 <p>First, we generate pathway analysis results for simulated data using
 <em><a href="https://bioconductor.org/packages/3.18/fgsea" class="external-link">fgsea</a></em>.</p>
+<p>In particular, we use the package <em><a href="https://bioconductor.org/packages/3.18/org.Hs.eg.db" class="external-link">org.Hs.eg.db</a></em>
+to fetch real gene sets. To reduce memory footprint, we retain only the
+gene sets associated with 15 to 500 genes.</p>
+<p>Then, we simulate a score for each of the gene present in any of
+those remaining gene sets. In practice, that score could be the
+log<sub>2</sub> fold-change of the gene in a differential expression
+analysis (among other possibilities).</p>
+<p>Finally, we perform an FGSEA on the simulated data.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"org.Hs.eg.db"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ctlab/fgsea/" class="external-link">"fgsea"</a></span><span class="op">)</span></span>
@@ -168,7 +175,7 @@ panel.</p>
 <p>Then, we embed the <em><a href="https://bioconductor.org/packages/3.18/fgsea" class="external-link">fgsea</a></em>
 results in a <em><a href="https://bioconductor.org/packages/3.18/SummarizedExperiment" class="external-link">SummarizedExperiment</a></em>
 object.</p>
-<p>In this case, we first create an empty
+<p>In this case, we create an empty
 <code>?SummarizedExperiment-class</code> object, without any simulated
 count data nor metadata, as we will not be using any of those data in
 this example.</p>
@@ -183,14 +190,17 @@ the live app.</p>
 <span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">fgseaRes</span> <span class="op">&lt;-</span> <span class="va">fgseaRes</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">pval</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/utils-SummarizedExperiment.html">embedPathwaysResults</a></span><span class="op">(</span><span class="va">fgseaRes</span>, <span class="va">se</span>, name <span class="op">=</span> <span class="st">"fgsea"</span>, class <span class="op">=</span> <span class="st">"fgsea"</span>, pathwayType <span class="op">=</span> <span class="st">"GO"</span><span class="op">)</span></span></code></pre></div>
+</div>
 <div class="section level3">
 <h3 id="pathway-information">Pathway information<a class="anchor" aria-label="anchor" href="#pathway-information"></a>
 </h3>
-<p>We also configure configure the app option
-<code>PathwaysTable.select.details</code> to define a function that
-displays information about the currently selected GO term.</p>
+<p>In this example, we configure the app option
+<code>PathwaysTable.select.details</code> to define a function that,
+given the identifier of the GO term currently selected in a panel,
+displays information about that GO term.</p>
 <p>Although not essential, this is a user-friendly and immediate way to
-translate database identifiers into a human-friendly description.</p>
+‘translate’ machine-friendly database identifiers into human-friendly
+descriptions.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/iSEE/iSEE" class="external-link">"iSEE"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"GO.db"</span><span class="op">)</span></span>
@@ -259,9 +269,9 @@ Cheng, Chang, and Iannone, 2023)</li>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://yihui.org/knitr/" class="external-link">"knitr"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/knit.html" class="external-link">knit</a></span><span class="op">(</span><span class="st">"gene-ontology.Rmd"</span>, tangle <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Date the vignette was generated.</p>
-<pre><code><span><span class="co">#&gt; [1] "2023-09-01 18:29:46 UTC"</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; [1] "2023-09-04 11:03:34 UTC"</span></span></code></pre>
 <p>Wallclock time spent generating the vignette.</p>
-<pre><code><span><span class="co">#&gt; Time difference of 56.271 secs</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; Time difference of 56.193 secs</span></span></code></pre>
 <p><code>R</code> session information.</p>
 <pre><code><span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt;  <span style="color: #555555; font-style: italic;">setting </span> <span style="color: #555555; font-style: italic;">value</span></span></span>
@@ -273,7 +283,7 @@ Cheng, Chang, and Iannone, 2023)</li>
 <span><span class="co">#&gt;  collate  en_US.UTF-8</span></span>
 <span><span class="co">#&gt;  ctype    en_US.UTF-8</span></span>
 <span><span class="co">#&gt;  tz       UTC</span></span>
-<span><span class="co">#&gt;  date     2023-09-01</span></span>
+<span><span class="co">#&gt;  date     2023-09-04</span></span>
 <span><span class="co">#&gt;  pandoc   3.1.1 @ /usr/local/bin/ (via rmarkdown)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span></span>
@@ -311,7 +321,7 @@ Cheng, Chang, and Iannone, 2023)</li>
 <span><span class="co">#&gt;  desc                   1.4.2     <span style="color: #555555;">2022-09-08</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  digest                 0.6.33    <span style="color: #555555;">2023-07-07</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  doParallel             1.0.17    <span style="color: #555555;">2022-02-07</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
-<span><span class="co">#&gt;  dplyr                  1.1.2     <span style="color: #555555;">2023-04-20</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
+<span><span class="co">#&gt;  dplyr                  1.1.3     <span style="color: #555555;">2023-09-03</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  DT                     0.29      <span style="color: #555555;">2023-08-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  ellipsis               0.3.2     <span style="color: #555555;">2021-04-29</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  evaluate               0.21      <span style="color: #555555;">2023-05-05</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
@@ -341,7 +351,7 @@ Cheng, Chang, and Iannone, 2023)</li>
 <span><span class="co">#&gt;  igraph                 1.5.1     <span style="color: #555555;">2023-08-10</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  IRanges              * 2.35.2    <span style="color: #555555;">2023-06-22</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">#&gt;  iSEE                 * 2.13.5    <span style="color: #555555;">2023-07-23</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
-<span><span class="co">#&gt;  iSEEpathways         * 0.99.0    <span style="color: #555555;">2023-09-01</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  iSEEpathways         * 0.99.0    <span style="color: #555555;">2023-09-04</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">#&gt;  iterators              1.0.14    <span style="color: #555555;">2022-02-05</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  jquerylib              0.1.4     <span style="color: #555555;">2021-04-26</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>
 <span><span class="co">#&gt;  jsonlite               1.8.7     <span style="color: #555555;">2023-06-29</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.3.1)</span></span></span>

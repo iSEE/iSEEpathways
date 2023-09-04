@@ -93,36 +93,22 @@ citation("iSEEpathways")
 
 ```{r "start", message=FALSE, warning=FALSE}
 library("iSEEpathways")
-library("org.Hs.eg.db")
 library("fgsea")
 library("iSEE")
 
 # Example data ----
 
-## Pathways
-pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "SYMBOL"), c("GOALL"), keytype = "SYMBOL")
-pathways <- subset(pathways, ONTOLOGYALL == "BP")
-pathways <- unique(pathways[, c("SYMBOL", "GOALL")])
-pathways <- split(pathways$SYMBOL, pathways$GOALL)
-len_pathways <- lengths(pathways)
-pathways <- pathways[len_pathways > 15 & len_pathways < 500]
+simulated_data <- simulateExampleData()
 
-## Features
-set.seed(1)
-# simulate a score for all genes found across all pathways
-feature_stats <- rnorm(length(unique(unlist(pathways))))
-names(feature_stats) <- unique(unlist(pathways))
-# arbitrarily select a pathway to simulate enrichment
-pathway_id <- "GO:0046324"
-pathway_genes <- pathways[[pathway_id]]
-# increase score of genes in the selected pathway to simulate enrichment
-feature_stats[pathway_genes] <- feature_stats[pathway_genes] + 1
+pathways_list <- simulated_data[["pathwaysList"]]
+features_stat <- simulated_data[["featuresStat"]]
+se <- simulated_data[["summarizedexperiment"]]
 
 # fgsea ----
 
 set.seed(42)
-fgseaRes <- fgsea(pathways = pathways, 
-                  stats    = feature_stats,
+fgseaRes <- fgsea(pathways = pathways_list, 
+                  stats    = features_stat,
                   minSize  = 15,
                   maxSize  = 500)
 fgseaRes <- fgseaRes[order(pval), ]
@@ -130,17 +116,12 @@ head(fgseaRes)
 
 # iSEE ---
 
-ngenes <- length(feature_stats)
-cnts <- matrix(rnbinom(n=ngenes*2, mu=100, size=1/0.5), nrow=ngenes)
-rownames(cnts) <- names(feature_stats)
-se <- SummarizedExperiment(assay = list(counts = cnts))
-
-se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO",
-                           pathwaysList = pathways, featuresStats = feature_stats)
+se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "simulated",
+                           pathwaysList = pathways_list, featuresStats = features_stat)
 
 app <- iSEE(se, initial = list(
-  PathwaysTable(ResultName="fgsea", Selected = "GO:0046324", PanelWidth = 6L),
-  FgseaEnrichmentPlot(ResultName="fgsea", PathwayId = "GO:0046324", PanelWidth = 6L)
+  PathwaysTable(ResultName="fgsea", Selected = "pathway_3363 ", PanelWidth = 6L),
+  FgseaEnrichmentPlot(ResultName="fgsea", PathwayId = "pathway_3363", PanelWidth = 6L)
 ))
 
 if (interactive()) {

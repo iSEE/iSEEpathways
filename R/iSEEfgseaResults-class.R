@@ -89,42 +89,28 @@ setValidity2("iSEEpathwaysResults", function(.Object) {
 #' pathwayType,iSEEfgseaResults-method
 #'
 #' @examples
-#' library("org.Hs.eg.db")
 #' library("fgsea")
-#' library("SummarizedExperiment")
 #'
 #' ##
-#' # Prepare pathways
+#' # Simulate example data
 #' ##
 #'
-#' pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "SYMBOL"), c("GOALL"), keytype = "SYMBOL")
-#' pathways <- subset(pathways, ONTOLOGYALL == "BP")
-#' pathways <- unique(pathways[, c("SYMBOL", "GOALL")])
-#' pathways <- split(pathways$SYMBOL, pathways$GOALL)
+#' simulated_data <- simulateExampleData(n_pathways = 5, n_features = 100, pathway_sizes = 15:100)
 #'
-#' ##
-#' # Prepare gene statistics
-#' ##
-#' gene_symbols <- unique(unlist(pathways))
-#' gene_stats <- rnorm(length(gene_symbols))
-#' names(gene_stats) <- gene_symbols
+#' pathways_list <- simulated_data$pathwaysList
+#' features_stats <- simulated_data$featuresStat
+#' se <- simulated_data$summarizedexperiment
 #'
 #' ##
 #' # Run pathway analysis ----
 #' ##
 #'
 #' set.seed(42)
-#' fgseaRes <- fgsea(pathways = pathways,
-#'                   stats    = gene_stats,
+#' fgseaRes <- fgsea(pathways = pathways_list,
+#'                   stats    = features_stats,
 #'                   minSize  = 15,
 #'                   maxSize  = 500)
 #' head(fgseaRes[order(pval), ])
-#'
-#' ##
-#' # Simulate a SummarizedExperiment object
-#' ##
-#'
-#' se <- SummarizedExperiment()
 #'
 #' ##
 #' # iSEEfgseaResults ----
@@ -132,7 +118,7 @@ setValidity2("iSEEpathwaysResults", function(.Object) {
 #'
 #' # Embed the FGSEA results in the SummarizedExperiment object
 #' se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea",
-#'   pathwayType = "GO", pathwaysList = pathways, featuresStats = gene_stats)
+#'   pathwayType = "simulated", pathwaysList = pathways_list, featuresStats = features_stats)
 #' se
 #'
 #' ##
@@ -155,7 +141,7 @@ setClass("iSEEfgseaResults", contains = "iSEEpathwaysResults")
 #' @importFrom S4Vectors DataFrame
 iSEEfgseaResults <- function(data, pathwayType, pathwaysList = NULL, featuresStats = NULL) {
     data <- as(data, "DataFrame")
-    # TODO: throw error if column 'pathway' not found
+    stopifnot("pathway" %in% colnames(data))
     rownames(data) <- data$pathway
     data$pathway <- NULL
     metadata <- list(

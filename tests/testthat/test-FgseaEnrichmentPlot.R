@@ -39,7 +39,7 @@ test_that(".cacheCommonInfo works in the absence of results", {
 test_that(".cacheCommonInfo works in the presence of results", {
   x <- FgseaEnrichmentPlot()
   se <- SummarizedExperiment()
-  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = pathways_list, featuresStats = gene_stats)
+  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = setup_data$pathwaysList, featuresStats = setup_data$featuresStat)
 
   out <- .cacheCommonInfo(x, se)
 
@@ -66,7 +66,7 @@ test_that(".refineParameters works as expected", {
 
   x <- FgseaEnrichmentPlot()
   se <- SummarizedExperiment()
-  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = pathways_list, featuresStats = gene_stats)
+  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = setup_data$pathwaysList, featuresStats = setup_data$featuresStat)
   se <- .cacheCommonInfo(x, se)
 
   out <- .refineParameters(x, se)
@@ -108,7 +108,7 @@ test_that(".renderOutput populates output with the expected named objects", {
 test_that(".generateOutput works with valid choices in the absence of brush", {
   x <- FgseaEnrichmentPlot()
   se <- SummarizedExperiment()
-  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = pathways_list, featuresStats = gene_stats)
+  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = setup_data$pathwaysList, featuresStats = setup_data$featuresStat)
   se <- .cacheCommonInfo(x, se)
   x <- .refineParameters(x, se)
   x[["PathwayId"]] <- ""
@@ -121,7 +121,7 @@ test_that(".generateOutput works with valid choices in the absence of brush", {
 test_that(".generateOutput works with valid choices in the absence of brush", {
   x <- FgseaEnrichmentPlot()
   se <- SummarizedExperiment()
-  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = pathways_list, featuresStats = gene_stats)
+  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = setup_data$pathwaysList, featuresStats = setup_data$featuresStat)
   se <- .cacheCommonInfo(x, se)
   x <- .refineParameters(x, se)
 
@@ -142,7 +142,7 @@ test_that(".generateOutput works with valid choices in the absence of brush", {
 test_that(".generateOutput works with valid choices in the presence of brush", {
   x <- FgseaEnrichmentPlot(BrushData = list(xmin=1, xmax=25, ymin=-0.25, ymax=0.25))
   se <- SummarizedExperiment()
-  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = pathways_list, featuresStats = gene_stats)
+  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = setup_data$pathwaysList, featuresStats = setup_data$featuresStat)
   se <- .cacheCommonInfo(x, se)
   x <- .refineParameters(x, se)
 

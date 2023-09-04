@@ -54,9 +54,13 @@ bib <- c(
 
 # Scenario
 
-In this vignette, we use the example of a differential expression and pathway analysis workflow to demonstrate how a selection made in a panel of pathway analysis results may be transmitted to other row-oriented panels in the `r BiocStyle::Biocpkg("iSEE")` application.
+In this vignette, we use the example of a differential expression and pathway analysis workflow on a real data set to demonstrate how a selection made in a panel of pathway analysis results may be transmitted to other row-oriented panels in the `r BiocStyle::Biocpkg("iSEE")` application.
 
-# Example data
+# Demonstration
+
+## Example data
+
+## Experimental metadata
 
 We use the `?airway` data set.
 
@@ -68,7 +72,12 @@ data("airway")
 airway$dex <- relevel(airway$dex, "untrt")
 ```
 
+## Feature identifiers
+
 We also map the Ensembl gene identifiers to more recognisable gene symbols, setting row names to a unique identifier composed of either gene symbol, gene identifier, of a concatenate of both.
+
+Although not essential, this implicitly defines the primary piece of information displayed for genes in the live app.
+No information is lost in the process, as the original Ensembl identifier and the corresponding gene symbol are both stored in the `rowData()` of the object.
 
 ```{r, message=FALSE, warning=FALSE}
 library("org.Hs.eg.db")
@@ -82,12 +91,16 @@ rowData(airway)[["uniquifyFeatureNames"]] <- uniquifyFeatureNames(
 rownames(airway) <- rowData(airway)[["uniquifyFeatureNames"]]
 ```
 
-We also compute log-counts for better visualisation of differential expression in the `r BiocStyle::Biocpkg("iSEE")` app.
+## Gene expression
+
+We also compute log-transformed counts, for a better visualisation of differential expression in the live app.
 
 ```{r}
 library("scuttle")
 airway <- logNormCounts(airway)
 ```
+
+## Differential expression analysis
 
 We run a standard Limma-Voom analysis using `limma::voom()`, `limma::lmFit()`, `limma::makeContrasts()`, and `limma::eBayes()`.
 
@@ -115,6 +128,8 @@ airway <- iSEEde::embedContrastResults(res_limma, airway, name = "Limma-Voom", c
 rowData(airway)
 ```
 
+## Pathways
+
 We prepare Gene Ontology gene sets of biological pathways using `r BiocStyle::Biocpkg("org.Hs.eg.db")`.
 
 Due to the use of `uniquifyFeatureNames()` above, we must first map pathway identifiers to the unique Ensembl gene identifier, to accurately perform pathway analysis using the feature identifiers matching those of the embedded differential expression results.
@@ -127,6 +142,8 @@ pathways <- unique(pathways[, c("ENSEMBL", "GOALL")])
 pathways <- merge(pathways, rowData(airway)[, c("ENSEMBL", "uniquifyFeatureNames")])
 pathways <- split(pathways$uniquifyFeatureNames, pathways$GOALL)
 ```
+
+## Mapping pathways to genes
 
 Separately, we define and register a function that fetches the gene identifiers associated with a given pathway identifier.
 This function is required to transmit selections from pathway-level panels to feature-level panels.
@@ -141,6 +158,8 @@ map_GO <- function(pathway_id, se) {
 }
 airway <- registerAppOptions(airway, Pathways.map.functions = list(GO = map_GO))
 ```
+
+## Gene set enrichment analysis
 
 We run a standard GSEA analysis using `r BiocStyle::Biocpkg("fgsea")`.
 
@@ -169,7 +188,7 @@ airway <- embedPathwaysResults(
 airway
 ```
 
-To showcase a choice of pathway analysis results in the live ap, we repeat the process above, this time sorting by a different score that combines the log-transformed p-value and the absolute log-transformed fold-change.
+To showcase a choice of pathway analysis results in the live app, we repeat the process above, this time sorting by a different score that combines the log-transformed p-value and the absolute log-transformed fold-change.
 
 ```{r, warning=FALSE}
 stats <- na.omit(
@@ -188,6 +207,7 @@ airway <- embedPathwaysResults(
 airway
 ```
 
+## Displaying additional pathway information
 
 For further user-friendliness in the live app, we define and register a function that displays details for the selected Gene Ontology gene set using the `r BiocStyle::Biocpkg("GO.db")` package.
 
@@ -205,6 +225,8 @@ go_details <- function(x) {
 }
 airway <- registerAppOptions(airway, PathwaysTable.select.details = go_details)
 ```
+
+## Live app
 
 Finally, we configure the initial state and launch the live app.
 
@@ -231,14 +253,15 @@ SCREENSHOT("screenshots/integration.png", delay=30)
 
 # Trading off memory usage for speed {#speed-mapping}
 
-The function `map_GO()` that we defined earlier to map a pathway identifier to a set of gene identifiers uses the `r BiocStyle::Biocpkg("org.Hs.eg.db")` package and the `?AnnotationDbi::select()` function.
+The function `map_GO()` that we defined earlier above -- to map a pathway identifier to a set of gene identifiers -- uses the `r BiocStyle::Biocpkg("org.Hs.eg.db")` package and the `?AnnotationDbi::select()` function.
 
 While memory-efficient, the repeated calls to the database of gene annotations introduce a bottleneck that limits the reactivity of the app.
 
-We can restore the speed of the app rendering by trading off an increased memory usage.
+We can improve the speed of the app rendering by trading off an increased memory usage.
 Specifically, we can use the object `pathways` that we created earlier as a named list of pathway identifiers and character vectors of gene identifiers associated with each pathway, instead of querying the `GO.db` database.
 
 First, for the app to be self-contained, the list of pathways should be stored within the `airway` object itself.
+For instance, we store those in the `metadata()` of the `airway` object.
 
 ```{r}
 metadata(airway)[["pathways"]] <- list(GO = pathways)

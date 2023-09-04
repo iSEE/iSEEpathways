@@ -87,50 +87,35 @@ pathwaysResultsNames <- function(object){
 #' @export
 #'
 #' @examples
-#' #' library("iSEEpathways")
-#' library("org.Hs.eg.db")
 #' library("fgsea")
-#' library("iSEE")
 #'
-#' # Example data ----
+#' ##
+#' # Simulate example data
+#' ##
 #'
-#' ## Pathways
-#' pathways <- select(org.Hs.eg.db, keys(org.Hs.eg.db, "SYMBOL"), c("GOALL"), keytype = "SYMBOL")
-#' pathways <- subset(pathways, ONTOLOGYALL == "BP")
-#' pathways <- unique(pathways[, c("SYMBOL", "GOALL")])
-#' pathways <- split(pathways$SYMBOL, pathways$GOALL)
-#' len_pathways <- lengths(pathways)
-#' pathways <- pathways[len_pathways > 15 & len_pathways < 500]
+#' simulated_data <- simulateExampleData(n_pathways = 5, n_features = 100, pathway_sizes = 15:100)
 #'
-#' ## Features
-#' set.seed(1)
-#' # simulate a score for all genes found across all pathways
-#' feature_stats <- rnorm(length(unique(unlist(pathways))))
-#' names(feature_stats) <- unique(unlist(pathways))
-#' # arbitrarily select a pathway to simulate enrichment
-#' pathway_id <- "GO:0046324"
-#' pathway_genes <- pathways[[pathway_id]]
-#' # increase score of genes in the selected pathway to simulate enrichment
-#' feature_stats[pathway_genes] <- feature_stats[pathway_genes] + 1
+#' pathways_list <- simulated_data$pathwaysList
+#' features_stats <- simulated_data$featuresStat
+#' se <- simulated_data$summarizedexperiment
 #'
-#' # fgsea ----
+#' ##
+#' # Run pathway analysis ----
+#' ##
 #'
 #' set.seed(42)
-#' fgseaRes <- fgsea(pathways = pathways,
-#'   stats    = feature_stats,
+#' fgseaRes <- fgsea(pathways = pathways_list,
+#'   stats    = features_stats,
 #'   minSize  = 15,
 #'   maxSize  = 500)
 #' head(fgseaRes[order(pval), ])
 #'
-#' # iSEE ---
-#'
-#' ngenes <- length(feature_stats)
-#' cnts <- matrix(rnbinom(n=ngenes*2, mu=100, size=1/0.5), nrow=ngenes)
-#' rownames(cnts) <- names(feature_stats)
-#' se <- SummarizedExperiment(assay = list(counts = cnts))
+#' ##
+#' # iSEEfgseaResults ----
+#' ##
 #'
 #' se <- embedPathwaysResults(fgseaRes, se, name = "fgsea", class = "fgsea", pathwayType = "GO",
-#'   pathwaysList = pathways, featuresStats = feature_stats)
+#'   pathwaysList = pathways_list, featuresStats = features_stats)
 #'
 #' ##
 #' # List result names ---

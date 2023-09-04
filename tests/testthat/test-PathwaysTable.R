@@ -37,7 +37,7 @@ test_that(".cacheCommonInfo works in the absence of results", {
 test_that(".cacheCommonInfo works in the presence of results", {
   x <- PathwaysTable()
   se <- SummarizedExperiment()
-  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = pathways_list, featuresStats = gene_stats)
+  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = setup_data$pathwaysList, featuresStats = setup_data$featuresStat)
 
   out <- .cacheCommonInfo(x, se)
 
@@ -64,7 +64,7 @@ test_that(".refineParameters works as expected", {
 
   x <- PathwaysTable()
   se <- SummarizedExperiment()
-  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = pathways_list, featuresStats = gene_stats)
+  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = setup_data$pathwaysList, featuresStats = setup_data$featuresStat)
   se <- .cacheCommonInfo(x, se)
 
   out <- .refineParameters(x, se)
@@ -76,7 +76,7 @@ test_that(".refineParameters works as expected", {
 test_that(".generateTable populates the evaluation environment and returns the commands", {
   x <- PathwaysTable()
   se <- SummarizedExperiment()
-  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = pathways_list, featuresStats = gene_stats)
+  se <- embedPathwaysResults(fgsea_result, se, name = "fgsea", class = "fgsea", pathwayType = "demo", pathwaysList = setup_data$pathwaysList, featuresStats = setup_data$featuresStat)
   se <- .cacheCommonInfo(x, se)
   x <- .refineParameters(x, se)
   envir <- new.env()

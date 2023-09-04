@@ -309,7 +309,7 @@ setMethod(".createObservers", "FgseaEnrichmentPlot", function(x, se, input, sess
     pathwayId_choices <- rownames(pathwaysResults(se, slot(x, .resultName)))
     pathwayId_selected <- ifelse(matched_input_pathwayId %in% pathwayId_choices, matched_input_pathwayId, pathwayId_choices[1])
     # Update the choices of pathwayId, including when initialised
-    updateSelectizeInput(session, .input_FUN(.pathwayId), choices = pathwayId_choices, selected = pathwayId_selected, server = TRUE)
+    updateSelectizeInput(session, .input_FUN(.pathwayId), choices = sort(pathwayId_choices), selected = pathwayId_selected, server = TRUE)
   }, ignoreNULL = TRUE, ignoreInit = TRUE)
   #nocov end
 

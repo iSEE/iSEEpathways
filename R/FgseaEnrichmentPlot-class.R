@@ -183,7 +183,8 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, all_memory,
     sprintf('.pathways <- pathwaysList(pathwaysResults(se, %s))', dQuote(result_name, FALSE)),
     sprintf('.stats <- featuresStats(pathwaysResults(se, %s))', dQuote(result_name, FALSE))
   ), collapse = "\n")
-  plot_cmds <- sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats)', dQuote(pathway_id, FALSE))
+  plot_cmds <- sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats) + labs(title=%s)', 
+                       dQuote(pathway_id, FALSE), dQuote(pathway_id, FALSE))
   if (!is.null(.multiSelectionActive(x))) {
     brush_src <- sprintf("all_active[['%s']]", plot_name)
     brush_data <- sprintf("%s[c('xmin', 'xmax', 'ymin', 'ymax')]", brush_src)

@@ -165,7 +165,7 @@ setMethod(".renderOutput", "FgseaEnrichmentPlot", function (x, se, output, pObje
 #' @export
 #' @importMethodsFrom iSEE .generateOutput
 #' @importFrom iSEE .getEncodedName .getPanelColor .multiSelectionActive .textEval
-#' @importFrom ggplot2 aes geom_rect
+#' @importFrom ggplot2 aes geom_rect labs
 setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, all_memory, all_contents) {
   pathway_id <- x[[.pathwayId]]
   if (identical(pathway_id, "")) {

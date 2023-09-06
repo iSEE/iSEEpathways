@@ -9,6 +9,10 @@ Authors@R:
     person("Thomas", "Sandmann", email = "tomsing1@gmail.com",
              role = c("ctb"),
              comment = c(ORCID = "0000-0002-6601-8890")),
+    person("Charlotte", "Soneson", role="aut", email="charlottesoneson@gmail.com",
+             comment = c(ORCID = '0000-0003-3833-2169')),
+    person("Federico", "Marini", role="ctb", email="marinif@uni-mainz.de",
+             comment = c(ORCID = '0000-0003-3252-7758')),
     person("Denali Therapeutics", role = c("fnd")))
 Description: This package contains diverse functionality to extend the usage
     of the iSEE package, including additional classes for the panels or modes

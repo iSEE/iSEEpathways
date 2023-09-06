@@ -165,7 +165,7 @@ setMethod(".renderOutput", "FgseaEnrichmentPlot", function (x, se, output, pObje
 #' @export
 #' @importMethodsFrom iSEE .generateOutput
 #' @importFrom iSEE .getEncodedName .getPanelColor .multiSelectionActive .textEval
-#' @importFrom ggplot2 aes geom_rect
+#' @importFrom ggplot2 aes geom_rect labs
 setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, all_memory, all_contents) {
   pathway_id <- x[[.pathwayId]]
   if (identical(pathway_id, "")) {
@@ -183,7 +183,8 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, all_memory,
     sprintf('.pathways <- pathwaysList(pathwaysResults(se, %s))', dQuote(result_name, FALSE)),
     sprintf('.stats <- featuresStats(pathwaysResults(se, %s))', dQuote(result_name, FALSE))
   ), collapse = "\n")
-  plot_cmds <- sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats)', dQuote(pathway_id, FALSE))
+  plot_cmds <- sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats) + labs(title=%s)', 
+                       dQuote(pathway_id, FALSE), dQuote(pathway_id, FALSE))
   if (!is.null(.multiSelectionActive(x))) {
     brush_src <- sprintf("all_active[['%s']]", plot_name)
     brush_data <- sprintf("%s[c('xmin', 'xmax', 'ymin', 'ymax')]", brush_src)

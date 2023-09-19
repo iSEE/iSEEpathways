@@ -1,7 +1,7 @@
 Package: iSEEpathways
 Title: iSEE extension for panels related to pathway analysis
-Version: 0.99.0
-Date: 2023-09-06
+Version: 0.99.1
+Date: 2023-09-19
 Authors@R: 
     c(person("Kevin", "Rue-Albrecht", email = "kevinrue67@gmail.com",
              role = c("aut", "cre"),

@@ -45,6 +45,7 @@ Imports:
     S4Vectors,
     shiny,
     shinyWidgets,
+    stats,
     SummarizedExperiment
 Suggests:
     airway,

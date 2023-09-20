@@ -8,8 +8,7 @@ simulateExampleData(
   n_pathways = 5000,
   n_features = 15000,
   n_samples = 8,
-  pathway_sizes = 15:500,
-  seed = 1
+  pathway_sizes = 15:500
 )
 }
 \arguments{
@@ -20,8 +19,6 @@ simulateExampleData(
 \item{n_samples}{integer scalar, number of samples to simulate.}
 
 \item{pathway_sizes}{integer vector, possible sizes of pathway to sample from.}
-
-\item{seed}{a single value, passed to \code{\link[=set.seed]{set.seed()}}.}
 }
 \value{
 A list of three elements:
@@ -55,6 +52,7 @@ and the set of features in the list of pathways,
 so that panels in the app can transmit and interpret that shared piece of information.
 }
 \examples{
+set.seed(1)
 simulated_data <- simulateExampleData()
 head(lengths(simulated_data$pathwaysList))
 head(simulated_data$featuresStat)

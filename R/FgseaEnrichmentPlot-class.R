@@ -179,11 +179,11 @@ setMethod(".generateOutput", "FgseaEnrichmentPlot", function (x, se, all_memory,
   all_cmds <- list()
   # Doing this first so all_active is available in the environment
   iSEE:::.populate_selection_environment(x, plot_env)
-  all_cmds$pre_cmds = paste0(c(
+  all_cmds$pre_cmds <- paste0(c(
     sprintf('.pathways <- pathwaysList(pathwaysResults(se, %s))', dQuote(result_name, FALSE)),
     sprintf('.stats <- featuresStats(pathwaysResults(se, %s))', dQuote(result_name, FALSE))
   ), collapse = "\n")
-  plot_cmds <- sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats) + labs(title=%s)', 
+  plot_cmds <- sprintf('fgsea_plot <- fgsea::plotEnrichment(.pathways[[%s]], .stats) + labs(title=%s)',
                        dQuote(pathway_id, FALSE), dQuote(pathway_id, FALSE))
   if (!is.null(.multiSelectionActive(x))) {
     brush_src <- sprintf("all_active[['%s']]", plot_name)

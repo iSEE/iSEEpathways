@@ -18,6 +18,9 @@
 \alias{.refineParameters,PathwaysTable-method}
 \alias{.showSelectionDetails,PathwaysTable-method}
 \title{The PathwaysTable class}
+\value{
+\code{PathwaysTable()} returns an object of class \code{PathwaysTable}.
+}
 \description{
 The \code{PathwaysTable} is a \linkS4class{Panel} where each row represents a set of features (i.e., rows).
 Selections in this panel can be transmitted to other row-oriented panels.

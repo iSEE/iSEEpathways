@@ -7,18 +7,16 @@
 \alias{pathwayType}
 \alias{pathwaysList}
 \title{Generics for Pathway Analysis Results}
+\value{
+\code{pathwayType(x)} returns a character scalar indicating the type of pathways analysed.
+
+\code{pathwaysList(x)} returns the named list of pathways used in the analysis, or \code{NULL}.
+
+\code{featuresStats(x)} returns the named numeric vector of feature-level statistics used in the analysis, or \code{NULL}.
+}
 \description{
 An overview of the generics for accessing common pieces of information in pathway analysis results.
 }
-\section{Definitions}{
-
-\itemize{
-\item \code{pathwayType(x)} returns a character scalar indicating the type of pathways analysed.
-\item \code{pathwaysList(x)} returns the named list of pathways used in the analysis, or \code{NULL}.
-\item \code{featuresStats(x)} returns the named numeric vector of feature-level statistics used in the analysis, or \code{NULL}.
-}
-}
-
 \examples{
 showMethods(pathwayType)
 showMethods(pathwaysList)

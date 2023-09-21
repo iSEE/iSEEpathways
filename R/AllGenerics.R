@@ -2,12 +2,12 @@
 #'
 #' An overview of the generics for accessing common pieces of information in pathway analysis results.
 #'
-#' @section Definitions:
-#' \itemize{
-#' \item `pathwayType(x)` returns a character scalar indicating the type of pathways analysed.
-#' \item `pathwaysList(x)` returns the named list of pathways used in the analysis, or `NULL`.
-#' \item `featuresStats(x)` returns the named numeric vector of feature-level statistics used in the analysis, or `NULL`.
-#' }
+#' @return
+#' `pathwayType(x)` returns a character scalar indicating the type of pathways analysed.
+#'
+#' `pathwaysList(x)` returns the named list of pathways used in the analysis, or `NULL`.
+#'
+#' `featuresStats(x)` returns the named numeric vector of feature-level statistics used in the analysis, or `NULL`.
 #'
 #' @docType methods
 #' @aliases featuresStats pathwayType pathwaysList

@@ -12,6 +12,8 @@
 #' Defaults to an empty list, i.e., no brush or lasso.
 #' }
 #'
+#' @return `FgseaEnrichmentPlot()` returns an object of class `FgseaEnrichmentPlot`.
+#'
 #' In addition, this class inherits all slots from its parent [Panel-class] class.
 #'
 #' @docType methods

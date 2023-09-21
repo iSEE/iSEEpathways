@@ -5,7 +5,7 @@
 #' @section Slot overview:
 #' This class inherits all its slots directly from its parent class `DataFrame`.
 #'
-#' @section Supported methods:
+#' @return
 #' In the following code snippets, \code{x} is an instance of a [`iSEEpathwaysResults-class`] class.
 #' Refer to the documentation for each method for more details on the remaining arguments.
 #'
@@ -54,6 +54,8 @@ setValidity2("iSEEpathwaysResults", function(.Object) {
 #'
 #' The `iSEEfgseaResults` class is used to provide an common interface to pathway analysis results produced by the \pkg{fgsea} package.
 #' It provides methods to access the set of features in each pathway.
+#'
+#' @return `iSEEfgseaResults()` returns an object of class `iSEEfgseaResults`.
 #'
 #' @section Slot overview:
 #' This class inherits all its slots directly from its parent class `iSEEpathwaysResults`.

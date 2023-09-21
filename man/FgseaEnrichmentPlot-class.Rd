@@ -21,6 +21,11 @@
 \alias{.renderOutput,FgseaEnrichmentPlot-method}
 \alias{.showSelectionDetails,FgseaEnrichmentPlot-method}
 \title{The FgseaEnrichmentPlot class}
+\value{
+\code{FgseaEnrichmentPlot()} returns an object of class \code{FgseaEnrichmentPlot}.
+
+In addition, this class inherits all slots from its parent \linkS4class{Panel} class.
+}
 \description{
 The \code{FgseaEnrichmentPlot} is a \linkS4class{Panel} subclass where each row represents a set of features (i.e., rows).
 Selections in this panel can be transmitted to other row-oriented panels.
@@ -34,8 +39,6 @@ The following slots control the test procedure:
 \item \code{BrushData}, a list containing a Shiny brush along the x-axis (see \code{?brushedPoints}).
 Defaults to an empty list, i.e., no brush or lasso.
 }
-
-In addition, this class inherits all slots from its parent \linkS4class{Panel} class.
 }
 
 \examples{

@@ -22,7 +22,6 @@
 #' @param n_features integer scalar, number of features to simulate.
 #' @param n_samples integer scalar, number of samples to simulate.
 #' @param pathway_sizes integer vector, possible sizes of pathway to sample from.
-#' @param seed a single value, passed to [set.seed()].
 #'
 #' @return A list of three elements:
 #' \describe{
@@ -40,22 +39,20 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #'
 #' @examples
+#' set.seed(1)
 #' simulated_data <- simulateExampleData()
 #' head(lengths(simulated_data$pathwaysList))
 #' head(simulated_data$featuresStat)
-simulateExampleData <- function(n_pathways = 5E3, n_features = 15E3, n_samples = 8, pathway_sizes = 15:500, seed = 1) {
+simulateExampleData <- function(n_pathways = 5E3, n_features = 15E3, n_samples = 8, pathway_sizes = 15:500) {
   # identifiers
   feature_ids <- paste0("feature_", seq_len(n_features))
   pathway_ids <- paste0("pathway_", seq_len(n_pathways))
   sample_ids <- paste0("sample_", seq_len(n_samples))
   # pathways
-  set.seed(seed)
   pathway_lengths <- sample(pathway_sizes, length(pathway_ids), replace = TRUE)
   names(pathway_lengths) <- pathway_ids
-  set.seed(seed)
   pathways_list <- lapply(pathway_ids, function(x) { sample(feature_ids, pathway_lengths[[x]]) })
   names(pathways_list) <- pathway_ids
-  set.seed(seed)
   # features
   feature_stats <- rnorm(length(feature_ids))
   names(feature_stats) <- feature_ids

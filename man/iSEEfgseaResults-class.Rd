@@ -9,6 +9,9 @@
 \alias{pathwaysList,iSEEfgseaResults-method}
 \alias{pathwayType,iSEEfgseaResults-method}
 \title{The iSEEfgseaResults class}
+\value{
+\code{iSEEfgseaResults()} returns an object of class \code{iSEEfgseaResults}.
+}
 \description{
 The \code{iSEEfgseaResults} class is used to provide an common interface to pathway analysis results produced by the \pkg{fgsea} package.
 It provides methods to access the set of features in each pathway.

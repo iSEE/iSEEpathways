@@ -98,6 +98,7 @@ library("iSEE")
 
 # Example data ----
 
+set.seed(1)
 simulated_data <- simulateExampleData()
 
 pathways_list <- simulated_data[["pathwaysList"]]

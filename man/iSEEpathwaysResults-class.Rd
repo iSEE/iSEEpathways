@@ -6,22 +6,20 @@
 \alias{iSEEpathwaysResults}
 \alias{show,iSEEpathwaysResults-method}
 \title{The iSEEpathwaysResults class}
-\description{
-The iSEEpathwaysResults is a virtual class for storing a set of pathway analysis results.
-}
-\section{Slot overview}{
-
-This class inherits all its slots directly from its parent class \code{DataFrame}.
-}
-
-\section{Supported methods}{
-
+\value{
 In the following code snippets, \code{x} is an instance of a \code{\linkS4class{iSEEpathwaysResults}} class.
 Refer to the documentation for each method for more details on the remaining arguments.
 
 \itemize{
 \item \code{\link{pathwayType}(x)} returns the type of pathways stored in \code{x}.
 }
+}
+\description{
+The iSEEpathwaysResults is a virtual class for storing a set of pathway analysis results.
+}
+\section{Slot overview}{
+
+This class inherits all its slots directly from its parent class \code{DataFrame}.
 }
 
 \examples{

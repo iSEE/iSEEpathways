@@ -3,6 +3,8 @@
 #' The `PathwaysTable` is a \linkS4class{Panel} where each row represents a set of features (i.e., rows).
 #' Selections in this panel can be transmitted to other row-oriented panels.
 #'
+#' @return `PathwaysTable()` returns an object of class `PathwaysTable`.
+#'
 #' @section Slot overview:
 #' The following slots control the test procedure:
 #' \itemize{

@@ -1,3 +1,7 @@
+# iSEEpathways 1.3.1
+
+* Version bump to rebuild classes derived from `DotPlot`.
+
 # iSEEpathways 0.99.2
 
 MINOR UPDATES

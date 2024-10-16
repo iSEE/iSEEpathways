@@ -1,66 +1,24 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/CODE_OF_CONDUCT.html</loc>
-  </url>
-  <url>
-    <loc>/CONTRIBUTING.html</loc>
-  </url>
-  <url>
-    <loc>/SUPPORT.html</loc>
-  </url>
-  <url>
-    <loc>/articles/gene-ontology.html</loc>
-  </url>
-  <url>
-    <loc>/articles/iSEEpathways.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/integration.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/FgseaEnrichmentPlot-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/PathwaysTable-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/iSEEfgseaResults-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/iSEEpathways-pkg.html</loc>
-  </url>
-  <url>
-    <loc>/reference/iSEEpathwaysResults-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pathway-generics.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pathwaysResults.html</loc>
-  </url>
-  <url>
-    <loc>/reference/simulateExampleData.html</loc>
-  </url>
-  <url>
-    <loc>/reference/utils-SummarizedExperiment.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://isee.github.io/iSEEpathways/404.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/CONTRIBUTING.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/SUPPORT.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/articles/gene-ontology.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/articles/iSEEpathways.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/articles/index.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/articles/integration.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/authors.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/index.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/news/index.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/reference/FgseaEnrichmentPlot-class.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/reference/PathwaysTable-class.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/reference/iSEEfgseaResults-class.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/reference/iSEEpathways-pkg.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/reference/iSEEpathwaysResults-class.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/reference/index.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/reference/pathway-generics.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/reference/pathwaysResults.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/reference/simulateExampleData.html</loc></url>
+<url><loc>https://isee.github.io/iSEEpathways/reference/utils-SummarizedExperiment.html</loc></url>
 </urlset>
+
